@@ -46,6 +46,8 @@ tags:
   - name: Order Forms
   - name: Order Clients
   - name: Order Suppliers
+  - name: Related Collections
+    description: API for fetching multiple collections in a single request.
   - name: Experimental
     description: These APIs are experimental and and may be changed at any time without warning.
 servers:
@@ -426,6 +428,83 @@ paths:
       responses:
         '200':
           description: Delete successful
+  /default-account/v1/initialize-company:
+    post:
+      summary: Initialize company
+      description: |
+        Initialize default account for the company
+      tags:
+        - Sign up
+      requestBody:
+        description: Default account setup.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: Data of the default account setup form for initializing a new company.
+              properties:
+                registry-template-id:
+                  type: string
+                salary-integration-id:
+                  type: string
+                invoice-integration-id:
+                  type: string
+              required:
+                - registry-template
+                - salary-integration
+                - invoice-integration
+      responses:
+        '200':
+          description: Default account has been successfully initialized
+  /default-account/v1/integrations/invoice:
+    get:
+      summary: Invoice integrations
+      description: |
+        Get possible integrations options for default setup
+      tags:
+        - Sign up
+      responses:
+        '200':
+          description: An array of integration modules
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/IntegrationModule'
+  /default-account/v1/integrations/salary:
+    get:
+      summary: Salary integrations
+      description: |
+        Get possible integrations options for default setup
+      tags:
+        - Sign up
+      responses:
+        '200':
+          description: An array of integration modules
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/IntegrationModule'
+  /default-account/v1/registries-templates:
+    get:
+      summary: Registries templates
+      description: |
+        Get registries templates for default account
+      tags:
+        - Sign up
+      responses:
+        '200':
+          description: An array of registries templates
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RegistryTemplate'
   /domain-log/v1:
     get:
       summary: Fetch changes
@@ -1113,7 +1192,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-  '/orders/v2/clients/confirm/{supplierCode} copy':
+  '/orders/v2/clients/confirm/{supplierCode}':
     put:
       summary: Confirm client
       description: |
@@ -1742,6 +1821,71 @@ paths:
                 $ref: '#/components/schemas/Registry'
         '404':
           description: Registry not found
+  /related/v1/shifts:
+    get:
+      summary: Fetch shifts with related collections
+      description: |
+        Endpoint for fetching data from multiple collections related to shifts. Will fetch data in the specified interval along with orphaned* items.  
+
+        \* *An item not in the current interval, but related to a shift, timereport, or inquiry.*
+      parameters:
+        - $ref: '#/components/parameters/startParam'
+        - $ref: '#/components/parameters/endParam'
+        - $ref: '#/components/parameters/criteriaParam'
+        - name: inquiries
+          description: Specifies if data in the inquiries collection should be included in the response. Will fetch inquiries in the specified interval and include orphaned inquiries.
+          in: query
+          schema:
+            type: boolean
+            example: true
+            default: false
+        - name: timereports
+          description: Specifies if data in the timereports collection should be included in the response. Will fetch timereports in the specified interval and include orphaned timereports.
+          in: query
+          schema:
+            type: boolean
+            example: true
+            default: false
+        - name: approvals
+          description: Specifies if data in the approvals collection should be included in the response. Will fetch approvals related to the fetched timereports. Requires the timereport parameter to be set to true.
+          in: query
+          schema:
+            type: boolean
+            example: true
+            default: false
+        - name: availabilities
+          description: Specifies if data in the availabilities collection should be included in the response. Will fetch availabilities in the specified interval.
+          in: query
+          schema:
+            type: boolean
+            example: true
+            default: false
+      tags:
+        - Related Collections
+      responses:
+        '200':
+          description: Data from multiple collections
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  shifts:
+                    $ref: '#/components/schemas/Shift'
+                  timereports:
+                    $ref: '#/components/schemas/Timereport'
+                  approvals:
+                    $ref: '#/components/schemas/Approval'
+                  inquiries:
+                    $ref: '#/components/schemas/Inquiry'
+                  availabilities:
+                    $ref: '#/components/schemas/Availability'
+              example:
+                shifts: []
+                timereports: []
+                approvals: []
+                inquiries: []
+                availabilities: []
   '/rfqs/v1/bulk/rfqs/incoming/{incomingRfqId}/quoteshifts':
     post:
       summary: Create multiple quote shifts
@@ -3314,6 +3458,22 @@ paths:
           description: User not found
 components:
   schemas:
+    Approval:
+      allOf:
+        - $ref: '#/components/schemas/BasicObject'
+        - type: object
+          properties:
+            approved-id:
+              type: string
+              description: Id of the approved timereport
+              format: ObjectId
+            approved-vid:
+              type: string
+              description: Vid of the approved timereport
+              format: ObjectId
+          required:
+            - approved-id
+            - approved-vid
     Availability:
       allOf:
         - $ref: '#/components/schemas/BasicObject'
@@ -3661,6 +3821,108 @@ components:
       required:
         - id
         - type
+    Inquiry:
+      allOf:
+        - $ref: '#/components/schemas/BasicObject'
+        - type: object
+          properties:
+            shift-id:
+              type: string
+              description: Id of the inquiried shift
+              format: ObjectId
+            shift-vid:
+              type: string
+              description: Vid of the inquiried shift
+              format: ObjectId
+            status:
+              type: string
+              description: Status of the Inquiry
+              enum:
+                - open
+                - closed
+            response:
+              type: string
+              description: Inquiry response
+              enum:
+                - 'yes'
+                - 'no'
+            response-ts:
+              type: integer
+              description: Epoch timestamp indicating when response was provided for the inquiry
+              readOnly: true
+              example: 1589965908909
+            reason:
+              type: string
+              description: Reason for declining and inquiry
+            open-shift-response:
+              type: boolean
+              description: True if the inquiry was created through an open shift response
+              readOnly: true
+            seen:
+              type: integer
+              description: Epoch timestamp that indicdates when the inquiried user first saw the inquiry
+              example: 1589965922340
+            description:
+              type: string
+              description: Inquiry description
+            start:
+              type: string
+              format: local-date-time
+              pattern: '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(.\d{3})?$'
+              description: 'Start of inquiry without time zone (i.e. 2019-04-30T15:41:00.000)'
+            end:
+              type: string
+              format: local-date-time
+              pattern: '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(.\d{3})?$'
+              description: 'End of inquiry without time zone (i.e. 2019-04-30T15:41:00.000)'
+            breaks:
+              type: array
+              description: List of breaks
+              items:
+                $ref: '#/components/schemas/Break'
+            values:
+              type: object
+              description: Values for custom registry fields (from shift)
+            user-id:
+              type: string
+              description: Id of the inquiried user
+              format: ObjectId
+            blocked:
+              type: object
+              properties:
+                created:
+                  type: integer
+                  description: True if the inquiry was created through an open shift response
+                  example: 1589965922340
+                blocked-by:
+                  type: string
+                  description: Id of the user who blocked the inquiry
+                  format: ObjectId
+                reason:
+                  type: string
+                  description: Reason describing why the inquiry got blocked
+                  format: ObjectId
+          required:
+            - shift-id
+            - shift-vid
+            - start
+            - end
+            - user-id
+    IntegrationModule:
+      type: object
+      properties:
+        id:
+          type: string
+          description: ID for the integration
+        name:
+          type: string
+          description: Name of the integration
+        type:
+          type: string
+          description: Type of integration (salary/invoice)
+        image:
+          type: string
+          description: Link to the integration partner logo
     Invoice:
       allOf:
         - $ref: '#/components/schemas/BasicObject'
@@ -4458,6 +4720,20 @@ components:
           required:
             - title
             - registry-id
+    RegistryTemplate:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+          description: Template name
+        description:
+          type: string
+          description: Template description text
+        image:
+          type: string
+          description: Link to the template image
     Rfq:
       allOf:
         - $ref: '#/components/schemas/BasicObject'
@@ -4980,6 +5256,7 @@ components:
           - intersects
           - start-in
         default: start-in
+        example: start-in
     endParam:
       in: query
       name: 'interval[end]'
@@ -4988,6 +5265,7 @@ components:
       schema:
         type: string
         format: date
+        example: '2020-01-07'
     startParam:
       in: query
       name: 'interval[start]'
@@ -4996,6 +5274,7 @@ components:
       schema:
         type: string
         format: date
+        example: '2020-01-01'
   requestBodies:
     Registry:
       content:
