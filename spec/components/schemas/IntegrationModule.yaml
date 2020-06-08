@@ -1,6 +1,8 @@
 type: object
 properties:
-  id: string
+  id: 
+    type: string
+    description: Id of the integration
   name:
     type: string
     description: Name of the integration
