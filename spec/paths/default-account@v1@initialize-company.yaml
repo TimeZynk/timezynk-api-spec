@@ -19,6 +19,9 @@ post:
               type: string
             invoice-integration-id:
               type: string
+            user-data:
+              type: object
+              $ref: "#/components/schemas/SignupUserData"
           required:
             - registry-template
             - salary-integration

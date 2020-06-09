@@ -1,0 +1,12 @@
+type: object
+properties:
+  user-name:
+    type: string
+    description: Username
+  mobile:
+    type: string
+    description: Contact mobile phone
+  company:
+    type: string
+    description: Company name
+
