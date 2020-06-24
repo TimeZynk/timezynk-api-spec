@@ -750,9 +750,8 @@
                   }
                 },
                 "required": [
-                  "registry-template",
-                  "salary-integration",
-                  "invoice-integration"
+                  "registry-template-id",
+                  "salary-integration-id"
                 ]
               }
             }
@@ -1432,6 +1431,40 @@
         "responses": {
           "200": {
             "description": "Delete successful"
+          }
+        }
+      }
+    },
+    "/invoices/pending/{target}": {
+      "get": {
+        "summary": "Fetch pending invoices",
+        "description": "For given target, fetch all invoices whose latest linked invoice exports are pending.",
+        "parameters": [
+          {
+            "name": "target",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "tags": [
+          "Invoice"
+        ],
+        "responses": {
+          "200": {
+            "description": "Array of invoices",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Invoice"
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -7890,8 +7923,23 @@
     "securitySchemes": {
       "TZApiAuth": {
         "type": "oauth2",
+        "scheme": "bearer",
+        "name": "Authorization",
+        "in": "header",
+        "bearerFormat": "JWT",
         "description": "OAuth2 API authentication",
+        "openIdConnectUrl": "https://api.timezynk.com/api/oauth2/v1/userinfo",
         "flows": {
+          "password": {
+            "tokenUrl": "https://api.timezynk.com/api/oauth2/v1/token",
+            "scopes": {
+              "read:company": "Read all company information",
+              "write:company": "Write all company information",
+              "read:user": "Read all user information",
+              "write:user": "Write all user information",
+              "write:availability": "Create, update and delete availability for logged in user"
+            }
+          },
           "authorizationCode": {
             "authorizationUrl": "https://api.timezynk.com/api/oauth2/v1/auth",
             "tokenUrl": "https://api.timezynk.com/api/oauth2/v1/token",
