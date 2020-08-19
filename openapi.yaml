@@ -20,6 +20,8 @@ tags:
     description: Calls for setting up work hours schedules and employment contracts
   - name: Shift
     description: Calls for fetching and updating scheduled shifts.
+  - name: Shift Exchanges
+    description: Endpoints for exchanging shifts between users.
   - name: Time Reports
     description: Time reports are the actual worked time as reported by the user.
   - name: Registry
@@ -3295,6 +3297,173 @@ paths:
           description: Success
         '400':
           description: Retention limit is not a positive integer
+  /shift-exchanges:
+    get:
+      summary: Fetch shift exchanges for a user
+      tags:
+        - Shift Exchanges
+      responses:
+        '200':
+          description: Array of shifts.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ShiftExchange'
+    post:
+      summary: Create shift exchange
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ShiftExchange'
+        description: Shift exchange to be added.
+        required: true
+      tags:
+        - Shift Exchanges
+      responses:
+        '200':
+          description: Newly added shift exchange
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShiftExchange'
+        '400':
+          description: Validation failed
+  '/shift-exchanges/{shiftExchangeId}':
+    get:
+      summary: Fetch shift exchange
+      parameters:
+        - name: shiftExchangeId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: ObjectId
+      tags:
+        - Shift Exchanges
+      responses:
+        '200':
+          description: Shift exchange object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShiftExchange'
+        '404':
+          description: Shift exchange not found
+    put:
+      summary: Update shift exchange
+      description: |
+        A shift exchange with status OPEN or REJECTED can be edited.
+        A REJECTED exchange will be set to OPEN.
+      parameters:
+        - name: shiftExchangeId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: ObjectId
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ShiftExchange'
+        required: true
+      tags:
+        - Shift Exchanges
+      responses:
+        '200':
+          description: Updated shift exchange
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShiftExchange'
+        '400':
+          description: |
+            * Validation failed
+            * Cannot update shift exchange
+        '404':
+          description: Shift exchange not found
+    delete:
+      summary: Delete shift exchange
+      description: |
+        A shift exchange with status OPEN or REJECTED can be deleted.
+      parameters:
+        - name: shiftExchangeId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: ObjectId
+      tags:
+        - Shift Exchanges
+      responses:
+        '200':
+          description: Deleted shift exchange
+        '400':
+          description: |
+            * Validation failed
+            * Cannot delete shift exchange
+        '404':
+          description: Shift exchange not found
+  '/shift-exchanges/{shiftExchangeId}/accept':
+    put:
+      summary: Accept shift exchange
+      parameters:
+        - name: shiftExchangeId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: ObjectId
+      tags:
+        - Shift Exchanges
+      responses:
+        '200':
+          description: Accepted shift exchange
+        '400':
+          description: Validation failed
+        '404':
+          description: Exchange shift not found
+  '/shift-exchanges/{shiftExchangeId}/reject':
+    put:
+      summary: Reject shift exchange
+      parameters:
+        - name: shiftExchangeId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: ObjectId
+      tags:
+        - Shift Exchanges
+      responses:
+        '200':
+          description: Rejected shift exchange
+        '400':
+          description: Validation failed
+        '404':
+          description: Exchange shift not found
+  '/shift-exchanges/{shiftExchangeId}/send':
+    put:
+      summary: Send shift exchange
+      parameters:
+        - name: shiftExchangeId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: ObjectId
+      tags:
+        - Shift Exchanges
+      responses:
+        '200':
+          description: Sent shift exchange
+        '400':
+          description: Validation failed
+        '404':
+          description: Exchange shift not found
   /shifts:
     get:
       summary: Fetch planned shifts
@@ -3847,41 +4016,47 @@ components:
           description: Unique ID
           format: ObjectId
           readOnly: true
+          example: 5dde7024eded8872705aabcd
         vid:
           type: string
           description: Unique identifier representing a specific version of an item
           format: ObjectId
           readOnly: true
+          example: 5dde7024eded8872705aabce
         company-id:
           type: string
           description: Id of the company who owns this item.
           format: ObjectId
           readOnly: true
+          example: 5dde7024eded8872705aabcf
         created:
           type: number
           description: Timestamp in milliseconds for when the object was created
-          example: 1558604010307
           readOnly: true
+          example: 1558604010307
         created-by:
           type: string
           description: User ID the the user that created the object.
           readOnly: true
           format: ObjectId
+          example: 5dde7024eded8872705aabd0
         valid-from:
           type: number
           format: timestamp
           description: Timestamp in milliseconds for when the object was last changed
-          example: 1558604030403
           readOnly: true
+          example: 1558604030403
         valid-to:
           type: number
           format: timestamp
           readOnly: true
+          example: 1558604030455
         changed-by:
           type: string
           description: User ID the the user that last changed the object.
           readOnly: true
           format: ObjectId
+          example: 5dde7024eded8872705aabd1
         archived:
           type: integer
           description: 'Timestamp in milliseconds for when the object was archived, or null if it is still active'
@@ -5204,6 +5379,59 @@ components:
                 items:
                   type: string
                   format: ObjectId
+    ShiftExchange:
+      allOf:
+        - $ref: '#/components/schemas/BasicObject'
+        - type: object
+          properties:
+            sender-id:
+              type: string
+              format: ObjectId
+              description: ID of user who created exchange request.
+              readOnly: true
+              example: 5dde7024eded8872705aabd2
+            sender-shift-ids:
+              type: array
+              description: Array of shifts to be changed out.
+              items:
+                type: string
+                format: ObjectId
+              example:
+                - 5dde7024eded8872705aabd3
+            recipient-id:
+              type: string
+              format: ObjectId
+              description: ID of exchange request recipient.
+              example: 5dde7024eded8872705aabd4
+            recipient-shift-ids:
+              type: array
+              description: 'Array of shifts belonging to recipient, to be changed in.'
+              items:
+                type: string
+                format: ObjectId
+              example:
+                - 5dde7024eded8872705aabd5
+            status:
+              type: string
+              description: Echange status.
+              enum:
+                - OPEN
+                - SENT
+                - ACCEPTED
+                - REJECTED
+              default: OPEN
+              readOnly: true
+            comment:
+              type: string
+              nullable: true
+              description: Comments.
+              example: Rejection reasons.
+          required:
+            - sender-id
+            - sender-shift-ids
+            - recipient-id
+            - recipient-shift-ids
+            - status
     ShiftPublishRequest:
       type: object
       properties:
