@@ -5225,6 +5225,9 @@
           "400": {
             "description": "* Validation failed\n* Cannot update shift exchange\n"
           },
+          "401": {
+            "description": "Unauthorized"
+          },
           "404": {
             "description": "Shift exchange not found"
           }
@@ -5254,6 +5257,9 @@
           "400": {
             "description": "* Validation failed\n* Cannot delete shift exchange\n"
           },
+          "401": {
+            "description": "Unauthorized"
+          },
           "404": {
             "description": "Shift exchange not found"
           }
@@ -5282,7 +5288,10 @@
             "description": "Accepted shift exchange"
           },
           "400": {
-            "description": "Validation failed"
+            "description": "* Validation failed\n* Not SENT\n"
+          },
+          "401": {
+            "description": "Unauthorized"
           },
           "404": {
             "description": "Exchange shift not found"
@@ -5312,7 +5321,10 @@
             "description": "Rejected shift exchange"
           },
           "400": {
-            "description": "Validation failed"
+            "description": "* Validation failed\n* Not SENT\n"
+          },
+          "401": {
+            "description": "Unauthorized"
           },
           "404": {
             "description": "Exchange shift not found"
@@ -5342,7 +5354,10 @@
             "description": "Sent shift exchange"
           },
           "400": {
-            "description": "Validation failed"
+            "description": "* Validation failed\n* Not OPEN\n"
+          },
+          "401": {
+            "description": "Unauthorized"
           },
           "404": {
             "description": "Exchange shift not found"
@@ -8067,16 +8082,11 @@
                 "readOnly": true,
                 "example": "5dde7024eded8872705aabd2"
               },
-              "sender-shift-ids": {
-                "type": "array",
-                "description": "Array of shifts to be changed out.",
-                "items": {
-                  "type": "string",
-                  "format": "ObjectId"
-                },
-                "example": [
-                  "5dde7024eded8872705aabd3"
-                ]
+              "sender-shift-id": {
+                "type": "string",
+                "format": "ObjectId",
+                "description": "Shift to be changed out.",
+                "example": "5dde7024eded8872705aabd3"
               },
               "recipient-id": {
                 "type": "string",
@@ -8084,16 +8094,11 @@
                 "description": "ID of exchange request recipient.",
                 "example": "5dde7024eded8872705aabd4"
               },
-              "recipient-shift-ids": {
-                "type": "array",
-                "description": "Array of shifts belonging to recipient, to be changed in.",
-                "items": {
-                  "type": "string",
-                  "format": "ObjectId"
-                },
-                "example": [
-                  "5dde7024eded8872705aabd5"
-                ]
+              "recipient-shift-id": {
+                "type": "string",
+                "format": "ObjectId",
+                "description": "Shift belonging to recipient, to be changed in.",
+                "example": "5dde7024eded8872705aabd5"
               },
               "status": {
                 "type": "string",
@@ -8116,9 +8121,9 @@
             },
             "required": [
               "sender-id",
-              "sender-shift-ids",
+              "sender-shift-id",
               "recipient-id",
-              "recipient-shift-ids",
+              "recipient-shift-id",
               "status"
             ]
           }
