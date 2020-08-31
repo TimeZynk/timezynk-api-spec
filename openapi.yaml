@@ -1323,7 +1323,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-  '/orders/v2/clients/confirm/{supplierCode}':
+  '/orders/v2/clients/confirm/{clientCode}':
     put:
       summary: Confirm client
       description: |
@@ -1331,7 +1331,7 @@ paths:
       tags:
         - Order Clients
       parameters:
-        - name: supplierCode
+        - name: clientCode
           in: path
           required: true
           schema:
@@ -4854,9 +4854,9 @@ components:
         values:
           type: object
           description: Supplier specific values which can be inherited into an order if specified in the order form.
-        supplier-code:
+        client-code:
           type: string
-          description: 'The supplier code is used to invite new suppliers. The code can only be used once, and to be able the user as a client, the email is required to match the invited users email.'
+          description: 'The client code is used to invite new suppliers. The code can only be used once, and to be able the user as a supplier, the email is required to match the invited users email.'
       example:
         id: 5dde7024eded8872705aabcd
         vid: 5dde7024eded8872705aabce
@@ -4877,7 +4877,7 @@ components:
         order-forms:
           - 5dde7024eded8872705a0123
         values: {}
-        supplier-code: 5dde7024eded8872705aabd2
+        client-code: 5dde7024eded8872705aabd2
     OutgoingRfq:
       allOf:
         - $ref: '#/components/schemas/BasicObject'
