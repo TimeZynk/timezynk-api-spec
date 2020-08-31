@@ -3383,6 +3383,8 @@ paths:
           description: |
             * Validation failed
             * Cannot update shift exchange
+        '401':
+          description: Unauthorized
         '404':
           description: Shift exchange not found
     delete:
@@ -3405,6 +3407,8 @@ paths:
           description: |
             * Validation failed
             * Cannot delete shift exchange
+        '401':
+          description: Unauthorized
         '404':
           description: Shift exchange not found
   '/shift-exchanges/{shiftExchangeId}/accept':
@@ -3423,7 +3427,11 @@ paths:
         '200':
           description: Accepted shift exchange
         '400':
-          description: Validation failed
+          description: |
+            * Validation failed
+            * Not SENT
+        '401':
+          description: Unauthorized
         '404':
           description: Exchange shift not found
   '/shift-exchanges/{shiftExchangeId}/reject':
@@ -3442,7 +3450,11 @@ paths:
         '200':
           description: Rejected shift exchange
         '400':
-          description: Validation failed
+          description: |
+            * Validation failed
+            * Not SENT
+        '401':
+          description: Unauthorized
         '404':
           description: Exchange shift not found
   '/shift-exchanges/{shiftExchangeId}/send':
@@ -3461,7 +3473,11 @@ paths:
         '200':
           description: Sent shift exchange
         '400':
-          description: Validation failed
+          description: |
+            * Validation failed
+            * Not OPEN
+        '401':
+          description: Unauthorized
         '404':
           description: Exchange shift not found
   /shifts:
@@ -5387,30 +5403,23 @@ components:
             sender-id:
               type: string
               format: ObjectId
-              description: ID of user who created exchange request.
-              readOnly: true
+              description: ID of exchange request sender.
               example: 5dde7024eded8872705aabd2
-            sender-shift-ids:
-              type: array
-              description: Array of shifts to be changed out.
-              items:
-                type: string
-                format: ObjectId
-              example:
-                - 5dde7024eded8872705aabd3
+            sender-shift-id:
+              type: string
+              format: ObjectId
+              description: Shift to be changed out.
+              example: 5dde7024eded8872705aabd3
             recipient-id:
               type: string
               format: ObjectId
               description: ID of exchange request recipient.
               example: 5dde7024eded8872705aabd4
-            recipient-shift-ids:
-              type: array
-              description: 'Array of shifts belonging to recipient, to be changed in.'
-              items:
-                type: string
-                format: ObjectId
-              example:
-                - 5dde7024eded8872705aabd5
+            recipient-shift-id:
+              type: string
+              format: ObjectId
+              description: 'Shift belonging to recipient, to be changed in.'
+              example: 5dde7024eded8872705aabd5
             status:
               type: string
               description: Echange status.
@@ -5428,9 +5437,9 @@ components:
               example: Rejection reasons.
           required:
             - sender-id
-            - sender-shift-ids
+            - sender-shift-id
             - recipient-id
-            - recipient-shift-ids
+            - recipient-shift-id
             - status
     ShiftPublishRequest:
       type: object
