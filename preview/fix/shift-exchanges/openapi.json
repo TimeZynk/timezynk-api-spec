@@ -2108,7 +2108,7 @@
         }
       }
     },
-    "/orders/v2/clients/confirm/{supplierCode}": {
+    "/orders/v2/clients/confirm/{clientCode}": {
       "put": {
         "summary": "Confirm client",
         "description": "The Confirm Client endpoint allows a user to confirm a supplier invitation from a client.\n",
@@ -2117,7 +2117,7 @@
         ],
         "parameters": [
           {
-            "name": "supplierCode",
+            "name": "clientCode",
             "in": "path",
             "required": true,
             "schema": {
@@ -5183,87 +5183,6 @@
             "description": "Shift exchange not found"
           }
         }
-      },
-      "put": {
-        "summary": "Update shift exchange",
-        "description": "A shift exchange with status OPEN or REJECTED can be edited.\nA REJECTED exchange will be set to OPEN.\n",
-        "parameters": [
-          {
-            "name": "shiftExchangeId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "ObjectId"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ShiftExchange"
-              }
-            }
-          },
-          "required": true
-        },
-        "tags": [
-          "Shift Exchanges"
-        ],
-        "responses": {
-          "200": {
-            "description": "Updated shift exchange",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ShiftExchange"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "* Validation failed\n* Cannot update shift exchange\n"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Shift exchange not found"
-          }
-        }
-      },
-      "delete": {
-        "summary": "Delete shift exchange",
-        "description": "A shift exchange with status OPEN or REJECTED can be deleted.\n",
-        "parameters": [
-          {
-            "name": "shiftExchangeId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "ObjectId"
-            }
-          }
-        ],
-        "tags": [
-          "Shift Exchanges"
-        ],
-        "responses": {
-          "200": {
-            "description": "Deleted shift exchange"
-          },
-          "400": {
-            "description": "* Validation failed\n* Cannot delete shift exchange\n"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Shift exchange not found"
-          }
-        }
       }
     },
     "/shift-exchanges/{shiftExchangeId}/accept": {
@@ -5288,7 +5207,7 @@
             "description": "Accepted shift exchange"
           },
           "400": {
-            "description": "* Validation failed\n* Not SENT\n"
+            "description": "* Validation failed\n* Already ACCEPTED/REJECTED\n"
           },
           "401": {
             "description": "Unauthorized"
@@ -5321,40 +5240,7 @@
             "description": "Rejected shift exchange"
           },
           "400": {
-            "description": "* Validation failed\n* Not SENT\n"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Exchange shift not found"
-          }
-        }
-      }
-    },
-    "/shift-exchanges/{shiftExchangeId}/send": {
-      "put": {
-        "summary": "Send shift exchange",
-        "parameters": [
-          {
-            "name": "shiftExchangeId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "ObjectId"
-            }
-          }
-        ],
-        "tags": [
-          "Shift Exchanges"
-        ],
-        "responses": {
-          "200": {
-            "description": "Sent shift exchange"
-          },
-          "400": {
-            "description": "* Validation failed\n* Not OPEN\n"
+            "description": "* Validation failed\n* Already ACCEPTED/REJECTED\n"
           },
           "401": {
             "description": "Unauthorized"
@@ -7328,9 +7214,9 @@
             "type": "object",
             "description": "Supplier specific values which can be inherited into an order if specified in the order form."
           },
-          "supplier-code": {
+          "client-code": {
             "type": "string",
-            "description": "The supplier code is used to invite new suppliers. The code can only be used once, and to be able the user as a client, the email is required to match the invited users email."
+            "description": "The client code is used to invite new suppliers. The code can only be used once, and to be able the user as a supplier, the email is required to match the invited users email."
           }
         },
         "example": {
@@ -7354,7 +7240,7 @@
             "5dde7024eded8872705a0123"
           ],
           "values": {},
-          "supplier-code": "5dde7024eded8872705aabd2"
+          "client-code": "5dde7024eded8872705aabd2"
         }
       },
       "OutgoingRfq": {
@@ -8078,8 +7964,7 @@
               "sender-id": {
                 "type": "string",
                 "format": "ObjectId",
-                "description": "ID of user who created exchange request.",
-                "readOnly": true,
+                "description": "ID of exchange request sender.",
                 "example": "5dde7024eded8872705aabd2"
               },
               "sender-shift-id": {
@@ -8104,12 +7989,11 @@
                 "type": "string",
                 "description": "Echange status.",
                 "enum": [
-                  "OPEN",
                   "SENT",
                   "ACCEPTED",
                   "REJECTED"
                 ],
-                "default": "OPEN",
+                "default": "SENT",
                 "readOnly": true
               },
               "comment": {
