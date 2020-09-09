@@ -5189,7 +5189,7 @@
     "/shift-exchanges/{shiftExchangeId}/accept": {
       "put": {
         "summary": "Accept shift exchange",
-        "description": "Upon rejection, a notification is sent to the sender.",
+        "description": "Upon acceptance, a notification is sent to the sender.",
         "parameters": [
           {
             "name": "shiftExchangeId",
@@ -5223,7 +5223,7 @@
     "/shift-exchanges/{shiftExchangeId}/reject": {
       "put": {
         "summary": "Reject shift exchange",
-        "description": "Upon acceptance, a notification is sent to the sender.",
+        "description": "Upon rejections, a notification is sent to the sender.",
         "parameters": [
           {
             "name": "shiftExchangeId",
