@@ -5120,6 +5120,7 @@
       },
       "post": {
         "summary": "Create shift exchange",
+        "description": "Upon creation, a notification is sent to the request recipient.",
         "requestBody": {
           "content": {
             "application/json": {
@@ -5188,6 +5189,7 @@
     "/shift-exchanges/{shiftExchangeId}/accept": {
       "put": {
         "summary": "Accept shift exchange",
+        "description": "Upon acceptance, a notification is sent to the sender.",
         "parameters": [
           {
             "name": "shiftExchangeId",
@@ -5221,6 +5223,7 @@
     "/shift-exchanges/{shiftExchangeId}/reject": {
       "put": {
         "summary": "Reject shift exchange",
+        "description": "Upon rejection, a notification is sent to the sender.",
         "parameters": [
           {
             "name": "shiftExchangeId",
