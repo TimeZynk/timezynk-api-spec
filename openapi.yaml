@@ -5331,6 +5331,13 @@ components:
               format: ObjectId
               description: Shift to be changed out.
               example: 5dde7024eded8872705aabd3
+            sender-shift-start:
+              type: string
+              format: date
+              pattern: '^\d{4}-\d{2}-\d{2}$'
+              description: 'Start date of shift, collected from the object.'
+              readOnly: true
+              example: '2016-01-10'
             recipient-id:
               type: string
               format: ObjectId
@@ -5341,6 +5348,13 @@ components:
               format: ObjectId
               description: 'Shift belonging to recipient, to be changed in.'
               example: 5dde7024eded8872705aabd5
+            sender-shift-end:
+              type: string
+              format: date
+              pattern: '^\d{4}-\d{2}-\d{2}$'
+              description: 'End date of shift, collected from the object.'
+              readOnly: true
+              example: '2016-01-10'
             status:
               type: string
               description: Echange status.
@@ -5360,7 +5374,6 @@ components:
             - sender-shift-id
             - recipient-id
             - recipient-shift-id
-            - status
     ShiftPublishRequest:
       type: object
       properties:
