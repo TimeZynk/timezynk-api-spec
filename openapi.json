@@ -768,33 +768,9 @@
         }
       }
     },
-    "/default-account/v1/integrations/invoice": {
+    "/default-account/v1/invoice-integrations": {
       "get": {
         "summary": "Invoice integrations",
-        "description": "Get possible integrations options for default setup\n",
-        "tags": [
-          "Sign up"
-        ],
-        "responses": {
-          "200": {
-            "description": "An array of integration modules",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/IntegrationModule"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/default-account/v1/integrations/salary": {
-      "get": {
-        "summary": "Salary integrations",
         "description": "Get possible integrations options for default setup\n",
         "tags": [
           "Sign up"
@@ -832,6 +808,30 @@
                   "type": "array",
                   "items": {
                     "$ref": "#/components/schemas/RegistryTemplate"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/default-account/v1/salary-integrations": {
+      "get": {
+        "summary": "Salary integrations",
+        "description": "Get possible integrations options for default setup\n",
+        "tags": [
+          "Sign up"
+        ],
+        "responses": {
+          "200": {
+            "description": "An array of integration modules",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/IntegrationModule"
                   }
                 }
               }
