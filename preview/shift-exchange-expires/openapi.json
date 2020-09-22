@@ -5209,7 +5209,7 @@
             "description": "Accepted shift exchange"
           },
           "400": {
-            "description": "* Validation failed\n* Already ACCEPTED/REJECTED\n"
+            "description": "* Validation failed\n* Already ACCEPTED/REJECTED/EXPIRED/CLOSED\n"
           },
           "401": {
             "description": "Unauthorized"
@@ -5243,7 +5243,7 @@
             "description": "Rejected shift exchange"
           },
           "400": {
-            "description": "* Validation failed\n* Already ACCEPTED/REJECTED\n"
+            "description": "* Validation failed\n* Already ACCEPTED/REJECTED/EXPIRED/CLOSED\n"
           },
           "401": {
             "description": "Unauthorized"
@@ -8010,7 +8010,9 @@
                 "enum": [
                   "SENT",
                   "ACCEPTED",
-                  "REJECTED"
+                  "REJECTED",
+                  "EXPIRED",
+                  "CLOSED"
                 ],
                 "default": "SENT",
                 "readOnly": true

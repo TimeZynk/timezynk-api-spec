@@ -3372,7 +3372,7 @@ paths:
         '400':
           description: |
             * Validation failed
-            * Already ACCEPTED/REJECTED
+            * Already ACCEPTED/REJECTED/EXPIRED/CLOSED
         '401':
           description: Unauthorized
         '404':
@@ -3396,7 +3396,7 @@ paths:
         '400':
           description: |
             * Validation failed
-            * Already ACCEPTED/REJECTED
+            * Already ACCEPTED/REJECTED/EXPIRED/CLOSED
         '401':
           description: Unauthorized
         '404':
@@ -5362,6 +5362,8 @@ components:
                 - SENT
                 - ACCEPTED
                 - REJECTED
+                - EXPIRED
+                - CLOSED
               default: SENT
               readOnly: true
             expires:
