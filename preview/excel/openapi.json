@@ -1027,14 +1027,82 @@
         }
       }
     },
-    "/files/{fileId}/sheets": {
+    "/files/{fileId}": {
+      "get": {
+        "summary": "Get file export state",
+        "parameters": [
+          {
+            "name": "fileId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "ObjectId"
+            }
+          }
+        ],
+        "tags": [
+          "File export"
+        ],
+        "responses": {
+          "200": {
+            "description": "File metadata and handle",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "description": "File id",
+                      "format": "ObjectId"
+                    },
+                    "filename": {
+                      "type": "string",
+                      "description": "File name"
+                    },
+                    "content-type": {
+                      "type": "string",
+                      "description": "Content type"
+                    },
+                    "entity": {
+                      "type": "string",
+                      "description": "File category or type",
+                      "example": "Invoice export"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authorized to read file"
+          },
+          "404": {
+            "description": "File is not ready yet or has not been created"
+          }
+        }
+      }
+    },
+    "/files/{fileId}/done": {
       "post": {
-        "summary": "Add sheet to Excel file",
+        "summary": "Mark file as done and start conversion to Excel",
+        "parameters": [
+          {
+            "name": "fileId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "ObjectId"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ExcelSheet"
+                "$ref": "#/components/schemas/ExcelExportDone"
               }
             }
           },
@@ -1049,15 +1117,122 @@
             "description": "File metadata and handle",
             "content": {
               "application/json": {
-                "properties": {
-                  "id": {
-                    "type": "string",
-                    "description": "File id",
-                    "format": "ObjectId"
-                  },
-                  "rows-added": {
-                    "type": "number",
-                    "description": "Number of added rows from sheet"
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "description": "File id",
+                      "format": "ObjectId"
+                    },
+                    "state": {
+                      "type": "string",
+                      "description": "File state",
+                      "enum": [
+                        "processing"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failed"
+          }
+        }
+      }
+    },
+    "/files/{fileId}/download": {
+      "get": {
+        "summary": "Download file as stream",
+        "parameters": [
+          {
+            "name": "fileId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "ObjectId"
+            }
+          }
+        ],
+        "tags": [
+          "File export"
+        ],
+        "responses": {
+          "200": {
+            "description": "File contents",
+            "content": {
+              "application/vnd.ms-excel": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authorized to read file"
+          },
+          "404": {
+            "description": "File is not ready yet or has not been created"
+          }
+        }
+      }
+    },
+    "/files/{fileId}/sheets": {
+      "post": {
+        "summary": "Add sheet to Excel file",
+        "parameters": [
+          {
+            "name": "fileId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "ObjectId"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExcelSheet"
+              }
+            }
+          },
+          "description": "Excel sheet",
+          "required": true
+        },
+        "tags": [
+          "File export"
+        ],
+        "responses": {
+          "200": {
+            "description": "File metadata and handle",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "description": "File id",
+                      "format": "ObjectId"
+                    },
+                    "rows-added": {
+                      "type": "number",
+                      "description": "Number of added rows from sheet"
+                    },
+                    "state": {
+                      "type": "string",
+                      "description": "File state",
+                      "enum": [
+                        "pending"
+                      ]
+                    }
                   }
                 }
               }
@@ -1092,7 +1267,26 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ExcelExport"
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "description": "File id",
+                      "format": "ObjectId"
+                    },
+                    "filename": {
+                      "type": "string",
+                      "description": "File name"
+                    },
+                    "state": {
+                      "type": "string",
+                      "description": "File state",
+                      "enum": [
+                        "pending",
+                        "processing"
+                      ]
+                    }
+                  }
                 }
               }
             }
@@ -6527,9 +6721,50 @@
               }
             },
             "example": {}
+          },
+          "sheets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExcelSheet"
+            }
+          }
+        }
+      },
+      "ExcelExportDone": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "File ID",
+            "format": "ObjectId"
+          },
+          "title": {
+            "type": "string",
+            "description": "File title"
+          },
+          "description": {
+            "type": "string",
+            "description": "File description"
+          },
+          "entity": {
+            "type": "string",
+            "description": "File category or type",
+            "example": "Invoice export"
+          },
+          "metadata": {
+            "type": "object",
+            "description": "File metadata",
+            "properties": {
+              "registry-id": {
+                "type": "string",
+                "description": "ID of related register"
+              }
+            },
+            "example": {}
           }
         },
         "required": [
+          "id",
           "title",
           "entity",
           "metadata"
@@ -6560,15 +6795,70 @@
           },
           "col-settings": {
             "type": "array",
-            "description": "Column settings"
+            "description": "Column settings",
+            "items": {
+              "type": "object",
+              "properties": {
+                "col": {
+                  "type": "number",
+                  "description": "Col index, zero based",
+                  "example": 3
+                },
+                "width": {
+                  "type": "number",
+                  "description": "Column width in 1/256 of digit 0, maximum 65280",
+                  "example": 800
+                }
+              }
+            }
           },
           "row-settings": {
             "type": "array",
-            "description": "Row settings"
+            "description": "Row settings",
+            "items": {
+              "type": "object",
+              "properties": {
+                "row": {
+                  "type": "number",
+                  "description": "Row index, zero based",
+                  "example": 5
+                },
+                "height": {
+                  "type": "number",
+                  "description": "Row height in 1/20 of a point, or -1 for default height",
+                  "example": 200
+                }
+              }
+            }
           },
           "merged-regions": {
             "type": "array",
-            "description": "Merged cell regions"
+            "description": "Merged cell regions",
+            "items": {
+              "type": "object",
+              "properties": {
+                "first-row": {
+                  "type": "number",
+                  "description": "Index of first row, zero based",
+                  "example": 1
+                },
+                "last-row": {
+                  "type": "number",
+                  "description": "Index of last row, zero based",
+                  "example": 2
+                },
+                "first-col": {
+                  "type": "number",
+                  "description": "Index of first col, zero based",
+                  "example": 3
+                },
+                "last-col": {
+                  "type": "number",
+                  "description": "Index of last col, zero based",
+                  "example": 4
+                }
+              }
+            }
           }
         },
         "required": [
