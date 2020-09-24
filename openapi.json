@@ -1027,6 +1027,276 @@
         }
       }
     },
+    "/files/{fileId}": {
+      "get": {
+        "summary": "Get file export state",
+        "parameters": [
+          {
+            "name": "fileId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "ObjectId"
+            }
+          }
+        ],
+        "tags": [
+          "File export"
+        ],
+        "responses": {
+          "200": {
+            "description": "File metadata and handle",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "description": "File id",
+                      "format": "ObjectId"
+                    },
+                    "filename": {
+                      "type": "string",
+                      "description": "File name"
+                    },
+                    "content-type": {
+                      "type": "string",
+                      "description": "Content type"
+                    },
+                    "entity": {
+                      "type": "string",
+                      "description": "File category or type",
+                      "example": "Invoice export"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authorized to read file"
+          },
+          "404": {
+            "description": "File is not ready yet or has not been created"
+          }
+        }
+      }
+    },
+    "/files/{fileId}/done": {
+      "post": {
+        "summary": "Mark file as done and start conversion to Excel",
+        "parameters": [
+          {
+            "name": "fileId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "ObjectId"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExcelExportDone"
+              }
+            }
+          },
+          "description": "File properties",
+          "required": true
+        },
+        "tags": [
+          "File export"
+        ],
+        "responses": {
+          "200": {
+            "description": "File metadata and handle",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "description": "File id",
+                      "format": "ObjectId"
+                    },
+                    "state": {
+                      "type": "string",
+                      "description": "File state",
+                      "enum": [
+                        "processing"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failed"
+          }
+        }
+      }
+    },
+    "/files/{fileId}/download": {
+      "get": {
+        "summary": "Download file as stream",
+        "parameters": [
+          {
+            "name": "fileId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "ObjectId"
+            }
+          }
+        ],
+        "tags": [
+          "File export"
+        ],
+        "responses": {
+          "200": {
+            "description": "File contents",
+            "content": {
+              "application/vnd.ms-excel": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authorized to read file"
+          },
+          "404": {
+            "description": "File is not ready yet or has not been created"
+          }
+        }
+      }
+    },
+    "/files/{fileId}/sheets": {
+      "post": {
+        "summary": "Add sheet to Excel file",
+        "parameters": [
+          {
+            "name": "fileId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "ObjectId"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExcelSheet"
+              }
+            }
+          },
+          "description": "Excel sheet",
+          "required": true
+        },
+        "tags": [
+          "File export"
+        ],
+        "responses": {
+          "200": {
+            "description": "File metadata and handle",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "description": "File id",
+                      "format": "ObjectId"
+                    },
+                    "rows-added": {
+                      "type": "number",
+                      "description": "Number of added rows from sheet"
+                    },
+                    "state": {
+                      "type": "string",
+                      "description": "File state",
+                      "enum": [
+                        "pending"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failed"
+          }
+        }
+      }
+    },
+    "/files/export/excel": {
+      "post": {
+        "summary": "Create new Excel file",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExcelExport"
+              }
+            }
+          },
+          "description": "File properties",
+          "required": true
+        },
+        "tags": [
+          "File export"
+        ],
+        "responses": {
+          "200": {
+            "description": "File metadata and handle",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "description": "File id",
+                      "format": "ObjectId"
+                    },
+                    "filename": {
+                      "type": "string",
+                      "description": "File name"
+                    },
+                    "state": {
+                      "type": "string",
+                      "description": "File state",
+                      "enum": [
+                        "pending",
+                        "processing"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failed"
+          }
+        }
+      }
+    },
     "/invoice-download": {
       "post": {
         "summary": "Prepare invoices for download",
@@ -6247,6 +6517,353 @@
         },
         "required": [
           "code"
+        ]
+      },
+      "ExcelBorder": {
+        "type": "string",
+        "description": "Excel border",
+        "enum": [
+          "thin",
+          "medium",
+          "thick"
+        ],
+        "example": "thin"
+      },
+      "ExcelCell": {
+        "type": "object",
+        "description": "Cell",
+        "properties": {
+          "value": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "description": "Cell value",
+            "example": "=SUM(A1:B3)"
+          },
+          "data-format": {
+            "type": "string",
+            "description": "Cell data format, see https://poi.apache.org/apidocs/dev/org/apache/poi/ss/usermodel/BuiltinFormats.html",
+            "example": "#,##0"
+          },
+          "style": {
+            "type": "object",
+            "properties": {
+              "halign": {
+                "type": "string",
+                "description": "Horizontal alignment",
+                "enum": [
+                  "left",
+                  "right",
+                  "center"
+                ],
+                "example": "center"
+              },
+              "valign": {
+                "type": "string",
+                "description": "Vertical alignment",
+                "enum": [
+                  "top",
+                  "bottom",
+                  "center"
+                ],
+                "example": "center"
+              },
+              "background": {
+                "$ref": "#/components/schemas/ExcelColor"
+              },
+              "border-left": {
+                "$ref": "#/components/schemas/ExcelBorder"
+              },
+              "border-top": {
+                "$ref": "#/components/schemas/ExcelBorder"
+              },
+              "border-right": {
+                "$ref": "#/components/schemas/ExcelBorder"
+              },
+              "border-bottom": {
+                "$ref": "#/components/schemas/ExcelBorder"
+              },
+              "left-border-color": {
+                "$ref": "#/components/schemas/ExcelColor"
+              },
+              "top-border-color": {
+                "$ref": "#/components/schemas/ExcelColor"
+              },
+              "right-border-color": {
+                "$ref": "#/components/schemas/ExcelColor"
+              },
+              "bottom-border-color": {
+                "$ref": "#/components/schemas/ExcelColor"
+              },
+              "font": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "example": "Arial"
+                  },
+                  "color": {
+                    "$ref": "#/components/schemas/ExcelColor"
+                  },
+                  "bold": {
+                    "type": "boolean",
+                    "description": "Bold font",
+                    "example": false
+                  },
+                  "italic": {
+                    "type": "boolean",
+                    "description": "Italic font",
+                    "example": false
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "ExcelColor": {
+        "type": "string",
+        "description": "Excel color",
+        "enum": [
+          "aqua",
+          "automatic",
+          "black",
+          "black1",
+          "blue",
+          "blue_grey",
+          "blue1",
+          "bright_green",
+          "bright_green1",
+          "brown",
+          "coral",
+          "cornflower_blue",
+          "dark_blue",
+          "dark_green",
+          "dark_red",
+          "dark_teal",
+          "dark_yellow",
+          "gold",
+          "green",
+          "grey_25_percent",
+          "grey_40_percent",
+          "grey_50_percent",
+          "grey_80_percent",
+          "indigo",
+          "lavender",
+          "lemon_chiffon",
+          "light_blue",
+          "light_cornflower_blue",
+          "light_green",
+          "light_orange",
+          "light_turquoise",
+          "light_turquoise1",
+          "light_yellow",
+          "lime",
+          "maroon",
+          "olive_green",
+          "orange",
+          "orchid",
+          "pale_blue",
+          "pink",
+          "pink1",
+          "plum",
+          "red",
+          "red1",
+          "rose",
+          "royal_blue",
+          "sea_green",
+          "sky_blue",
+          "tan",
+          "teal",
+          "turquoise",
+          "turquoise1",
+          "violet",
+          "white",
+          "white1",
+          "yellow",
+          "yellow1"
+        ],
+        "example": "grey_25_percent"
+      },
+      "ExcelExport": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "File ID",
+            "format": "ObjectId"
+          },
+          "title": {
+            "type": "string",
+            "description": "File title"
+          },
+          "description": {
+            "type": "string",
+            "description": "File description"
+          },
+          "entity": {
+            "type": "string",
+            "description": "File category or type",
+            "example": "Invoice export"
+          },
+          "metadata": {
+            "type": "object",
+            "description": "File metadata",
+            "properties": {
+              "registry-id": {
+                "type": "string",
+                "description": "ID of related register"
+              }
+            },
+            "example": {}
+          },
+          "sheets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExcelSheet"
+            }
+          }
+        }
+      },
+      "ExcelExportDone": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "File ID",
+            "format": "ObjectId"
+          },
+          "title": {
+            "type": "string",
+            "description": "File title"
+          },
+          "description": {
+            "type": "string",
+            "description": "File description"
+          },
+          "entity": {
+            "type": "string",
+            "description": "File category or type",
+            "example": "Invoice export"
+          },
+          "metadata": {
+            "type": "object",
+            "description": "File metadata",
+            "properties": {
+              "registry-id": {
+                "type": "string",
+                "description": "ID of related register"
+              }
+            },
+            "example": {}
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "entity",
+          "metadata"
+        ]
+      },
+      "ExcelSheet": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Sheet ID",
+            "format": "ObjectId"
+          },
+          "title": {
+            "type": "string",
+            "description": "Sheet title"
+          },
+          "rows": {
+            "type": "array",
+            "description": "Data rows",
+            "items": {
+              "type": "array",
+              "description": "Row of cells",
+              "items": {
+                "$ref": "#/components/schemas/ExcelCell"
+              }
+            }
+          },
+          "col-settings": {
+            "type": "array",
+            "description": "Column settings",
+            "items": {
+              "type": "object",
+              "properties": {
+                "col": {
+                  "type": "number",
+                  "description": "Col index, zero based",
+                  "example": 3
+                },
+                "width": {
+                  "type": "number",
+                  "description": "Column width in 1/256 of digit 0, maximum 65280",
+                  "example": 800
+                }
+              }
+            }
+          },
+          "row-settings": {
+            "type": "array",
+            "description": "Row settings",
+            "items": {
+              "type": "object",
+              "properties": {
+                "row": {
+                  "type": "number",
+                  "description": "Row index, zero based",
+                  "example": 5
+                },
+                "height": {
+                  "type": "number",
+                  "description": "Row height in 1/20 of a point, or -1 for default height",
+                  "example": 200
+                }
+              }
+            }
+          },
+          "merged-regions": {
+            "type": "array",
+            "description": "Merged cell regions",
+            "items": {
+              "type": "object",
+              "properties": {
+                "first-row": {
+                  "type": "number",
+                  "description": "Index of first row, zero based",
+                  "example": 1
+                },
+                "last-row": {
+                  "type": "number",
+                  "description": "Index of last row, zero based",
+                  "example": 2
+                },
+                "first-col": {
+                  "type": "number",
+                  "description": "Index of first col, zero based",
+                  "example": 3
+                },
+                "last-col": {
+                  "type": "number",
+                  "description": "Index of last col, zero based",
+                  "example": 4
+                }
+              }
+            }
+          }
+        },
+        "required": [
+          "title",
+          "rows"
         ]
       },
       "Field": {
