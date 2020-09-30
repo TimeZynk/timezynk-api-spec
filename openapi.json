@@ -6899,6 +6899,10 @@
                 "type": "number",
                 "description": "Sort order for this field. Lower weight floats on top, higher weight sinks."
               },
+              "conditionally-visible": {
+                "type": "boolean",
+                "description": "If set to true, the field should only be visible under a certain set of conditions. Visibility settings are found in `settings.visibility-options`"
+              },
               "required": {
                 "type": "boolean",
                 "description": "Is this field required?"
@@ -6926,6 +6930,10 @@
               "settings": {
                 "type": "object",
                 "description": "Type specific settings"
+              },
+              "meta": {
+                "type": "object",
+                "description": "Arbitary field meta data"
               }
             },
             "required": [
