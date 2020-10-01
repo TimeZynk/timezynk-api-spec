@@ -6443,7 +6443,7 @@
           },
           "end-date": {
             "type": "string",
-            "description": "Last date of blocked interva",
+            "description": "Last date of blocked interval",
             "format": "date",
             "example": "2020-12-31T00:00:00.000Z"
           },
