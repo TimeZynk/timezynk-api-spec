@@ -2129,6 +2129,65 @@
         }
       }
     },
+    "/open-shifts": {
+      "get": {
+        "summary": "Fetch open shifts",
+        "description": "Fetch all shifts that are open for booking.",
+        "tags": [
+          "Shift"
+        ],
+        "responses": {
+          "200": {
+            "description": "Array of shifts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Shift"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/open-shifts/{shiftId}": {
+      "get": {
+        "summary": "Fetch open shift",
+        "description": "Fetch a single shift that is open for booking.",
+        "parameters": [
+          {
+            "name": "shiftId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "ObjectId"
+            }
+          }
+        ],
+        "tags": [
+          "Shift"
+        ],
+        "responses": {
+          "200": {
+            "description": "Shift object",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Shift"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Shift not found"
+          }
+        }
+      }
+    },
     "/orders/v2/client-forms": {
       "get": {
         "summary": "[Client] Fetch forms\n",
