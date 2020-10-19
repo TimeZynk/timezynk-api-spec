@@ -24,8 +24,16 @@
       "description": "Fetching, updating and creating invoices"
     },
     {
+      "name": "Invoice rows",
+      "description": "Fetching, updating and creating invoice rows"
+    },
+    {
       "name": "Invoice articles",
       "description": "Fetching, updating and creating invoices articles"
+    },
+    {
+      "name": "Invoice export",
+      "description": "Fetching and creating invoice exports"
     },
     {
       "name": "User",
@@ -38,6 +46,10 @@
     {
       "name": "Shift",
       "description": "Calls for fetching and updating scheduled shifts."
+    },
+    {
+      "name": "Shift Exchanges",
+      "description": "Endpoints for exchanging shifts between users."
     },
     {
       "name": "Time Reports",
@@ -674,15 +686,15 @@
               }
             }
           },
-          "description": "Invoice rows to be added",
+          "description": "Invoice rows to be added.",
           "required": true
         },
         "tags": [
-          "Invoice"
+          "Invoice rows"
         ],
         "responses": {
           "200": {
-            "description": "Newly added invoice rows",
+            "description": "Newly added invoice rows.",
             "content": {
               "application/json": {
                 "schema": {
@@ -695,7 +707,7 @@
             }
           },
           "400": {
-            "description": "Validation failed"
+            "description": "Validation failed."
           }
         }
       },
@@ -706,7 +718,7 @@
             "name": "invoice-id",
             "in": "query",
             "required": true,
-            "description": "Invoice ID to delete rows for",
+            "description": "Invoice ID to delete rows for.",
             "schema": {
               "type": "string",
               "format": "ObjectId"
@@ -714,11 +726,11 @@
           }
         ],
         "tags": [
-          "Invoice"
+          "Invoice rows"
         ],
         "responses": {
           "200": {
-            "description": "Delete successful"
+            "description": "Delete successful."
           }
         }
       }
@@ -764,33 +776,9 @@
         }
       }
     },
-    "/default-account/v1/integrations/invoice": {
+    "/default-account/v1/invoice-integrations": {
       "get": {
         "summary": "Invoice integrations",
-        "description": "Get possible integrations options for default setup\n",
-        "tags": [
-          "Sign up"
-        ],
-        "responses": {
-          "200": {
-            "description": "An array of integration modules",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/IntegrationModule"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/default-account/v1/integrations/salary": {
-      "get": {
-        "summary": "Salary integrations",
         "description": "Get possible integrations options for default setup\n",
         "tags": [
           "Sign up"
@@ -828,6 +816,30 @@
                   "type": "array",
                   "items": {
                     "$ref": "#/components/schemas/RegistryTemplate"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/default-account/v1/salary-integrations": {
+      "get": {
+        "summary": "Salary integrations",
+        "description": "Get possible integrations options for default setup\n",
+        "tags": [
+          "Sign up"
+        ],
+        "responses": {
+          "200": {
+            "description": "An array of integration modules",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/IntegrationModule"
                   }
                 }
               }
@@ -1023,6 +1035,276 @@
         }
       }
     },
+    "/files/{fileId}": {
+      "get": {
+        "summary": "Get file export state",
+        "parameters": [
+          {
+            "name": "fileId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "ObjectId"
+            }
+          }
+        ],
+        "tags": [
+          "File export"
+        ],
+        "responses": {
+          "200": {
+            "description": "File metadata and handle",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "description": "File id",
+                      "format": "ObjectId"
+                    },
+                    "filename": {
+                      "type": "string",
+                      "description": "File name"
+                    },
+                    "content-type": {
+                      "type": "string",
+                      "description": "Content type"
+                    },
+                    "entity": {
+                      "type": "string",
+                      "description": "File category or type",
+                      "example": "Invoice export"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authorized to read file"
+          },
+          "404": {
+            "description": "File is not ready yet or has not been created"
+          }
+        }
+      }
+    },
+    "/files/{fileId}/done": {
+      "post": {
+        "summary": "Mark file as done and start conversion to Excel",
+        "parameters": [
+          {
+            "name": "fileId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "ObjectId"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExcelExportDone"
+              }
+            }
+          },
+          "description": "File properties",
+          "required": true
+        },
+        "tags": [
+          "File export"
+        ],
+        "responses": {
+          "200": {
+            "description": "File metadata and handle",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "description": "File id",
+                      "format": "ObjectId"
+                    },
+                    "state": {
+                      "type": "string",
+                      "description": "File state",
+                      "enum": [
+                        "processing"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failed"
+          }
+        }
+      }
+    },
+    "/files/{fileId}/download": {
+      "get": {
+        "summary": "Download file as stream",
+        "parameters": [
+          {
+            "name": "fileId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "ObjectId"
+            }
+          }
+        ],
+        "tags": [
+          "File export"
+        ],
+        "responses": {
+          "200": {
+            "description": "File contents",
+            "content": {
+              "application/vnd.ms-excel": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authorized to read file"
+          },
+          "404": {
+            "description": "File is not ready yet or has not been created"
+          }
+        }
+      }
+    },
+    "/files/{fileId}/sheets": {
+      "post": {
+        "summary": "Add sheet to Excel file",
+        "parameters": [
+          {
+            "name": "fileId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "ObjectId"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExcelSheet"
+              }
+            }
+          },
+          "description": "Excel sheet",
+          "required": true
+        },
+        "tags": [
+          "File export"
+        ],
+        "responses": {
+          "200": {
+            "description": "File metadata and handle",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "description": "File id",
+                      "format": "ObjectId"
+                    },
+                    "rows-added": {
+                      "type": "number",
+                      "description": "Number of added rows from sheet"
+                    },
+                    "state": {
+                      "type": "string",
+                      "description": "File state",
+                      "enum": [
+                        "pending"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failed"
+          }
+        }
+      }
+    },
+    "/files/export/excel": {
+      "post": {
+        "summary": "Create new Excel file",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExcelExport"
+              }
+            }
+          },
+          "description": "File properties",
+          "required": true
+        },
+        "tags": [
+          "File export"
+        ],
+        "responses": {
+          "200": {
+            "description": "File metadata and handle",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "description": "File id",
+                      "format": "ObjectId"
+                    },
+                    "filename": {
+                      "type": "string",
+                      "description": "File name"
+                    },
+                    "state": {
+                      "type": "string",
+                      "description": "File state",
+                      "enum": [
+                        "pending",
+                        "processing"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failed"
+          }
+        }
+      }
+    },
     "/invoice-download": {
       "post": {
         "summary": "Prepare invoices for download",
@@ -1040,7 +1322,11 @@
                     "items": {
                       "type": "string",
                       "format": "ObjectId"
-                    }
+                    },
+                    "example": [
+                      "5f31459ddaf86a3cd67543bf",
+                      "5f31459ddaf86a3cd67543c1"
+                    ]
                   },
                   "target": {
                     "type": "string",
@@ -1050,26 +1336,20 @@
                       "ekot",
                       "ubw"
                     ],
-                    "description": "Export format."
+                    "description": "Export format.",
+                    "example": "ubw"
                   }
                 },
                 "required": [
                   "ids",
                   "target"
                 ]
-              },
-              "example": {
-                "ids": [
-                  "5f31459ddaf86a3cd67543bf",
-                  "5f31459ddaf86a3cd67543c1"
-                ],
-                "target": "ubw"
               }
             }
           }
         },
         "tags": [
-          "Invoice"
+          "Invoice export"
         ],
         "responses": {
           "200": {
@@ -1082,58 +1362,56 @@
                     "id": {
                       "type": "string",
                       "format": "ObjectId",
-                      "description": "The download Id."
+                      "description": "The download Id.",
+                      "example": "5f31459ddaf86a3cd67543c9"
                     },
                     "vid": {
                       "type": "string",
-                      "format": "ObjectId"
+                      "format": "ObjectId",
+                      "example": "5f31459ddaf86a3cd67543ca"
                     },
                     "valid-from": {
                       "type": "number",
-                      "format": "Timestamp"
+                      "format": "Timestamp",
+                      "example": 1597064605190
                     },
                     "ids": {
                       "type": "array",
                       "items": {
                         "type": "string",
                         "format": "ObjectId"
-                      }
+                      },
+                      "example": [
+                        "5f31459ddaf86a3cd67543bf",
+                        "5f31459ddaf86a3cd67543c1"
+                      ]
                     },
                     "created": {
                       "type": "number",
-                      "format": "Timestamp"
+                      "format": "Timestamp",
+                      "example": 1597064605000
                     },
                     "company-id": {
                       "type": "string",
-                      "format": "ObjectId"
+                      "format": "ObjectId",
+                      "example": "5f313fb5daf86a3cd6754369"
                     },
                     "created-by": {
                       "type": "string",
-                      "format": "ObjectId"
+                      "format": "ObjectId",
+                      "example": "5f313fb5daf86a3cd675436a"
                     },
                     "target": {
-                      "type": "string"
+                      "type": "string",
+                      "example": "ubw"
                     }
                   }
-                },
-                "example": {
-                  "vid": "5f31459ddaf86a3cd67543ca",
-                  "valid-from": 1597064605190,
-                  "ids": [
-                    "5f31459ddaf86a3cd67543bf",
-                    "5f31459ddaf86a3cd67543c1"
-                  ],
-                  "created": 1597064605000,
-                  "company-id": "5f313fb5daf86a3cd6754369",
-                  "created-by": "5f313fb5daf86a3cd675436a",
-                  "id": "5f31459ddaf86a3cd67543c9",
-                  "target": "ubw"
                 }
               }
             }
           },
           "400": {
-            "description": "Validation failed"
+            "description": "Validation failed."
           }
         }
       }
@@ -1142,7 +1420,7 @@
       "get": {
         "summary": "Download invoices",
         "tags": [
-          "Invoice"
+          "Invoice export"
         ],
         "parameters": [
           {
@@ -1158,7 +1436,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Array of invoices",
+            "description": "Array of invoices.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1175,7 +1453,7 @@
             }
           },
           "404": {
-            "description": "Download not found"
+            "description": "Download not found."
           }
         }
       }
@@ -1184,13 +1462,13 @@
       "get": {
         "summary": "Fetch invoice exports",
         "tags": [
-          "Invoice"
+          "Invoice export"
         ],
         "parameters": [
           {
             "name": "target",
             "in": "query",
-            "description": "Target to search for",
+            "description": "Target to search for.",
             "schema": {
               "type": "string"
             }
@@ -1198,7 +1476,7 @@
           {
             "name": "state",
             "in": "query",
-            "description": "State to search for",
+            "description": "State to search for.",
             "schema": {
               "type": "string",
               "enum": [
@@ -1212,7 +1490,7 @@
           {
             "name": "invoice-id",
             "in": "query",
-            "description": "Invoice ID to search for",
+            "description": "Invoice ID to search for.",
             "schema": {
               "type": "string",
               "format": "ObjectId"
@@ -1221,7 +1499,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Array of invoice exports",
+            "description": "Array of invoice exports.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1245,15 +1523,15 @@
               }
             }
           },
-          "description": "Invoice to be added",
+          "description": "Invoice to be added.",
           "required": true
         },
         "tags": [
-          "Invoice"
+          "Invoice export"
         ],
         "responses": {
           "200": {
-            "description": "Newly added invoice export",
+            "description": "Newly added invoice export.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1263,7 +1541,7 @@
             }
           },
           "400": {
-            "description": "Validation failed"
+            "description": "Validation failed."
           }
         }
       }
@@ -1272,14 +1550,14 @@
       "get": {
         "summary": "Fetch invoice rows",
         "tags": [
-          "Invoice"
+          "Invoice rows"
         ],
         "parameters": [
           {
             "name": "invoice-id",
             "in": "query",
             "required": true,
-            "description": "Invoice to fetch the rows for",
+            "description": "Invoice to fetch the rows for.",
             "schema": {
               "type": "string",
               "format": "ObjectId"
@@ -1312,15 +1590,15 @@
               }
             }
           },
-          "description": "Invoice to be added",
+          "description": "Invoice to be added.",
           "required": true
         },
         "tags": [
-          "Invoice"
+          "Invoice rows"
         ],
         "responses": {
           "200": {
-            "description": "Newly added invoice row",
+            "description": "Newly added invoice row.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1330,7 +1608,7 @@
             }
           },
           "400": {
-            "description": "Validation failed"
+            "description": "Validation failed."
           }
         }
       }
@@ -1350,11 +1628,11 @@
           }
         ],
         "tags": [
-          "Invoice"
+          "Invoice rows"
         ],
         "responses": {
           "200": {
-            "description": "Invoice object",
+            "description": "Invoice object.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1364,7 +1642,7 @@
             }
           },
           "404": {
-            "description": "Invoice not found"
+            "description": "Invoice not found."
           }
         }
       },
@@ -1392,11 +1670,11 @@
           "required": true
         },
         "tags": [
-          "Invoice"
+          "Invoice rows"
         ],
         "responses": {
           "200": {
-            "description": "Updated invoice row object",
+            "description": "Updated invoice row object.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1406,10 +1684,10 @@
             }
           },
           "400": {
-            "description": "Validation failed"
+            "description": "Validation failed."
           },
           "404": {
-            "description": "Invoice not found"
+            "description": "Invoice not found."
           }
         }
       },
@@ -1427,11 +1705,14 @@
           }
         ],
         "tags": [
-          "Invoice"
+          "Invoice rows"
         ],
         "responses": {
           "200": {
-            "description": "Delete successful"
+            "description": "Delete successful."
+          },
+          "404": {
+            "description": "Invoice not found."
           }
         }
       }
@@ -1476,7 +1757,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Newly added invoice object",
+            "description": "Newly added invoice object.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1486,7 +1767,7 @@
             }
           },
           "400": {
-            "description": "Validation failed"
+            "description": "Validation failed."
           }
         }
       }
@@ -1595,7 +1876,7 @@
     "/invoices/pending/{target}": {
       "get": {
         "summary": "Fetch pending invoices",
-        "description": "For given target, fetch all invoices whose latest linked invoice exports are pending.",
+        "description": "For given target, fetch all invoices whose latest linked invoice exports are pending.\n",
         "parameters": [
           {
             "name": "target",
@@ -1855,6 +2136,65 @@
         }
       }
     },
+    "/open-shifts": {
+      "get": {
+        "summary": "Fetch open shifts",
+        "description": "Fetch all shifts that are open for booking.",
+        "tags": [
+          "Shift"
+        ],
+        "responses": {
+          "200": {
+            "description": "Array of shifts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Shift"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/open-shifts/{shiftId}": {
+      "get": {
+        "summary": "Fetch open shift",
+        "description": "Fetch a single shift that is open for booking.",
+        "parameters": [
+          {
+            "name": "shiftId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "ObjectId"
+            }
+          }
+        ],
+        "tags": [
+          "Shift"
+        ],
+        "responses": {
+          "200": {
+            "description": "Shift object",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Shift"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Shift not found"
+          }
+        }
+      }
+    },
     "/orders/v2/client-forms": {
       "get": {
         "summary": "[Client] Fetch forms\n",
@@ -2104,7 +2444,7 @@
         }
       }
     },
-    "/orders/v2/clients/confirm/{supplierCode}": {
+    "/orders/v2/clients/confirm/{clientCode}": {
       "put": {
         "summary": "Confirm client",
         "description": "The Confirm Client endpoint allows a user to confirm a supplier invitation from a client.\n",
@@ -2113,7 +2453,7 @@
         ],
         "parameters": [
           {
-            "name": "supplierCode",
+            "name": "clientCode",
             "in": "path",
             "required": true,
             "schema": {
@@ -2902,6 +3242,205 @@
                 }
               }
             }
+          },
+          "400": {
+            "description": "Validation failed"
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      }
+    },
+    "/registry-data/{registryDataId}/blocked-users": {
+      "get": {
+        "summary": "List all blocked users for a registry data instance",
+        "tags": [
+          "Registry Data"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "registryDataId",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "ObjectId"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of blocked users",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BlockedUser"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Add a new blocked user",
+        "tags": [
+          "Registry Data"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "registryDataId",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "ObjectId"
+            }
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/schemas/BlockedUser"
+        },
+        "responses": {
+          "200": {
+            "description": "Created blocked user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BlockedUser"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failed"
+          }
+        }
+      }
+    },
+    "/registry-data/{registryDataId}/blocked-users/{blockedUserId}": {
+      "get": {
+        "summary": "Get single blocked user instance",
+        "tags": [
+          "Registry Data"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "registryDataId",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "ObjectId"
+            }
+          },
+          {
+            "in": "path",
+            "name": "blockedUserId",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "ObjectId"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Blocked user data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BlockedUser"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update blocked user settings",
+        "tags": [
+          "Registry Data"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "registryDataId",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "ObjectId"
+            }
+          },
+          {
+            "in": "path",
+            "name": "blockedUserId",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "ObjectId"
+            }
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/schemas/BlockedUser"
+        },
+        "responses": {
+          "200": {
+            "description": "Updated registry data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BlockedUser"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failed"
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Remove blocked user",
+        "tags": [
+          "Registry Data"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "registryDataId",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "ObjectId"
+            }
+          },
+          {
+            "in": "path",
+            "name": "blockedUserId",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "ObjectId"
+            }
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/schemas/BlockedUser"
+        },
+        "responses": {
+          "204": {
+            "description": "Successfully removed, no content"
           },
           "400": {
             "description": "Validation failed"
@@ -5092,6 +5631,164 @@
         }
       }
     },
+    "/shift-exchanges": {
+      "get": {
+        "summary": "Fetch shift exchanges for a user",
+        "tags": [
+          "Shift Exchanges"
+        ],
+        "responses": {
+          "200": {
+            "description": "Array of shifts.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ShiftExchange"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create shift exchange",
+        "description": "Upon creation, a notification is sent to the request recipient.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ShiftExchange"
+              }
+            }
+          },
+          "description": "Shift exchange to be added.",
+          "required": true
+        },
+        "tags": [
+          "Shift Exchanges"
+        ],
+        "responses": {
+          "200": {
+            "description": "Newly added shift exchange",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShiftExchange"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failed"
+          }
+        }
+      }
+    },
+    "/shift-exchanges/{shiftExchangeId}": {
+      "get": {
+        "summary": "Fetch shift exchange",
+        "parameters": [
+          {
+            "name": "shiftExchangeId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "ObjectId"
+            }
+          }
+        ],
+        "tags": [
+          "Shift Exchanges"
+        ],
+        "responses": {
+          "200": {
+            "description": "Shift exchange object",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShiftExchange"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Shift exchange not found"
+          }
+        }
+      }
+    },
+    "/shift-exchanges/{shiftExchangeId}/accept": {
+      "put": {
+        "summary": "Accept shift exchange",
+        "description": "Upon acceptance, a notification is sent to the sender.",
+        "parameters": [
+          {
+            "name": "shiftExchangeId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "ObjectId"
+            }
+          }
+        ],
+        "tags": [
+          "Shift Exchanges"
+        ],
+        "responses": {
+          "200": {
+            "description": "Accepted shift exchange"
+          },
+          "400": {
+            "description": "* Validation failed\n* Already ACCEPTED/REJECTED/EXPIRED/CLOSED\n"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Exchange shift not found"
+          }
+        }
+      }
+    },
+    "/shift-exchanges/{shiftExchangeId}/reject": {
+      "put": {
+        "summary": "Reject shift exchange",
+        "description": "Upon rejection, a notification is sent to the sender.",
+        "parameters": [
+          {
+            "name": "shiftExchangeId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "ObjectId"
+            }
+          }
+        ],
+        "tags": [
+          "Shift Exchanges"
+        ],
+        "responses": {
+          "200": {
+            "description": "Rejected shift exchange"
+          },
+          "400": {
+            "description": "* Validation failed\n* Already ACCEPTED/REJECTED/EXPIRED/CLOSED\n"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Exchange shift not found"
+          }
+        }
+      }
+    },
     "/shifts": {
       "get": {
         "summary": "Fetch planned shifts",
@@ -5563,6 +6260,140 @@
           }
         }
       }
+    },
+    "/work-hours-template/{templateId}": {
+      "get": {
+        "summary": "Fetch work hours template",
+        "parameters": [
+          {
+            "name": "templateId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "ObjectId"
+            }
+          }
+        ],
+        "tags": [
+          "Work hours"
+        ],
+        "responses": {
+          "200": {
+            "description": "Template object.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkHoursTemplate"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Work hours template not found"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update work hours template",
+        "parameters": [
+          {
+            "name": "templateId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "ObjectId"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WorkHoursTemplate"
+              }
+            }
+          },
+          "required": true
+        },
+        "tags": [
+          "Work hours"
+        ],
+        "responses": {
+          "200": {
+            "description": "Updated template object",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkHoursTemplate"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failed"
+          },
+          "404": {
+            "description": "Work hours template not found"
+          }
+        }
+      }
+    },
+    "/work-hours-templates": {
+      "get": {
+        "summary": "Fetch work hours templates",
+        "tags": [
+          "Work hours"
+        ],
+        "responses": {
+          "200": {
+            "description": "Array of templates.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/WorkHoursTemplate"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create work hours template",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WorkHoursTemplate"
+              }
+            }
+          },
+          "description": "Template to be added.",
+          "required": true
+        },
+        "tags": [
+          "Work hours"
+        ],
+        "responses": {
+          "200": {
+            "description": "Newly added level entry object",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkHoursTemplate"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failed"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -5800,48 +6631,55 @@
             "type": "string",
             "description": "Unique ID",
             "format": "ObjectId",
-            "readOnly": true
+            "readOnly": true,
+            "example": "5dde7024eded8872705aabcd"
           },
           "vid": {
             "type": "string",
             "description": "Unique identifier representing a specific version of an item",
             "format": "ObjectId",
-            "readOnly": true
+            "readOnly": true,
+            "example": "5dde7024eded8872705aabce"
           },
           "company-id": {
             "type": "string",
             "description": "Id of the company who owns this item.",
             "format": "ObjectId",
-            "readOnly": true
+            "readOnly": true,
+            "example": "5dde7024eded8872705aabcf"
           },
           "created": {
             "type": "number",
             "description": "Timestamp in milliseconds for when the object was created",
-            "example": 1558604010307,
-            "readOnly": true
+            "readOnly": true,
+            "example": 1558604010307
           },
           "created-by": {
             "type": "string",
             "description": "User ID the the user that created the object.",
             "readOnly": true,
-            "format": "ObjectId"
+            "format": "ObjectId",
+            "example": "5dde7024eded8872705aabd0"
           },
           "valid-from": {
             "type": "number",
+            "format": "timestamp",
             "description": "Timestamp in milliseconds for when the object was last changed",
-            "example": 1558604030403,
-            "readOnly": true
+            "readOnly": true,
+            "example": 1558604030403
           },
           "valid-to": {
             "type": "number",
             "format": "timestamp",
-            "readOnly": true
+            "readOnly": true,
+            "example": 1558604030455
           },
           "changed-by": {
             "type": "string",
             "description": "User ID the the user that last changed the object.",
             "readOnly": true,
-            "format": "ObjectId"
+            "format": "ObjectId",
+            "example": "5dde7024eded8872705aabd1"
           },
           "archived": {
             "type": "integer",
@@ -5852,6 +6690,52 @@
         },
         "required": [
           "id"
+        ]
+      },
+      "BlockedUser": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "User ID of blocked user",
+            "format": "ObjectId",
+            "example": "5c88de8e1ae9c4230e51ab8a"
+          },
+          "comment": {
+            "type": "string",
+            "description": "Blocking reason or comment",
+            "example": "Previous employee, 6 months cool-down period"
+          },
+          "start-date": {
+            "type": "string",
+            "description": "First date of blocked interval",
+            "format": "iso-date",
+            "example": "2020-07-01"
+          },
+          "end-date": {
+            "type": "string",
+            "description": "Last date of blocked interval, leave as null to block user forever",
+            "format": "iso-date",
+            "example": "2020-12-31"
+          },
+          "created-by": {
+            "type": "string",
+            "description": "User ID of creating user",
+            "format": "ObjectId",
+            "example": "5c6ad17093d052121a82a6ae",
+            "readOnly": true
+          },
+          "created": {
+            "type": "number",
+            "description": "Timestamp when this block was created",
+            "format": "timestamp",
+            "readOnly": true,
+            "example": 1558604030403
+          }
+        },
+        "required": [
+          "user-id",
+          "start-date"
         ]
       },
       "Break": {
@@ -5946,6 +6830,353 @@
           "code"
         ]
       },
+      "ExcelBorder": {
+        "type": "string",
+        "description": "Excel border",
+        "enum": [
+          "thin",
+          "medium",
+          "thick"
+        ],
+        "example": "thin"
+      },
+      "ExcelCell": {
+        "type": "object",
+        "description": "Cell",
+        "properties": {
+          "value": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "description": "Cell value",
+            "example": "=SUM(A1:B3)"
+          },
+          "data-format": {
+            "type": "string",
+            "description": "Cell data format, see https://poi.apache.org/apidocs/dev/org/apache/poi/ss/usermodel/BuiltinFormats.html",
+            "example": "#,##0"
+          },
+          "style": {
+            "type": "object",
+            "properties": {
+              "halign": {
+                "type": "string",
+                "description": "Horizontal alignment",
+                "enum": [
+                  "left",
+                  "right",
+                  "center"
+                ],
+                "example": "center"
+              },
+              "valign": {
+                "type": "string",
+                "description": "Vertical alignment",
+                "enum": [
+                  "top",
+                  "bottom",
+                  "center"
+                ],
+                "example": "center"
+              },
+              "background": {
+                "$ref": "#/components/schemas/ExcelColor"
+              },
+              "border-left": {
+                "$ref": "#/components/schemas/ExcelBorder"
+              },
+              "border-top": {
+                "$ref": "#/components/schemas/ExcelBorder"
+              },
+              "border-right": {
+                "$ref": "#/components/schemas/ExcelBorder"
+              },
+              "border-bottom": {
+                "$ref": "#/components/schemas/ExcelBorder"
+              },
+              "left-border-color": {
+                "$ref": "#/components/schemas/ExcelColor"
+              },
+              "top-border-color": {
+                "$ref": "#/components/schemas/ExcelColor"
+              },
+              "right-border-color": {
+                "$ref": "#/components/schemas/ExcelColor"
+              },
+              "bottom-border-color": {
+                "$ref": "#/components/schemas/ExcelColor"
+              },
+              "font": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "example": "Arial"
+                  },
+                  "color": {
+                    "$ref": "#/components/schemas/ExcelColor"
+                  },
+                  "bold": {
+                    "type": "boolean",
+                    "description": "Bold font",
+                    "example": false
+                  },
+                  "italic": {
+                    "type": "boolean",
+                    "description": "Italic font",
+                    "example": false
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "ExcelColor": {
+        "type": "string",
+        "description": "Excel color",
+        "enum": [
+          "aqua",
+          "automatic",
+          "black",
+          "black1",
+          "blue",
+          "blue_grey",
+          "blue1",
+          "bright_green",
+          "bright_green1",
+          "brown",
+          "coral",
+          "cornflower_blue",
+          "dark_blue",
+          "dark_green",
+          "dark_red",
+          "dark_teal",
+          "dark_yellow",
+          "gold",
+          "green",
+          "grey_25_percent",
+          "grey_40_percent",
+          "grey_50_percent",
+          "grey_80_percent",
+          "indigo",
+          "lavender",
+          "lemon_chiffon",
+          "light_blue",
+          "light_cornflower_blue",
+          "light_green",
+          "light_orange",
+          "light_turquoise",
+          "light_turquoise1",
+          "light_yellow",
+          "lime",
+          "maroon",
+          "olive_green",
+          "orange",
+          "orchid",
+          "pale_blue",
+          "pink",
+          "pink1",
+          "plum",
+          "red",
+          "red1",
+          "rose",
+          "royal_blue",
+          "sea_green",
+          "sky_blue",
+          "tan",
+          "teal",
+          "turquoise",
+          "turquoise1",
+          "violet",
+          "white",
+          "white1",
+          "yellow",
+          "yellow1"
+        ],
+        "example": "grey_25_percent"
+      },
+      "ExcelExport": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "File ID",
+            "format": "ObjectId"
+          },
+          "title": {
+            "type": "string",
+            "description": "File title"
+          },
+          "description": {
+            "type": "string",
+            "description": "File description"
+          },
+          "entity": {
+            "type": "string",
+            "description": "File category or type",
+            "example": "Invoice export"
+          },
+          "metadata": {
+            "type": "object",
+            "description": "File metadata",
+            "properties": {
+              "registry-id": {
+                "type": "string",
+                "description": "ID of related register"
+              }
+            },
+            "example": {}
+          },
+          "sheets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExcelSheet"
+            }
+          }
+        }
+      },
+      "ExcelExportDone": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "File ID",
+            "format": "ObjectId"
+          },
+          "title": {
+            "type": "string",
+            "description": "File title"
+          },
+          "description": {
+            "type": "string",
+            "description": "File description"
+          },
+          "entity": {
+            "type": "string",
+            "description": "File category or type",
+            "example": "Invoice export"
+          },
+          "metadata": {
+            "type": "object",
+            "description": "File metadata",
+            "properties": {
+              "registry-id": {
+                "type": "string",
+                "description": "ID of related register"
+              }
+            },
+            "example": {}
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "entity",
+          "metadata"
+        ]
+      },
+      "ExcelSheet": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Sheet ID",
+            "format": "ObjectId"
+          },
+          "title": {
+            "type": "string",
+            "description": "Sheet title"
+          },
+          "rows": {
+            "type": "array",
+            "description": "Data rows",
+            "items": {
+              "type": "array",
+              "description": "Row of cells",
+              "items": {
+                "$ref": "#/components/schemas/ExcelCell"
+              }
+            }
+          },
+          "col-settings": {
+            "type": "array",
+            "description": "Column settings",
+            "items": {
+              "type": "object",
+              "properties": {
+                "col": {
+                  "type": "number",
+                  "description": "Col index, zero based",
+                  "example": 3
+                },
+                "width": {
+                  "type": "number",
+                  "description": "Column width in 1/256 of digit 0, maximum 65280",
+                  "example": 800
+                }
+              }
+            }
+          },
+          "row-settings": {
+            "type": "array",
+            "description": "Row settings",
+            "items": {
+              "type": "object",
+              "properties": {
+                "row": {
+                  "type": "number",
+                  "description": "Row index, zero based",
+                  "example": 5
+                },
+                "height": {
+                  "type": "number",
+                  "description": "Row height in 1/20 of a point, or -1 for default height",
+                  "example": 200
+                }
+              }
+            }
+          },
+          "merged-regions": {
+            "type": "array",
+            "description": "Merged cell regions",
+            "items": {
+              "type": "object",
+              "properties": {
+                "first-row": {
+                  "type": "number",
+                  "description": "Index of first row, zero based",
+                  "example": 1
+                },
+                "last-row": {
+                  "type": "number",
+                  "description": "Index of last row, zero based",
+                  "example": 2
+                },
+                "first-col": {
+                  "type": "number",
+                  "description": "Index of first col, zero based",
+                  "example": 3
+                },
+                "last-col": {
+                  "type": "number",
+                  "description": "Index of last col, zero based",
+                  "example": 4
+                }
+              }
+            }
+          }
+        },
+        "required": [
+          "title",
+          "rows"
+        ]
+      },
       "Field": {
         "allOf": [
           {
@@ -5979,6 +7210,10 @@
                 "type": "number",
                 "description": "Sort order for this field. Lower weight floats on top, higher weight sinks."
               },
+              "conditionally-visible": {
+                "type": "boolean",
+                "description": "If set to true, the field should only be visible under a certain set of conditions. Visibility settings are found in `settings.visibility-options`"
+              },
               "required": {
                 "type": "boolean",
                 "description": "Is this field required?"
@@ -6006,6 +7241,10 @@
               "settings": {
                 "type": "object",
                 "description": "Type specific settings"
+              },
+              "meta": {
+                "type": "object",
+                "description": "Arbitary field meta data"
               }
             },
             "required": [
@@ -6202,104 +7441,121 @@
                 "type": "string",
                 "format": "local-date",
                 "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
-                "description": "First day of invoiced interval"
+                "description": "First day of invoiced interval.",
+                "example": "2018-10-01"
               },
               "end-date": {
                 "type": "string",
                 "format": "local-date",
                 "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
-                "description": "Last day of invoiced interval"
+                "description": "Last day of invoiced interval.",
+                "example": "2018-10-10"
               },
               "invoice-date": {
                 "type": "string",
                 "format": "local-date",
                 "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
-                "description": "The invoice date (date invoice was created, sent or booked)."
+                "description": "The invoice date (date invoice was created, sent or booked).",
+                "example": "2018-10-20"
               },
               "due-date": {
                 "type": "string",
                 "format": "local-date",
                 "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
-                "description": "Date when invoice is due for payment"
+                "description": "Date when invoice is due for payment.",
+                "example": "2018-10-23"
               },
               "currency": {
                 "type": "string",
-                "description": "Currency in ISO 4217 format",
+                "description": "Currency in ISO 4217 format.",
                 "example": "USD"
               },
               "total": {
                 "type": "number",
-                "description": "Total invoice amount"
+                "description": "Total invoice amount.",
+                "example": 1000
               },
               "invoice-text": {
                 "type": "string",
-                "description": "Longer multi-line message to the invoice receiver"
+                "description": "Longer multi-line message to the invoice receiver.",
+                "example": "This is a longer text."
               },
               "order-no": {
                 "type": "string",
-                "description": "Order number or code"
+                "description": "Order number or code.",
+                "example": "na1234"
               },
               "invoice-no": {
                 "type": "string",
-                "description": "Invoice number or code. Upon successful transfer Timezynk sets the invoice-no to the invoice number provided by third-party service."
+                "description": "Invoice number or code. Upon successful transfer Timezynk sets the invoice-no\nto the invoice number provided by third-party service.\n",
+                "example": "kv4321"
               },
               "read-only": {
                 "type": "boolean",
-                "description": "When read-only is set to true, the invoice can no longer be edited. Only cancel and delete action can be performed. Timezynk sets read-only as true upon successful transfer to third-party service."
+                "description": "When read-only is set to true, the invoice can no longer be edited. Only\ncancel and delete action can be performed. Timezynk sets read-only as true\nupon successful transfer to third-party service.\n"
               },
               "canceled": {
                 "type": "boolean",
-                "description": "True if the invoice is canceled"
+                "description": "True if the invoice is canceled."
               },
               "export-data": {
                 "type": "object",
-                "description": "Structed invoice head data. Exact content dependent on target invoicing software.",
+                "description": "Structed invoice head data. Exact content dependent on target invoicing software.\n",
                 "properties": {
                   "generic": {
                     "type": "object",
-                    "description": "invoice head data applicable to most target systems",
+                    "description": "invoice head data applicable to most target systems.",
                     "properties": {
                       "customer-no": {
                         "type": "string",
-                        "description": "Customer number or ID"
+                        "description": "Customer number or ID.",
+                        "example": 3008
                       },
                       "customer-name": {
                         "type": "string",
-                        "description": "Customer name"
+                        "description": "Customer name.",
+                        "example": "Thor"
                       },
                       "your-reference": {
                         "type": "string",
-                        "description": "Your reference"
+                        "description": "Your reference.",
+                        "example": 123
                       },
                       "our-reference": {
                         "type": "string",
-                        "description": "Our reference"
+                        "description": "Our reference.",
+                        "example": 123
                       },
                       "address-1": {
                         "type": "string",
-                        "description": "Address line 1"
+                        "description": "Address line 1.",
+                        "example": "Street"
                       },
                       "address-2": {
                         "type": "string",
-                        "description": "Address line 2"
+                        "description": "Address line 2.",
+                        "example": "c/o"
                       },
                       "zip-code": {
                         "type": "string",
-                        "description": "Address zip code"
+                        "description": "Address zip code.",
+                        "example": 12345
                       },
                       "city": {
                         "type": "string",
-                        "description": "Address city"
+                        "description": "Address city.",
+                        "example": "Borås"
                       },
                       "country": {
                         "type": "string",
-                        "description": "Address country"
+                        "description": "Address country.",
+                        "example": "SWE"
                       }
                     }
                   },
                   "custom": {
                     "type": "object",
-                    "description": "Context-specific data"
+                    "description": "Context-specific data."
                   }
                 }
               }
@@ -6348,26 +7604,27 @@
             "properties": {
               "invoice-id": {
                 "type": "string",
-                "description": "Unique shift ID",
-                "format": "ObjectId"
+                "description": "Unique shift ID.",
+                "format": "ObjectId",
+                "example": "5dde7024eded8872705aabcb"
               },
               "target": {
                 "type": "string",
-                "description": "Target system for export",
+                "description": "Target system for export.",
                 "example": "eAccounting"
               },
               "target-version": {
                 "type": "string",
-                "description": "Version of target system"
+                "description": "Version of target system."
               },
               "target-invoice-id": {
                 "type": "string",
-                "description": "Invoice ID assigned by target system",
+                "description": "Invoice ID assigned by target system.",
                 "example": 42
               },
               "state": {
                 "type": "string",
-                "description": "State of export",
+                "description": "State of export.",
                 "enum": [
                   "pending",
                   "failed",
@@ -6377,11 +7634,11 @@
               },
               "error-code": {
                 "type": "string",
-                "description": "Error code, if state equals \"failed\""
+                "description": "Error code, if state equals \"failed\"."
               },
               "error-message": {
                 "type": "string",
-                "description": "Error message, if state equals \"failed\""
+                "description": "Error message, if state equals \"failed\"."
               }
             },
             "required": [
@@ -6402,37 +7659,43 @@
             "properties": {
               "invoice-id": {
                 "type": "string",
-                "description": "Unique shift ID",
-                "format": "ObjectId"
+                "description": "Unique shift ID.",
+                "format": "ObjectId",
+                "example": "5dde7024eded8872705aabde"
               },
               "weight": {
                 "type": "number",
-                "description": "Lighter rows float to the top of the invoice, heavier rows sink."
+                "description": "Lighter rows float to the top of the invoice, heavier rows sink.",
+                "example": 1
               },
               "sku": {
                 "type": "string",
-                "description": "SKU (article number)"
+                "description": "SKU .",
+                "example": "1002"
               },
               "description": {
                 "type": "string",
-                "description": "Date when invoice is due for payment"
+                "description": "Item description.",
+                "example": "Some text describing the row."
               },
               "count": {
                 "type": "number",
-                "description": "Count"
+                "description": "Count.",
+                "example": 8
               },
               "unit": {
                 "type": "string",
-                "description": "Unit of measurement",
+                "description": "Unit of measurement.",
                 "example": "hours"
               },
               "price": {
                 "type": "number",
-                "description": "Price per item"
+                "description": "Price per item.",
+                "example": 8.2
               },
               "currency": {
                 "type": "string",
-                "description": "Currency in ISO 4217 format, must match invoice head",
+                "description": "Currency in ISO 4217 format, must match invoice head.",
                 "example": "USD"
               },
               "discount": {
@@ -6442,12 +7705,12 @@
               },
               "house-work": {
                 "type": "boolean",
-                "description": "True if the invoice row concerns tax deductible house work",
+                "description": "True if the invoice row concerns tax deductible house work.",
                 "example": false
               },
               "duration": {
                 "type": "number",
-                "description": "Duration in hours of underlying time report. Used for statistics only.",
+                "description": "Duration in hours of underlying time report. Used for statistics only.\n",
                 "example": 2.5
               },
               "report-ids": {
@@ -6461,27 +7724,80 @@
               },
               "export-data": {
                 "type": "object",
-                "description": "Structed invoice row data. Exact content dependent on target invoicing software.",
+                "description": "Structed invoice row data. Exact content dependent on target invoicing\nsoftware.\n",
                 "properties": {
                   "generic": {
                     "type": "object",
-                    "description": "invoice row data applicable to most target systems",
+                    "description": "invoice row data applicable to most target systems.",
                     "properties": {
                       "cost-center": {
                         "type": "string",
-                        "description": "Cost center for book-keeping this row",
+                        "description": "Cost center for book-keeping this row.",
                         "example": 28
                       },
                       "project-code": {
                         "type": "string",
-                        "description": "Project code for book-keeping this row",
+                        "description": "Project code for book-keeping this row.",
                         "example": "PL/I"
                       }
                     }
                   },
                   "custom": {
                     "type": "object",
-                    "description": "Context-specific data"
+                    "description": "Context-specific data."
+                  },
+                  "raindance": {
+                    "type": "object",
+                    "properties": {
+                      "description-s": {
+                        "type": "string"
+                      },
+                      "kstl-s": {
+                        "type": "string"
+                      },
+                      "vht-s": {
+                        "type": "string"
+                      },
+                      "obj-s": {
+                        "type": "string"
+                      },
+                      "project-s": {
+                        "type": "string"
+                      },
+                      "slag-s": {
+                        "type": "string"
+                      },
+                      "kmp-s": {
+                        "type": "string"
+                      },
+                      "konto-s": {
+                        "type": "string"
+                      },
+                      "description-k": {
+                        "type": "string"
+                      },
+                      "kstl-k": {
+                        "type": "string"
+                      },
+                      "vht-k": {
+                        "type": "string"
+                      },
+                      "obj-k": {
+                        "type": "string"
+                      },
+                      "project-k": {
+                        "type": "string"
+                      },
+                      "slag-k": {
+                        "type": "string"
+                      },
+                      "kmp-k": {
+                        "type": "string"
+                      },
+                      "konto-k": {
+                        "type": "string"
+                      }
+                    }
                   }
                 }
               }
@@ -6914,9 +8230,9 @@
             "type": "object",
             "description": "Supplier specific values which can be inherited into an order if specified in the order form."
           },
-          "supplier-code": {
+          "client-code": {
             "type": "string",
-            "description": "The supplier code is used to invite new suppliers. The code can only be used once, and to be able the user as a client, the email is required to match the invited users email."
+            "description": "The client code is used to invite new suppliers. The code can only be used once, and to be able the user as a supplier, the email is required to match the invited users email."
           }
         },
         "example": {
@@ -6940,7 +8256,7 @@
             "5dde7024eded8872705a0123"
           ],
           "values": {},
-          "supplier-code": "5dde7024eded8872705aabd2"
+          "client-code": "5dde7024eded8872705aabd2"
         }
       },
       "OutgoingRfq": {
@@ -7272,6 +8588,13 @@
               },
               "permissions": {
                 "$ref": "#/components/schemas/PermissionsObject"
+              },
+              "blocked-users": {
+                "type": "array",
+                "readOnly": true,
+                "items": {
+                  "$ref": "#/components/schemas/BlockedUser"
+                }
               },
               "values": {
                 "type": "object",
@@ -7653,6 +8976,89 @@
           }
         }
       },
+      "ShiftExchange": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/BasicObject"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "sender-id": {
+                "type": "string",
+                "format": "ObjectId",
+                "description": "ID of exchange request sender.",
+                "example": "5dde7024eded8872705aabd2"
+              },
+              "sender-shift-id": {
+                "type": "string",
+                "format": "ObjectId",
+                "description": "Shift to be changed out.",
+                "example": "5dde7024eded8872705aabd3"
+              },
+              "sender-shift-start": {
+                "type": "string",
+                "format": "date",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+                "description": "Start date of shift, collected from the object.",
+                "readOnly": true,
+                "example": "2016-01-10"
+              },
+              "recipient-id": {
+                "type": "string",
+                "format": "ObjectId",
+                "description": "ID of exchange request recipient.",
+                "example": "5dde7024eded8872705aabd4"
+              },
+              "recipient-shift-id": {
+                "type": "string",
+                "format": "ObjectId",
+                "description": "Shift belonging to recipient, to be changed in.",
+                "example": "5dde7024eded8872705aabd5"
+              },
+              "sender-shift-end": {
+                "type": "string",
+                "format": "date",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+                "description": "End date of shift, collected from the object.",
+                "readOnly": true,
+                "example": "2016-01-10"
+              },
+              "status": {
+                "type": "string",
+                "description": "Echange status.",
+                "enum": [
+                  "SENT",
+                  "ACCEPTED",
+                  "REJECTED",
+                  "EXPIRED",
+                  "CLOSED"
+                ],
+                "default": "SENT",
+                "readOnly": true
+              },
+              "expires": {
+                "type": "number",
+                "format": "timestamp",
+                "description": "Timestamp in milliseconds when the shift exchange expires",
+                "example": 1558604030403
+              },
+              "comment": {
+                "type": "string",
+                "nullable": true,
+                "description": "Comments.",
+                "example": "Rejection reasons."
+              }
+            },
+            "required": [
+              "sender-id",
+              "sender-shift-id",
+              "recipient-id",
+              "recipient-shift-id"
+            ]
+          }
+        ]
+      },
       "ShiftPublishRequest": {
         "type": "object",
         "properties": {
@@ -8013,6 +9419,92 @@
             "description": "URL to users profile picture"
           }
         }
+      },
+      "WorkHoursTemplate": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/BasicObject"
+          },
+          {
+            "properties": {
+              "title": {
+                "type": "string",
+                "description": "Template title.",
+                "example": "Template Title"
+              },
+              "fulltime-hours": {
+                "type": "integer",
+                "description": "Hours in a fulltime work week.",
+                "example": 40
+              },
+              "works-special-dates": {
+                "type": "boolean",
+                "description": "Can work on e.g. holidays.",
+                "example": false
+              },
+              "rows": {
+                "type": "array",
+                "description": "List of shifts.",
+                "items": {
+                  "type": "object",
+                  "description": "Shift.",
+                  "properties": {
+                    "start": {
+                      "type": "string",
+                      "format": "local-date-time",
+                      "description": "Starting date and time of shift.",
+                      "example": "2020-04-24T10:00:00"
+                    },
+                    "end": {
+                      "type": "string",
+                      "format": "local-date-time",
+                      "description": "Ending date and time of shift.",
+                      "example": "2020-04-24T18:00:00"
+                    },
+                    "breaks": {
+                      "type": "array",
+                      "description": "List of breaks.",
+                      "items": {
+                        "type": "object",
+                        "description": "Break.",
+                        "properties": {
+                          "start": {
+                            "type": "string",
+                            "format": "local-date-time",
+                            "description": "Starting date and time of break.",
+                            "example": "2020-04-24T12:00:00"
+                          },
+                          "end": {
+                            "type": "string",
+                            "format": "local-date-time",
+                            "description": "Ending date and time of break.",
+                            "example": "2020-04-24T13:00:00"
+                          }
+                        },
+                        "required": [
+                          "start",
+                          "end"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "start",
+                    "end"
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "required": [
+              "title",
+              "fulltime-hours",
+              "works-special-dates",
+              "rows"
+            ]
+          }
+        ]
       }
     },
     "parameters": {
