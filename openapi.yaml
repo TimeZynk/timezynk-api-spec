@@ -12,8 +12,12 @@ tags:
     description: Fetching and updating availability
   - name: Invoice
     description: 'Fetching, updating and creating invoices'
+  - name: Invoice rows
+    description: 'Fetching, updating and creating invoice rows'
   - name: Invoice articles
     description: 'Fetching, updating and creating invoices articles'
+  - name: Invoice export
+    description: Fetching and creating invoice exports
   - name: User
     description: Calls for fetching and updating the system users.
   - name: Work hours
@@ -400,13 +404,13 @@ paths:
               type: array
               items:
                 $ref: '#/components/schemas/InvoiceRow'
-        description: Invoice rows to be added
+        description: Invoice rows to be added.
         required: true
       tags:
-        - Invoice
+        - Invoice rows
       responses:
         '200':
-          description: Newly added invoice rows
+          description: Newly added invoice rows.
           content:
             application/json:
               schema:
@@ -414,22 +418,22 @@ paths:
                 items:
                   $ref: '#/components/schemas/InvoiceRow'
         '400':
-          description: Validation failed
+          description: Validation failed.
     delete:
       summary: Delete multiple invoice rows
       parameters:
         - name: invoice-id
           in: query
           required: true
-          description: Invoice ID to delete rows for
+          description: Invoice ID to delete rows for.
           schema:
             type: string
             format: ObjectId
       tags:
-        - Invoice
+        - Invoice rows
       responses:
         '200':
-          description: Delete successful
+          description: Delete successful.
   /default-account/v1/initialize-company:
     post:
       summary: Initialize company
@@ -827,6 +831,9 @@ paths:
                   items:
                     type: string
                     format: ObjectId
+                  example:
+                    - 5f31459ddaf86a3cd67543bf
+                    - 5f31459ddaf86a3cd67543c1
                 target:
                   type: string
                   enum:
@@ -835,16 +842,12 @@ paths:
                     - ekot
                     - ubw
                   description: Export format.
+                  example: ubw
               required:
                 - ids
                 - target
-            example:
-              ids:
-                - 5f31459ddaf86a3cd67543bf
-                - 5f31459ddaf86a3cd67543c1
-              target: ubw
       tags:
-        - Invoice
+        - Invoice export
       responses:
         '200':
           description: Invoice download object.
@@ -857,46 +860,45 @@ paths:
                     type: string
                     format: ObjectId
                     description: The download Id.
+                    example: 5f31459ddaf86a3cd67543c9
                   vid:
                     type: string
                     format: ObjectId
+                    example: 5f31459ddaf86a3cd67543ca
                   valid-from:
                     type: number
                     format: Timestamp
+                    example: 1597064605190
                   ids:
                     type: array
                     items:
                       type: string
                       format: ObjectId
+                    example:
+                      - 5f31459ddaf86a3cd67543bf
+                      - 5f31459ddaf86a3cd67543c1
                   created:
                     type: number
                     format: Timestamp
+                    example: 1597064605000
                   company-id:
                     type: string
                     format: ObjectId
+                    example: 5f313fb5daf86a3cd6754369
                   created-by:
                     type: string
                     format: ObjectId
+                    example: 5f313fb5daf86a3cd675436a
                   target:
                     type: string
-              example:
-                vid: 5f31459ddaf86a3cd67543ca
-                valid-from: 1597064605190
-                ids:
-                  - 5f31459ddaf86a3cd67543bf
-                  - 5f31459ddaf86a3cd67543c1
-                created: 1597064605000
-                company-id: 5f313fb5daf86a3cd6754369
-                created-by: 5f313fb5daf86a3cd675436a
-                id: 5f31459ddaf86a3cd67543c9
-                target: ubw
+                    example: ubw
         '400':
-          description: Validation failed
+          description: Validation failed.
   '/invoice-download/{downloadId}':
     get:
       summary: Download invoices
       tags:
-        - Invoice
+        - Invoice export
       parameters:
         - name: downloadId
           in: path
@@ -907,7 +909,7 @@ paths:
             format: ObjectId
       responses:
         '200':
-          description: Array of invoices
+          description: Array of invoices.
           content:
             application/json:
               schema:
@@ -918,21 +920,21 @@ paths:
               example:
                 - "\tMagnus\t\t\t\t1\t3008\tOurReference\t\tTesttext1\tDAG\t ..."
         '404':
-          description: Download not found
+          description: Download not found.
   /invoices-export:
     get:
       summary: Fetch invoice exports
       tags:
-        - Invoice
+        - Invoice export
       parameters:
         - name: target
           in: query
-          description: Target to search for
+          description: Target to search for.
           schema:
             type: string
         - name: state
           in: query
-          description: State to search for
+          description: State to search for.
           schema:
             type: string
             enum:
@@ -942,13 +944,13 @@ paths:
               - download
         - name: invoice-id
           in: query
-          description: Invoice ID to search for
+          description: Invoice ID to search for.
           schema:
             type: string
             format: ObjectId
       responses:
         '200':
-          description: Array of invoice exports
+          description: Array of invoice exports.
           content:
             application/json:
               schema:
@@ -962,29 +964,29 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/InvoiceExport'
-        description: Invoice to be added
+        description: Invoice to be added.
         required: true
       tags:
-        - Invoice
+        - Invoice export
       responses:
         '200':
-          description: Newly added invoice export
+          description: Newly added invoice export.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/InvoiceExport'
         '400':
-          description: Validation failed
+          description: Validation failed.
   /invoices-rows:
     get:
       summary: Fetch invoice rows
       tags:
-        - Invoice
+        - Invoice rows
       parameters:
         - name: invoice-id
           in: query
           required: true
-          description: Invoice to fetch the rows for
+          description: Invoice to fetch the rows for.
           schema:
             type: string
             format: ObjectId
@@ -1004,19 +1006,19 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/InvoiceRow'
-        description: Invoice to be added
+        description: Invoice to be added.
         required: true
       tags:
-        - Invoice
+        - Invoice rows
       responses:
         '200':
-          description: Newly added invoice row
+          description: Newly added invoice row.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/InvoiceRow'
         '400':
-          description: Validation failed
+          description: Validation failed.
   '/invoices-rows/{rowId}':
     get:
       summary: Fetch invoice row
@@ -1028,16 +1030,16 @@ paths:
             type: string
             format: ObjectId
       tags:
-        - Invoice
+        - Invoice rows
       responses:
         '200':
-          description: Invoice object
+          description: Invoice object.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/InvoiceRow'
         '404':
-          description: Invoice not found
+          description: Invoice not found.
     put:
       summary: Update invoice row
       parameters:
@@ -1054,18 +1056,18 @@ paths:
               $ref: '#/components/schemas/InvoiceRow'
         required: true
       tags:
-        - Invoice
+        - Invoice rows
       responses:
         '200':
-          description: Updated invoice row object
+          description: Updated invoice row object.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/InvoiceRow'
         '400':
-          description: Validation failed
+          description: Validation failed.
         '404':
-          description: Invoice not found
+          description: Invoice not found.
     delete:
       summary: Delete invoice row
       parameters:
@@ -1076,10 +1078,12 @@ paths:
             type: string
             format: ObjectId
       tags:
-        - Invoice
+        - Invoice rows
       responses:
         '200':
-          description: Delete successful
+          description: Delete successful.
+        '404':
+          description: Invoice not found.
   /invoices:
     get:
       summary: Fetch invoices
@@ -1107,13 +1111,13 @@ paths:
         - Invoice
       responses:
         '200':
-          description: Newly added invoice object
+          description: Newly added invoice object.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Invoice'
         '400':
-          description: Validation failed
+          description: Validation failed.
   '/invoices/{invoiceId}':
     get:
       summary: Fetch invoice
@@ -1180,7 +1184,8 @@ paths:
   '/invoices/pending/{target}':
     get:
       summary: Fetch pending invoices
-      description: 'For given target, fetch all invoices whose latest linked invoice exports are pending.'
+      description: |
+        For given target, fetch all invoices whose latest linked invoice exports are pending.
       parameters:
         - name: target
           in: path
@@ -2069,13 +2074,15 @@ paths:
             format: ObjectId
       responses:
         '200':
-          description: List of blocked users
+          description: List of blocked users.
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/BlockedUser'
+        '404':
+          description: Registry data object not found.
     post:
       summary: Add a new blocked user
       tags:
@@ -2088,16 +2095,23 @@ paths:
             type: string
             format: ObjectId
       requestBody:
-        $ref: '#/components/schemas/BlockedUser'
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BlockedUser'
+        description: Blocked user.
+        required: true
       responses:
         '200':
-          description: Created blocked user
+          description: Created blocked user.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/BlockedUser'
         '400':
-          description: Validation failed
+          description: Validation failed.
+        '404':
+          description: Registry data object not found.
   '/registry-data/{registryDataId}/blocked-users/{blockedUserId}':
     get:
       summary: Get single blocked user instance
@@ -2118,13 +2132,15 @@ paths:
             format: ObjectId
       responses:
         '200':
-          description: Blocked user data
+          description: Blocked user data.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/BlockedUser'
         '404':
-          description: Not found
+          description: |
+            * Not found.
+            * Registry data object not found.
     put:
       summary: Update blocked user settings
       tags:
@@ -2143,18 +2159,38 @@ paths:
             type: string
             format: ObjectId
       requestBody:
-        $ref: '#/components/schemas/BlockedUser'
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                start-date:
+                  type: string
+                  description: First date of blocked interval.
+                  format: iso-date
+                  example: '2020-07-01'
+                end-date:
+                  type: string
+                  description: Last date of blocked interval.
+                  format: iso-date
+                  example: '2020-12-31'
+                comment:
+                  type: string
+                  description: Blocking reason or comment.
+                  example: 'Previous employee, 6 months cool-down period'
       responses:
         '200':
-          description: Updated registry data
+          description: Updated blocked user.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/BlockedUser'
         '400':
-          description: Validation failed
+          description: Validation failed.
         '404':
-          description: Not found
+          description: |
+            * Not found.
+            * Registry data object not found.
     delete:
       summary: Remove blocked user
       tags:
@@ -2172,15 +2208,15 @@ paths:
           schema:
             type: string
             format: ObjectId
-      requestBody:
-        $ref: '#/components/schemas/BlockedUser'
       responses:
         '204':
-          description: 'Successfully removed, no content'
+          description: 'Successfully removed, no content.'
         '400':
-          description: Validation failed
+          description: Validation failed.
         '404':
-          description: Not found
+          description: |
+            * Not found.
+            * Registry data object not found.
   /registry-fields:
     get:
       summary: List custom registry fields
@@ -3851,6 +3887,85 @@ paths:
           description: Cannot delete shift linked to a timereport
         '500':
           description: 'Repetition mode set to ''following'', but no repetition id set'
+  '/shifts/{shiftId}/prepared-exchanges':
+    get:
+      summary: Fetch prepared shift exchanges
+      description: |
+        To be used with Shift Exchanges API. Fetches an array of prepared Shift Exchanges for the requested shift. The shifts in the response are filtered by user permissions (tags) and shifts overlapping the sender shift.
+      parameters:
+        - name: shiftId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: ObjectId
+        - name: from
+          in: query
+          description: Start of interval
+          required: true
+          schema:
+            type: string
+            format: date
+            example: '2020-01-01'
+        - name: to
+          in: query
+          description: End of interval
+          required: true
+          schema:
+            type: string
+            format: date
+            example: '2020-01-08'
+      tags:
+        - Shift Exchanges
+      responses:
+        '200':
+          description: Object including exchangeable shifts and the permitted users for each shift.
+          content:
+            application/json:
+              schema:
+                type: array
+                description: TEST
+                items:
+                  type: object
+                  properties:
+                    sender-id:
+                      type: string
+                      format: ObjectId
+                      description: ID of exchange request sender.
+                      example: 5dde7024eded8872705aabd2
+                    sender-shift-id:
+                      type: string
+                      format: ObjectId
+                      description: Shift to be changed out.
+                      example: 5dde7024eded8872705aabd3
+                    sender-shift-start:
+                      type: string
+                      format: date
+                      pattern: '^\d{4}-\d{2}-\d{2}$'
+                      description: 'Start date of shift, collected from the object.'
+                      readOnly: true
+                      example: '2016-01-10'
+                    recipient-id:
+                      type: string
+                      format: ObjectId
+                      description: ID of exchange request recipient.
+                      example: 5dde7024eded8872705aabd4
+                    recipient-shift-id:
+                      type: string
+                      format: ObjectId
+                      description: 'Shift belonging to recipient, to be changed in.'
+                      example: 5dde7024eded8872705aabd5
+                    sender-shift-end:
+                      type: string
+                      format: date
+                      pattern: '^\d{4}-\d{2}-\d{2}$'
+                      description: 'End date of shift, collected from the object.'
+                      readOnly: true
+                      example: '2016-01-10'
+        '400':
+          description: ShiftId invalid format
+        '404':
+          description: Shift not found
   /timereports:
     get:
       summary: Fetch time reports
@@ -4345,37 +4460,37 @@ components:
       properties:
         id:
           type: string
-          description: User ID of blocked user
+          description: User ID of blocked user.
           format: ObjectId
           example: 5c88de8e1ae9c4230e51ab8a
-        comment:
-          type: string
-          description: Blocking reason or comment
-          example: 'Previous employee, 6 months cool-down period'
         start-date:
           type: string
-          description: First date of blocked interval
+          description: First date of blocked interval.
           format: iso-date
           example: '2020-07-01'
         end-date:
           type: string
-          description: 'Last date of blocked interval, leave as null to block user forever'
+          description: 'Last date of blocked interval, if omitted then set to 90 days.'
           format: iso-date
           example: '2020-12-31'
+        comment:
+          type: string
+          description: Blocking reason or comment.
+          example: 'Previous employee, 6 months cool-down period'
         created-by:
           type: string
-          description: User ID of creating user
+          description: User ID of creating user.
           format: ObjectId
           example: 5c6ad17093d052121a82a6ae
           readOnly: true
         created:
           type: number
-          description: Timestamp when this block was created
+          description: Timestamp when this block was created.
           format: timestamp
           readOnly: true
           example: 1558604030403
       required:
-        - user-id
+        - id
         - start-date
     Break:
       type: object
@@ -4906,82 +5021,105 @@ components:
               type: string
               format: local-date
               pattern: '^\d{4}-\d{2}-\d{2}$'
-              description: First day of invoiced interval
+              description: First day of invoiced interval.
+              example: '2018-10-01'
             end-date:
               type: string
               format: local-date
               pattern: '^\d{4}-\d{2}-\d{2}$'
-              description: Last day of invoiced interval
+              description: Last day of invoiced interval.
+              example: '2018-10-10'
             invoice-date:
               type: string
               format: local-date
               pattern: '^\d{4}-\d{2}-\d{2}$'
               description: 'The invoice date (date invoice was created, sent or booked).'
+              example: '2018-10-20'
             due-date:
               type: string
               format: local-date
               pattern: '^\d{4}-\d{2}-\d{2}$'
-              description: Date when invoice is due for payment
+              description: Date when invoice is due for payment.
+              example: '2018-10-23'
             currency:
               type: string
-              description: Currency in ISO 4217 format
+              description: Currency in ISO 4217 format.
               example: USD
             total:
               type: number
-              description: Total invoice amount
+              description: Total invoice amount.
+              example: 1000
             invoice-text:
               type: string
-              description: Longer multi-line message to the invoice receiver
+              description: Longer multi-line message to the invoice receiver.
+              example: This is a longer text.
             order-no:
               type: string
-              description: Order number or code
+              description: Order number or code.
+              example: na1234
             invoice-no:
               type: string
-              description: Invoice number or code. Upon successful transfer Timezynk sets the invoice-no to the invoice number provided by third-party service.
+              description: |
+                Invoice number or code. Upon successful transfer Timezynk sets the invoice-no
+                to the invoice number provided by third-party service.
+              example: kv4321
             read-only:
               type: boolean
-              description: 'When read-only is set to true, the invoice can no longer be edited. Only cancel and delete action can be performed. Timezynk sets read-only as true upon successful transfer to third-party service.'
+              description: |
+                When read-only is set to true, the invoice can no longer be edited. Only
+                cancel and delete action can be performed. Timezynk sets read-only as true
+                upon successful transfer to third-party service.
             canceled:
               type: boolean
-              description: True if the invoice is canceled
+              description: True if the invoice is canceled.
             export-data:
               type: object
-              description: Structed invoice head data. Exact content dependent on target invoicing software.
+              description: |
+                Structed invoice head data. Exact content dependent on target invoicing software.
               properties:
                 generic:
                   type: object
-                  description: invoice head data applicable to most target systems
+                  description: invoice head data applicable to most target systems.
                   properties:
                     customer-no:
                       type: string
-                      description: Customer number or ID
+                      description: Customer number or ID.
+                      example: 3008
                     customer-name:
                       type: string
-                      description: Customer name
+                      description: Customer name.
+                      example: Thor
                     your-reference:
                       type: string
-                      description: Your reference
+                      description: Your reference.
+                      example: 123
                     our-reference:
                       type: string
-                      description: Our reference
+                      description: Our reference.
+                      example: 123
                     address-1:
                       type: string
-                      description: Address line 1
+                      description: Address line 1.
+                      example: Street
                     address-2:
                       type: string
-                      description: Address line 2
+                      description: Address line 2.
+                      example: c/o
                     zip-code:
                       type: string
-                      description: Address zip code
+                      description: Address zip code.
+                      example: 12345
                     city:
                       type: string
-                      description: Address city
+                      description: Address city.
+                      example: Borås
                     country:
                       type: string
-                      description: Address country
+                      description: Address country.
+                      example: SWE
                 custom:
                   type: object
-                  description: Context-specific data
+                  description: Context-specific data.
           required:
             - invoice-date
             - export-data
@@ -5009,22 +5147,23 @@ components:
           properties:
             invoice-id:
               type: string
-              description: Unique shift ID
+              description: Unique shift ID.
               format: ObjectId
+              example: 5dde7024eded8872705aabcb
             target:
               type: string
-              description: Target system for export
+              description: Target system for export.
               example: eAccounting
             target-version:
               type: string
-              description: Version of target system
+              description: Version of target system.
             target-invoice-id:
               type: string
-              description: Invoice ID assigned by target system
+              description: Invoice ID assigned by target system.
               example: 42
             state:
               type: string
-              description: State of export
+              description: State of export.
               enum:
                 - pending
                 - failed
@@ -5032,10 +5171,10 @@ components:
                 - download
             error-code:
               type: string
-              description: 'Error code, if state equals "failed"'
+              description: 'Error code, if state equals "failed".'
             error-message:
               type: string
-              description: 'Error message, if state equals "failed"'
+              description: 'Error message, if state equals "failed".'
           required:
             - invoice-id
             - target
@@ -5047,30 +5186,36 @@ components:
           properties:
             invoice-id:
               type: string
-              description: Unique shift ID
+              description: Unique shift ID.
               format: ObjectId
+              example: 5dde7024eded8872705aabde
             weight:
               type: number
               description: 'Lighter rows float to the top of the invoice, heavier rows sink.'
+              example: 1
             sku:
               type: string
-              description: SKU (article number)
+              description: SKU .
+              example: '1002'
             description:
               type: string
-              description: Date when invoice is due for payment
+              description: Item description.
+              example: Some text describing the row.
             count:
               type: number
-              description: Count
+              description: Count.
+              example: 8
             unit:
               type: string
-              description: Unit of measurement
+              description: Unit of measurement.
               example: hours
             price:
               type: number
-              description: Price per item
+              description: Price per item.
+              example: 8.2
             currency:
               type: string
-              description: 'Currency in ISO 4217 format, must match invoice head'
+              description: 'Currency in ISO 4217 format, must match invoice head.'
               example: USD
             discount:
               type: number
@@ -5078,11 +5223,12 @@ components:
               example: 0.05
             house-work:
               type: boolean
-              description: True if the invoice row concerns tax deductible house work
+              description: True if the invoice row concerns tax deductible house work.
               example: false
             duration:
               type: number
-              description: Duration in hours of underlying time report. Used for statistics only.
+              description: |
+                Duration in hours of underlying time report. Used for statistics only.
               example: 2.5
             report-ids:
               type: array
@@ -5093,23 +5239,60 @@ components:
                 example: 5bf6d703571d013b348713cb
             export-data:
               type: object
-              description: Structed invoice row data. Exact content dependent on target invoicing software.
+              description: |
+                Structed invoice row data. Exact content dependent on target invoicing
+                software.
               properties:
                 generic:
                   type: object
-                  description: invoice row data applicable to most target systems
+                  description: invoice row data applicable to most target systems.
                   properties:
                     cost-center:
                       type: string
-                      description: Cost center for book-keeping this row
+                      description: Cost center for book-keeping this row.
                       example: 28
                     project-code:
                       type: string
-                      description: Project code for book-keeping this row
+                      description: Project code for book-keeping this row.
                       example: PL/I
                 custom:
                   type: object
-                  description: Context-specific data
+                  description: Context-specific data.
+                raindance:
+                  type: object
+                  properties:
+                    description-s:
+                      type: string
+                    kstl-s:
+                      type: string
+                    vht-s:
+                      type: string
+                    obj-s:
+                      type: string
+                    project-s:
+                      type: string
+                    slag-s:
+                      type: string
+                    kmp-s:
+                      type: string
+                    konto-s:
+                      type: string
+                    description-k:
+                      type: string
+                    kstl-k:
+                      type: string
+                    vht-k:
+                      type: string
+                    obj-k:
+                      type: string
+                    project-k:
+                      type: string
+                    slag-k:
+                      type: string
+                    kmp-k:
+                      type: string
+                    konto-k:
+                      type: string
           required:
             - invoice-id
             - weight
