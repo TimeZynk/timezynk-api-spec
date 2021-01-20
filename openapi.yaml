@@ -2378,6 +2378,13 @@ paths:
             type: boolean
             example: true
             default: false
+        - name: approval-requests
+          description: Specifies if data in the approval requests collection should be included in the response. Will fetch approval requests in the specified interval.
+          in: query
+          schema:
+            type: boolean
+            example: true
+            default: false
       tags:
         - Related Collections
       responses:
@@ -2398,12 +2405,15 @@ paths:
                     $ref: '#/components/schemas/Inquiry'
                   availabilities:
                     $ref: '#/components/schemas/Availability'
+                  approval-requests:
+                    $ref: '#/components/schemas/ApprovalRequest'
               example:
                 shifts: []
                 timereports: []
                 approvals: []
                 inquiries: []
                 availabilities: []
+                approval-requests: []
   '/rfqs/v1/bulk/rfqs/incoming/{incomingRfqId}/quoteshifts':
     post:
       summary: Create multiple quote shifts
@@ -4243,6 +4253,71 @@ components:
           required:
             - approved-id
             - approved-vid
+    ApprovalRequest:
+      allOf:
+        - $ref: '#/components/schemas/BasicObject'
+        - type: object
+          properties:
+            email:
+              type: string
+              description: Email address to where the approval request should be sent.
+              example: john@doe.com
+            subject:
+              type: string
+              description: Email subject.
+            expires:
+              type: number
+              description: Epoch timestamp of when the request will expire.
+              example: 1611070532861
+            response:
+              type: string
+              description: Response of the request.
+              enum:
+                - pending
+                - approved
+                - rejected
+            response-at:
+              type: number
+              description: Epoch timestamp of when the response was recorded.
+              example: 1611070532861
+            comment:
+              type: string
+              description: Optional comment.
+              example: 1611070532861
+            start:
+              type: string
+              format: local-date-time
+              pattern: '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(.\d{3})?$'
+              description: 'Start of the approval request without time zone (i.e. 2019-04-30T15:41:00.000)'
+            end:
+              type: string
+              format: local-date-time
+              pattern: '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(.\d{3})?$'
+              description: 'End of the approval request without time zone (i.e. 2019-04-30T15:41:00.000)'
+            html:
+              type: string
+              description: Html content of the approval request.
+            reports:
+              type: array
+              description: Array of the time reports included in the approval request.
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: Id of the time report
+                  vid:
+                    type: string
+                    description: Vid of the time report
+          required:
+            - email
+            - subject
+            - expires
+            - response
+            - start
+            - end
+            - html
+            - reports
     ArticleFormula:
       type: object
       description: Article formula.
