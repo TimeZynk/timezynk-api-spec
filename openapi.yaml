@@ -48,6 +48,7 @@ tags:
   - name: Quote shifts - incoming
   - name: Quote shift responses - outgoing
   - name: Quote shift responses - incoming
+  - name: RfQ Forms
   - name: Orders
   - name: Order Forms
   - name: Order Clients
@@ -1590,7 +1591,7 @@ paths:
         - Order Forms
       responses:
         '200':
-          description: An array of order froms
+          description: An array of order forms
           content:
             application/json:
               schema:
@@ -1603,6 +1604,27 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+    post:
+      summary: Create order form
+      description: |
+        Endpoint for creating a new form.
+      requestBody:
+        description: Order form to be created.
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/OrderForm'
+      tags:
+        - Order Forms
+      responses:
+        '200':
+          description: Newly added form
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderForm'
   '/orders/v2/forms/{orderFormId}':
     get:
       summary: Fetch single order form
@@ -2524,6 +2546,110 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/RfqShift'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /rfqs/v1/rfqs/forms:
+    get:
+      summary: List RfQ forms
+      description: |
+        Returns an array of all RfQ forms.
+      tags:
+        - RfQ Forms
+      responses:
+        '200':
+          description: An array of forms.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RfqForm'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      summary: Create RfQ form
+      description: |
+        Endpoint for creating a new form.
+      requestBody:
+        description: RfQ form to be created.
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/RfqForm'
+      tags:
+        - RfQ Forms
+      responses:
+        '200':
+          description: Newly added form
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RfqForm'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  '/rfqs/v1/rfqs/forms/{FormId}':
+    get:
+      summary: Fetch single RfQ form
+      description: Endpoint for fetching a single form.
+      tags:
+        - RfQ Forms
+      parameters:
+        - name: FormId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: ObjectId
+      responses:
+        '200':
+          description: Single form
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RfqForm'
+        '404':
+          description: Form not found
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      summary: Update single RfQ form
+      description: endpoint.
+      tags:
+        - RfQ Forms
+      parameters:
+        - name: FormId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: ObjectId
+      responses:
+        '200':
+          description: Single form
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RfqForm'
+        '404':
+          description: Form not found
         default:
           description: Unexpected error
           content:
@@ -5647,31 +5773,24 @@ components:
                 Should be used to set `order.supplier-id` when creating a new order.
               format: ObjectId
               readOnly: true
+              example: 5dde7024eded8872705aabcf
             title:
               type: string
               description: Name of the order form
+              required: true
+              example: test form
             shift-fields:
               type: array
               description: List of shifts fields related to the order.
               items:
                 $ref: '#/components/schemas/OrderFormShiftField'
+              example: []
             fields:
               type: array
               description: List of additional custom fields related to the order.
               items:
                 $ref: '#/components/schemas/OrderFormCustomField'
-      example:
-        id: 5dde7024eded8872705a0001
-        vid: 5dde71e4c9e77c0001730001
-        company-id: 5dde6e21c9e77c0001a1e3a7
-        created: 1574858788000
-        created-by: 5dde6e21c9e77c0001a1e3b0
-        valid-from: 1574859236203
-        changed-by: 5dde6e21c9e77c0001a1e3b0
-        supplier-id: ''
-        title: test form
-        shift-fields: []
-        fields: []
+              example: []
     OrderFormCustomField:
       allOf:
         - $ref: '#/components/schemas/OrderFormField'
@@ -6124,6 +6243,86 @@ components:
         rfq-no: '13'
         client-id: 5dde7024eded8872705a0017
         outgoing-rfq-id: 5dde7024eded8872705a0001
+    RfqForm:
+      allOf:
+        - $ref: '#/components/schemas/BasicObject'
+        - properties:
+            supplier-id:
+              type: string
+              description: |
+                Id of the company supplying the form.
+              format: ObjectId
+              readOnly: true
+              example: 5dde7024eded8872705aabcf
+            title:
+              type: string
+              description: Name of the form.
+              required: true
+              example: test form
+            shift-fields:
+              type: array
+              description: List of shifts fields related to the form.
+              items:
+                $ref: '#/components/schemas/RfqFormShiftField'
+              example: []
+            fields:
+              type: array
+              description: List of additional custom fields related to the form.
+              items:
+                $ref: '#/components/schemas/RfqFormCustomField'
+              example: []
+    RfqFormCustomField:
+      allOf:
+        - $ref: '#/components/schemas/RfqFormField'
+        - properties:
+            field-template-id:
+              type: string
+              format: ObjectId
+              description: Id of the registry field type used
+              required: true
+    RfqFormField:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier representing a specific custom field
+          format: ObjectId
+          readOnly: true
+        field-type:
+          type: string
+          description: Field storage type
+        required:
+          type: boolean
+          description: Is this field required?
+        public:
+          type: boolean
+          description: |
+            Allow the client to see this field.
+        protected:
+          type: boolean
+          description: Field should only the editable by and visible for the supplier.
+        readonly:
+          type: boolean
+          description: Field is read-only
+        values:
+          type: object
+          description: Type specific values
+        settings:
+          type: object
+          description: Type specific settings
+        title:
+          type: string
+          description: Human-readable field title
+          required: true
+    RfqFormShiftField:
+      allOf:
+        - $ref: '#/components/schemas/RfqFormField'
+        - properties:
+            field-id:
+              type: string
+              format: ObjectId
+              description: Id of the field instance
+              required: true
     RfqShift:
       allOf:
         - $ref: '#/components/schemas/BasicObject'
