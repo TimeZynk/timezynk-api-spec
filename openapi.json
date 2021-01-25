@@ -5303,7 +5303,7 @@
                 "type": "object",
                 "description": "List of suppliers to create RfQs for.",
                 "properties": {
-                  "supplier-ids": {
+                  "supplier-company-ids": {
                     "type": "array",
                     "items": {
                       "type": "string",
@@ -5312,7 +5312,7 @@
                   }
                 },
                 "required": [
-                  "supplier-ids"
+                  "supplier-company-ids"
                 ]
               }
             }
@@ -5324,6 +5324,19 @@
         "responses": {
           "201": {
             "description": "OK"
+          },
+          "409": {
+            "description": "Already sent"
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
           }
         }
       }
