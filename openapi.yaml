@@ -2552,6 +2552,50 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+  '/rfqs/v1/clients/confirm/{clientCode}':
+    put:
+      summary: Confirm client
+      description: |
+        The Confirm Client endpoint allows a user to confirm a supplier invitation from a client.
+      tags:
+        - RfQ Clients
+      parameters:
+        - name: clientCode
+          in: path
+          required: true
+          schema:
+            type: string
+            format: ObjectId
+      responses:
+        '200':
+          description: OK
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /rfqs/v1/rfqs/clients:
+    get:
+      summary: List available clients
+      description: The Rfq Clients endpoint returns a list of all available clients to recieve rfqs from.
+      tags:
+        - RfQ Clients
+      responses:
+        '200':
+          description: An array of rfq clients
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RfqSupplier'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /rfqs/v1/rfqs/forms:
     get:
       summary: List RfQ forms
@@ -3550,6 +3594,79 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RfqShift'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /rfqs/v1/rfqs/suppliers:
+    get:
+      summary: List RfQ suppliers
+      description: |
+        The RfQ Suppliers endpoint returns a list of all invited and active RfQ Suppliers.
+      tags:
+        - RfQ Suppliers
+      responses:
+        '200':
+          description: An array of rfq suppliers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RfqSupplier'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      summary: Create RfQ Suppliers
+      description: |
+        Endpoint for creating a RfQ Supplier. When the RfQ Supplier is created, an email invitation will be sent to the entered email.
+      tags:
+        - RfQ Suppliers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RfqSupplier'
+        description: RfQ Supplier to be created.
+        required: true
+      responses:
+        '200':
+          description: An array of RfQ Supplier
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RfqSupplier'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  '/rfqs/v1/rfqs/suppliers/{supplierId}':
+    get:
+      summary: Fetch single RfQ Supplier
+      description: Endpoint for fetching a single RfQ Supplier
+      tags:
+        - RfQ Suppliers
+      responses:
+        '200':
+          description: Single rfq supplie
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RfqSupplier'
+        '404':
+          description: Rfq Supplier not found
         default:
           description: Unexpected error
           content:
@@ -6393,6 +6510,58 @@ components:
           - 5dde7024eded8872705a0014
         shift-id: 5dde7024eded8872705a0012
         outgoing-rfq-id: 5dde7024eded8872705a0013
+    RfqSupplier:
+      allOf:
+        - $ref: '#/components/schemas/BasicObject'
+        - properties:
+            email:
+              type: string
+              description: The rfq supplier's email.
+            client-company-id:
+              type: string
+              format: ObjectId
+              description: Id representing the supplier's company-id.
+            supplier-company-id:
+              type: string
+              format: ObjectId
+              description: 'Id representing a client''s company-id, if set.'
+            client-title:
+              type: string
+              description: Title of the rfq supplier.
+            supplier-title:
+              type: string
+              description: Title of the rfq client.
+            rfq-forms:
+              type: array
+              description: List of rfq form ids which the supplier has access to view.
+              items:
+                type: string
+                format: ObjectId
+            values:
+              type: object
+              description: Supplier specific values which can be inherited into an rfq if specified in the rfq form.
+            client-code:
+              type: string
+              description: 'The client code is used to invite new suppliers. The code can only be used once, and to be able the user as a supplier, the email is required to match the invited users email.'
+      example:
+        id: 5dde7024eded8872705aabcd
+        vid: 5dde7024eded8872705aabce
+        company-id: 5dde7024eded8872705aabcf
+        created: 1558604010307
+        created-by: 5ec23c9eaa389eb6070c3b9f
+        valid-from: 1558604030403
+        valid-to: 0
+        changed-by: 5ec23c9eaa389eb6070c3ba0
+        archived: null
+        email: name@example.com
+        client-company-id: 5dde7024eded8872705aabd1
+        supplier-company-id: null
+        client-title: Client title
+        supplier-title: Supplier title
+        rfq-forms:
+          - 5dde7024eded8872705a0123
+        values: {}
+        client-code: 5dde7024eded8872705aabd2
     SalaryArticle:
       allOf:
         - $ref: '#/components/schemas/BaseArticle'
