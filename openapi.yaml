@@ -815,6 +815,20 @@ paths:
                       - processing
         '400':
           description: Validation failed
+  /house-work-categories:
+    get:
+      summary: Fetch house work categories for invoice articles
+      tags:
+        - Invoice articles
+      responses:
+        '200':
+          description: Array of house work categories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/HouseWorkCategory'
   /invoice-download:
     post:
       summary: Prepare invoices for download
@@ -5334,6 +5348,30 @@ components:
       required:
         - id
         - type
+    HouseWorkCategory:
+      type: object
+      properties:
+        id:
+          type: string
+          example: ROT
+        name:
+          type: string
+          example: Renovation and extension
+        types:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                example: MASONRY
+              name:
+                type: string
+                example: Masonry
+      required:
+        - id
+        - name
+        - types
     Inquiry:
       allOf:
         - $ref: '#/components/schemas/BasicObject'
