@@ -4022,41 +4022,6 @@
         }
       }
     },
-    "/rfqs/v1/clients/confirm/{clientCode}": {
-      "put": {
-        "summary": "Confirm client",
-        "description": "The Confirm Client endpoint allows a user to confirm a supplier invitation from a client.\n",
-        "tags": [
-          "RfQ Clients"
-        ],
-        "parameters": [
-          {
-            "name": "clientCode",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "ObjectId"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "default": {
-            "description": "Unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/rfqs/v1/rfqs/clients": {
       "get": {
         "summary": "List available clients",
@@ -4077,6 +4042,41 @@
                 }
               }
             }
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rfqs/v1/rfqs/clients/confirm/{clientCode}": {
+      "put": {
+        "summary": "Confirm client",
+        "description": "The Confirm Client endpoint allows a user to confirm a supplier invitation from a client.\n",
+        "tags": [
+          "RfQ Clients"
+        ],
+        "parameters": [
+          {
+            "name": "clientCode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "ObjectId"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
           },
           "default": {
             "description": "Unexpected error",
