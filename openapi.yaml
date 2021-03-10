@@ -511,6 +511,56 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/IntegrationModule'
+  /discount-codes/v1/discount-codes:
+    get:
+      summary: Index discount codes
+      description: |
+        The discount codes endpoint returns a list of all avaiable discount codes for the current company.
+      tags:
+        - Discount codes
+      responses:
+        '200':
+          description: An array of discount codes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DiscountCodes'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      summary: Create discount codes
+      description: |
+        Create discount code
+      requestBody:
+        description: Discount code entry to be created.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DiscountCodes'
+      tags:
+        - Discount codes
+      responses:
+        '200':
+          description: An array of discount codes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DiscountCodes'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /domain-log/v1:
     get:
       summary: Fetch changes
@@ -2416,6 +2466,13 @@ paths:
             default: false
         - name: approval-requests
           description: Specifies if data in the approval requests collection should be included in the response. Will fetch approval requests in the specified interval.
+          in: query
+          schema:
+            type: boolean
+            example: true
+            default: false
+        - name: orders
+          description: Specifies if data in the orders collection should be included in the response. Will fetch orders related to shifts in the specified interval.
           in: query
           schema:
             type: boolean
@@ -4928,6 +4985,42 @@ components:
             - intersects
             - start-in
           default: start-in
+    DiscountCodes:
+      allOf:
+        - $ref: '#/components/schemas/BasicObject'
+        - type: object
+          properties:
+            code:
+              type: string
+              description: The discount code
+              example: 604241714cc83a2b454df71e
+            type:
+              type: string
+              description: Type of discount code
+              enum:
+                - REFERRAL
+            companies:
+              type: array
+              description: A read only list of companies that have used the discount code
+              readOnly: true
+              items:
+                properties:
+                  id:
+                    type: string
+                    format: ObjectId
+                    description: Id of the company
+                    example: 60424216b2ddf96af1266c26
+                  name:
+                    type: string
+                    description: Name of the company
+                    example: Timezynk
+                  date:
+                    type: string
+                    description: Date when the discount code was used
+                    example: '2020-12-03'
+          required:
+            - code
+            - type
     Error:
       type: object
       properties:
@@ -5940,7 +6033,6 @@ components:
             title:
               type: string
               description: Name of the order form
-              required: true
               example: test form
             shift-fields:
               type: array
@@ -5954,6 +6046,8 @@ components:
               items:
                 $ref: '#/components/schemas/OrderFormCustomField'
               example: []
+      required:
+        - title
     OrderFormCustomField:
       allOf:
         - $ref: '#/components/schemas/OrderFormField'
@@ -6420,7 +6514,6 @@ components:
             title:
               type: string
               description: Name of the form.
-              required: true
               example: test form
             shift-fields:
               type: array
@@ -6434,6 +6527,8 @@ components:
               items:
                 $ref: '#/components/schemas/RfqFormCustomField'
               example: []
+      required:
+        - title
     RfqFormCustomField:
       allOf:
         - $ref: '#/components/schemas/RfqFormField'
@@ -6442,7 +6537,8 @@ components:
               type: string
               format: ObjectId
               description: Id of the registry field type used
-              required: true
+      required:
+        - field-template-id
     RfqFormField:
       type: object
       properties:
@@ -6476,7 +6572,8 @@ components:
         title:
           type: string
           description: Human-readable field title
-          required: true
+      required:
+        - title
     RfqFormShiftField:
       allOf:
         - $ref: '#/components/schemas/RfqFormField'
@@ -6485,7 +6582,8 @@ components:
               type: string
               format: ObjectId
               description: Id of the field instance
-              required: true
+      required:
+        - field-id
     RfqShift:
       allOf:
         - $ref: '#/components/schemas/BasicObject'

@@ -851,6 +851,83 @@
         }
       }
     },
+    "/discount-codes/v1/discount-codes": {
+      "get": {
+        "summary": "Index discount codes",
+        "description": "The discount codes endpoint returns a list of all avaiable discount codes for the current company.\n",
+        "tags": [
+          "Discount codes"
+        ],
+        "responses": {
+          "200": {
+            "description": "An array of discount codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DiscountCodes"
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create discount codes",
+        "description": "Create discount code\n",
+        "requestBody": {
+          "description": "Discount code entry to be created.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DiscountCodes"
+              }
+            }
+          }
+        },
+        "tags": [
+          "Discount codes"
+        ],
+        "responses": {
+          "200": {
+            "description": "An array of discount codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DiscountCodes"
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/domain-log/v1": {
       "get": {
         "summary": "Fetch changes",
@@ -3799,6 +3876,16 @@
           {
             "name": "approval-requests",
             "description": "Specifies if data in the approval requests collection should be included in the response. Will fetch approval requests in the specified interval.",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "example": true,
+              "default": false
+            }
+          },
+          {
+            "name": "orders",
+            "description": "Specifies if data in the orders collection should be included in the response. Will fetch orders related to shifts in the specified interval.",
             "in": "query",
             "schema": {
               "type": "boolean",
@@ -7527,6 +7614,59 @@
           }
         }
       },
+      "DiscountCodes": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/BasicObject"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string",
+                "description": "The discount code",
+                "example": "604241714cc83a2b454df71e"
+              },
+              "type": {
+                "type": "string",
+                "description": "Type of discount code",
+                "enum": [
+                  "REFERRAL"
+                ]
+              },
+              "companies": {
+                "type": "array",
+                "description": "A read only list of companies that have used the discount code",
+                "readOnly": true,
+                "items": {
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "ObjectId",
+                      "description": "Id of the company",
+                      "example": "60424216b2ddf96af1266c26"
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "Name of the company",
+                      "example": "Timezynk"
+                    },
+                    "date": {
+                      "type": "string",
+                      "description": "Date when the discount code was used",
+                      "example": "2020-12-03"
+                    }
+                  }
+                }
+              }
+            },
+            "required": [
+              "code",
+              "type"
+            ]
+          }
+        ]
+      },
       "Error": {
         "type": "object",
         "properties": {
@@ -8870,7 +9010,6 @@
               "title": {
                 "type": "string",
                 "description": "Name of the order form",
-                "required": true,
                 "example": "test form"
               },
               "shift-fields": {
@@ -8891,6 +9030,9 @@
               }
             }
           }
+        ],
+        "required": [
+          "title"
         ]
       },
       "OrderFormCustomField": {
@@ -9523,7 +9665,6 @@
               "title": {
                 "type": "string",
                 "description": "Name of the form.",
-                "required": true,
                 "example": "test form"
               },
               "shift-fields": {
@@ -9544,6 +9685,9 @@
               }
             }
           }
+        ],
+        "required": [
+          "title"
         ]
       },
       "RfqFormCustomField": {
@@ -9556,11 +9700,13 @@
               "field-template-id": {
                 "type": "string",
                 "format": "ObjectId",
-                "description": "Id of the registry field type used",
-                "required": true
+                "description": "Id of the registry field type used"
               }
             }
           }
+        ],
+        "required": [
+          "field-template-id"
         ]
       },
       "RfqFormField": {
@@ -9602,10 +9748,12 @@
           },
           "title": {
             "type": "string",
-            "description": "Human-readable field title",
-            "required": true
+            "description": "Human-readable field title"
           }
-        }
+        },
+        "required": [
+          "title"
+        ]
       },
       "RfqFormShiftField": {
         "allOf": [
@@ -9617,11 +9765,13 @@
               "field-id": {
                 "type": "string",
                 "format": "ObjectId",
-                "description": "Id of the field instance",
-                "required": true
+                "description": "Id of the field instance"
               }
             }
           }
+        ],
+        "required": [
+          "field-id"
         ]
       },
       "RfqShift": {
