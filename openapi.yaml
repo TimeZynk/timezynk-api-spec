@@ -515,7 +515,7 @@ paths:
     get:
       summary: Index discount codes
       description: |
-        The discount codes endpoint returns a list of all avaiable discount codes for the current company.
+        The discount codes endpoint returns a list of all available discount codes for the current company.
       tags:
         - Discount codes
       responses:
@@ -548,13 +548,35 @@ paths:
         - Discount codes
       responses:
         '200':
-          description: An array of discount codes
+          description: Single discount code entry
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/DiscountCodes'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /discounts:
+    get:
+      summary: Index discounts
+      description: |
+        The Discounts endpoint returns a list of all discounts used by the current company.
+      tags:
+        - Subscriptions
+      responses:
+        '200':
+          description: An array of discounts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Discounts'
         default:
           description: Unexpected error
           content:
@@ -4295,6 +4317,68 @@ paths:
           description: ShiftId invalid format
         '404':
           description: Shift not found
+  /subscription/activate:
+    post:
+      summary: Activate Subscriptions
+      description: |
+        Active subscription
+      requestBody:
+        description: Subscription options.
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                currency:
+                  type: string
+                  description: Subscription currency
+                  example: SEK
+                discount-code:
+                  type: string
+                  description: Discount code used when activating subscription
+                  example: TIMEZYNK2021
+              required:
+                - start-date
+                - title
+      tags:
+        - Subscriptions
+      responses:
+        '200':
+          description: Subscription activated - Subscription entry in response body
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Subscriptions'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /subscriptions:
+    get:
+      summary: Index subscriptions
+      description: |
+        The Subscriptions endpoint returns a list of all subscriptions activated by the current company.
+      tags:
+        - Subscriptions
+      responses:
+        '200':
+          description: An array of subscriptions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Subscriptions'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /timereports:
     get:
       summary: Fetch time reports
@@ -5020,6 +5104,50 @@ components:
                     example: '2020-12-03'
           required:
             - code
+            - type
+    Discounts:
+      allOf:
+        - $ref: '#/components/schemas/BasicObject'
+        - type: object
+          properties:
+            start-date:
+              type: string
+              description: Start of the discounts
+              example: '2020-12-03'
+            end-date:
+              type: string
+              description: End of the discount
+              example: '2021-12-31'
+            title:
+              type: string
+              description: Discount title
+              example: Referral discount
+            account:
+              type: string
+            discount:
+              type: number
+              format: float
+              description: Discount amount
+            calculation:
+              type: string
+              description: How to calculate discount based on discount field value.
+              enum:
+                - percent
+                - fixed
+            type:
+              type: string
+              description: Type of discount
+              enum:
+                - SUBSCRIPTION_DISCOUNT_CODE
+                - REFERRAL_KICKBACK
+            weight:
+              type: number
+              format: int32
+          required:
+            - start-date
+            - title
+            - discount
+            - calculation
             - type
     Error:
       type: object
@@ -6970,6 +7098,82 @@ components:
             rolling-shift-id:
               type: string
               format: ObjectId
+    Subscriptions:
+      allOf:
+        - $ref: '#/components/schemas/BasicObject'
+        - type: object
+          properties:
+            start-date:
+              type: string
+              description: Start of the subscription
+              example: '2020-12-03'
+              readOnly: true
+            end-date:
+              type: string
+              description: End of the subscription
+              example: '2021-12-31'
+              readOnly: true
+            title:
+              type: string
+              description: Subscription title
+              example: Subscription 2021
+              readOnly: true
+            price-month:
+              type: number
+              format: float
+              description: Montly base fee
+              readOnly: true
+            price-user-month:
+              type: number
+              format: float
+              description: Maximum montly cost per user
+              readOnly: true
+            price-user-day:
+              type: number
+              format: float
+              description: Maximum daily cost per scheduled user
+              readOnly: true
+            price-user-rfq:
+              type: number
+              format: float
+              description: Price per booked user on a RFQ shift
+              readOnly: true
+            currency:
+              type: string
+              description: Subscription currency
+              example: SEK
+              readOnly: true
+            currency-rate:
+              type: string
+              description: Subscription currency rate
+              example: 1.1
+              readOnly: true
+            fixed-users:
+              type: number
+              format: float
+              example: 100
+              readOnly: true
+            fixed-price:
+              type: number
+              format: float
+              example: 200
+              readOnly: true
+            fixed-prepaid-months:
+              type: number
+              format: float
+              example: 13000
+              readOnly: true
+            account:
+              type: string
+              readOnly: true
+            discount-code:
+              type: string
+              description: Discount code used when activating subscription
+              example: TIMEZYNK2021
+              readOnly: true
+          required:
+            - start-date
+            - title
     Timereport:
       allOf:
         - $ref: '#/components/schemas/BasicObject'
