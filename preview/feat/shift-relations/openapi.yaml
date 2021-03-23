@@ -481,11 +481,9 @@ paths:
               schema:
                 type: object
                 properties:
-                  matches:
+                  match:
                     type: integer
                     example: 2
-        '404':
-          description: No shift found/updated.
   /default-account/v1/initialize-company:
     post:
       summary: Initialize company
