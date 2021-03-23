@@ -41,8 +41,6 @@ put:
           schema:
             type: object
             properties:
-              matches:
+              match:
                 type: integer
                 example: 2
-    404:
-      description: No shift found/updated.
