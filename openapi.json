@@ -10314,15 +10314,26 @@
               },
               "relations": {
                 "type": "object",
+                "description": "References to other objects.",
+                "nullable": true,
                 "properties": {
-                  "incoming-order": {
-                    "$ref": "#/components/schemas/ShiftRelation"
+                  "outgoing-rfq-id": {
+                    "type": "string",
+                    "format": "ObjectId",
+                    "nullable": true,
+                    "example": "5dde7024eded8872705aabcf"
                   },
-                  "outgoing-order": {
-                    "$ref": "#/components/schemas/ShiftRelation"
+                  "incoming-rfq-id": {
+                    "type": "string",
+                    "format": "ObjectId",
+                    "nullable": true,
+                    "example": "5dde7024eded8872705aabd0"
                   },
-                  "outgoing-rfq": {
-                    "$ref": "#/components/schemas/ShiftRelation"
+                  "rfq-quote-shift-response-id": {
+                    "type": "string",
+                    "format": "ObjectId",
+                    "nullable": true,
+                    "example": "5dde7024eded8872705aabd1"
                   }
                 }
               }
@@ -10547,19 +10558,6 @@
             "items": {
               "$ref": "#/components/schemas/Shift"
             }
-          }
-        }
-      },
-      "ShiftRelation": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "ObjectId"
-          },
-          "shift-id": {
-            "type": "string",
-            "format": "ObjectId"
           }
         }
       },
