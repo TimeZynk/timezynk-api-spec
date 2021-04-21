@@ -6815,7 +6815,41 @@
             "description": "Accepted shift exchange"
           },
           "400": {
-            "description": "* Validation failed\n* Already ACCEPTED/REJECTED/EXPIRED/CLOSED\n"
+            "description": "* Validation failed\n* Already ACCEPTED/APPROVED/REJECTED/EXPIRED/CLOSED\n"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Exchange shift not found"
+          }
+        }
+      }
+    },
+    "/shift-exchanges/{shiftExchangeId}/approve": {
+      "put": {
+        "summary": "Approve shift exchange",
+        "description": "Approve a shift exchange.",
+        "parameters": [
+          {
+            "name": "shiftExchangeId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "ObjectId"
+            }
+          }
+        ],
+        "tags": [
+          "Shift Exchanges"
+        ],
+        "responses": {
+          "200": {
+            "description": "Approved shift exchange"
+          },
+          "400": {
+            "description": "* Validation failed\n* Already ACCEPTED/APPROVED/REJECTED/EXPIRED/CLOSED\n"
           },
           "401": {
             "description": "Unauthorized"
@@ -6849,7 +6883,7 @@
             "description": "Rejected shift exchange"
           },
           "400": {
-            "description": "* Validation failed\n* Already ACCEPTED/REJECTED/EXPIRED/CLOSED\n"
+            "description": "* Validation failed\n* Already ACCEPTED/APPROVED/REJECTED/EXPIRED/CLOSED\n"
           },
           "401": {
             "description": "Unauthorized"
@@ -10957,6 +10991,7 @@
                 "enum": [
                   "SENT",
                   "ACCEPTED",
+                  "APPROVED",
                   "REJECTED",
                   "EXPIRED",
                   "CLOSED"
