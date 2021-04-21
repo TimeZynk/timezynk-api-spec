@@ -121,6 +121,9 @@
       "description": "API for fetching multiple collections in a single request."
     },
     {
+      "name": "Roles"
+    },
+    {
       "name": "Experimental",
       "description": "These APIs are experimental and and may be changed at any time without warning."
     }
@@ -6044,6 +6047,229 @@
         }
       }
     },
+    "/roles/v2": {
+      "get": {
+        "summary": "Fetch all roles",
+        "description": "Endpoint for fetching all roles",
+        "tags": [
+          "Roles"
+        ],
+        "responses": {
+          "200": {
+            "description": "Roles",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Role"
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create new role",
+        "description": "Endpoint for creating new roles",
+        "tags": [
+          "Roles"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Role"
+              }
+            }
+          },
+          "description": "Role to be created",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Created role",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Role"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/roles/v2/{roleId}": {
+      "get": {
+        "summary": "Fetch role",
+        "description": "Endpoint for fetching role",
+        "tags": [
+          "Roles"
+        ],
+        "parameters": [
+          {
+            "name": "roleId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "ObjectId"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Role",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Role"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Role not found"
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update role",
+        "description": "Endpoint for updating role",
+        "tags": [
+          "Roles"
+        ],
+        "parameters": [
+          {
+            "name": "roleId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "ObjectId"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Role"
+              }
+            }
+          },
+          "description": "Fields to be updated",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Updated role",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Role"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Role not found"
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/roles/v2/abilities": {
+      "get": {
+        "summary": "Fetch all abilties",
+        "description": "Endpoint for fetching all abilities.",
+        "tags": [
+          "Roles"
+        ],
+        "responses": {
+          "200": {
+            "description": "List of all abilities",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "example": "shiftcreate"
+                      },
+                      "object": {
+                        "type": "string",
+                        "description": "Collection of the ability",
+                        "example": "shifts"
+                      },
+                      "action": {
+                        "type": "string",
+                        "description": "Action of the ability",
+                        "example": "create"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/settings/v1/company": {
       "get": {
         "summary": "Get company settings",
@@ -7454,6 +7680,31 @@
   },
   "components": {
     "schemas": {
+      "Ability": {
+        "type": "object",
+        "properties": {
+          "object": {
+            "type": "string",
+            "description": "Collection of the ability",
+            "example": "shifts"
+          },
+          "action": {
+            "type": "string",
+            "description": "Action of the ability",
+            "example": "create"
+          },
+          "conditions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "object",
+          "action"
+        ]
+      },
       "Approval": {
         "allOf": [
           {
@@ -10392,6 +10643,55 @@
           "values": {},
           "client-code": "5dde7024eded8872705aabd2"
         }
+      },
+      "Role": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/BasicObject"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "title": {
+                "type": "string",
+                "description": "Role's title.\n",
+                "example": "supervisor+"
+              },
+              "description": {
+                "type": "string",
+                "description": "Role's description.\n",
+                "example": "Supervisor with extra permissions"
+              },
+              "abilities": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Ability"
+                }
+              },
+              "extensions": {
+                "type": "object",
+                "properties": {
+                  "tzcontrol": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/Ability"
+                    }
+                  },
+                  "tzmobile": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/Ability"
+                    }
+                  }
+                }
+              }
+            },
+            "required": [
+              "title",
+              "abilities"
+            ]
+          }
+        ]
       },
       "SalaryArticle": {
         "allOf": [
