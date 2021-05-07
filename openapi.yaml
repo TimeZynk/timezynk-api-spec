@@ -7284,7 +7284,7 @@ components:
               example: 12.5
     Shift:
       allOf:
-        - $ref: '#/components/schemas/BasicObject'
+        - $ref: '#/components/schemas/BaseShift'
         - type: object
           properties:
             duplicity:
