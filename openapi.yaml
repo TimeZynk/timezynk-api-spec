@@ -221,7 +221,7 @@ paths:
                 $ref: '#/components/schemas/SalaryArticle'
         '400':
           description: Validation failed
-  /availability:
+  /availabilities:
     get:
       summary: Fetch availability
       tags:
@@ -265,7 +265,7 @@ paths:
                 $ref: '#/components/schemas/Availability'
         '400':
           description: Validation failed
-  '/availability/{availabilityId}':
+  '/availabilities/{availabilityId}':
     get:
       summary: Fetch planned availability
       parameters:

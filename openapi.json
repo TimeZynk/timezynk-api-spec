@@ -392,7 +392,7 @@
         }
       }
     },
-    "/availability": {
+    "/availabilities": {
       "get": {
         "summary": "Fetch availability",
         "tags": [
@@ -467,7 +467,7 @@
         }
       }
     },
-    "/availability/{availabilityId}": {
+    "/availabilities/{availabilityId}": {
       "get": {
         "summary": "Fetch planned availability",
         "parameters": [
