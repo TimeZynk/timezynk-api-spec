@@ -5300,7 +5300,7 @@ components:
               format: ObjectId
             original-duplicity:
               type: number
-              description: Amount of people to be booked for the this order.
+              description: Original (when created) amount of people to be booked for the this order.
               readOnly: true
             values:
               type: object
@@ -6730,7 +6730,7 @@ components:
     OutgoingRfq:
       allOf:
         - $ref: '#/components/schemas/BasicObject'
-        - $ref: '#/components/schemas/BaseOrder'
+        - $ref: '#/components/schemas/Basenrder'
         - properties:
             status:
               type: string
@@ -6757,6 +6757,14 @@ components:
               items:
                 type: string
                 format: ObjectId
+            duplicity:
+              type: number
+              description: Amount of people to be booked for the this rfq.
+              readOnly: true
+            booked-duplicity:
+              type: number
+              description: Amount of people currently confirmed on the rfq.
+              readOnly: true
       example:
         id: 5dde7024eded8872705a0001
         vid: 5dde71e4c9e77c0001730001
@@ -6770,6 +6778,8 @@ components:
         status: OPEN
         form-id: 5dde7024eded8872705a1ff7
         form-vid: 5dde71e4c9e77c000173dd03
+        booked-duplicity: 1
+        duplicity: 2
         original-duplicity: 3
         values: {}
         shift-dates:
