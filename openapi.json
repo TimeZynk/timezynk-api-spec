@@ -10662,6 +10662,16 @@
                 "type": "string",
                 "format": "ObjectId",
                 "description": "ID of order that created the shift"
+              },
+              "status": {
+                "type": "string",
+                "description": "Status of the rfq:\n * `active` - Part of a RFQ\n * `removed` - Shift got removed form RFQ\n",
+                "default": "active",
+                "example": "active",
+                "enum": [
+                  "active",
+                  "removed"
+                ]
               }
             },
             "required": [
