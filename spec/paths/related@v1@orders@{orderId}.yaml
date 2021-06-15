@@ -37,10 +37,6 @@ get:
                 type: array
                 items:
                   $ref: "#/components/schemas/Inquiry"
-              availabilities:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Availability"
               journal-entries:
                 type: array
                 items:
@@ -51,6 +47,5 @@ get:
             timereports: [],
             approvals: [],
             inquiries: [],
-            availabilities: [],
             "journal-entries": []
           }
