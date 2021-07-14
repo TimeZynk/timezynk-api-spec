@@ -1,0 +1,11 @@
+type: object
+properties:
+  browserInfo:
+    type: object
+    description: Full schema definition at [Adyen docs](payments__reqParam_browserInfo).
+  paymentMethod:
+    type: object
+    description: Selected payment method from  /payment/v1/methods response. Full schema definition at [Adyen docs](https://docs.adyen.com/api-explorer/#/CheckoutService/v67/post/payments__reqParam_paymentMethod).
+required:
+- browserInfo
+- paymentMethod
