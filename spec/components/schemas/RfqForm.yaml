@@ -24,5 +24,9 @@ allOf:
         items:
           $ref: '#/components/schemas/RfqFormCustomField'
         example: []
+      terms:
+        type: string
+        description: legal terms shown when confirming a quote.
+        example: "I hereby confirm that I understand the terms of this order and that it is binding.Any changes must be confirmed by both parties. "
 required:
   - title
