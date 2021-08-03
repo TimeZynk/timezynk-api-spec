@@ -1519,6 +1519,55 @@ paths:
                 $ref: '#/components/schemas/Shift'
         '404':
           description: Shift not found
+  /orders/v2/booked-users:
+    get:
+      summary: Externally booked users by interval
+      description: Endpoint for fetching externally booked users for a specific interval
+      tags:
+        - Orders
+      parameters:
+        - name: from
+          in: path
+          required: true
+          schema:
+            type: string
+            format: date-time
+            example: 2020-01-01T10:00:00.000Z
+            description: Start of interval
+        - name: to
+          in: path
+          required: true
+          schema:
+            type: string
+            format: date-time
+            example: 2020-01-08T10:00:00.000Z
+            description: End of interval
+      responses:
+        '200':
+          description: Array of booked users in interval
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: ObjectId
+                    description: Id of the user
+                    example: 60defbbe5f3eee7be0a12413
+                  name:
+                    type: string
+                    description: Name of the user
+                    example: Kevin Malone
+                example:
+                  - id: 60defc172bddad389b645c2f
+                    name: Darryl Philbin
+                  - id: 60defc33637d0d644e869a7d
+                    name: Holly Flax
+                  - id: 60defc4fb32cb4dcb5276269
+                    name: Jan Levinson Gould
+        '404':
+          description: Order/Shift not found
   /orders/v2/client-forms:
     get:
       summary: |
@@ -1953,6 +2002,45 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+  '/orders/v2/shifts/{shiftId}/booked-users':
+    get:
+      summary: Externally booked users by shift
+      description: Endpoint for fetching externally booked users for a specific shift
+      tags:
+        - Orders
+      parameters:
+        - name: shiftId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: ObjectId
+            example: 60defbca60f6dea92ca82caa
+            description: Id of the shift
+      responses:
+        '200':
+          description: Array of booked users for the specified shift
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: ObjectId
+                    description: Id of the user
+                    example: 60defbbe5f3eee7be0a12413
+                  name:
+                    type: string
+                    description: Name of the user
+                    example: Kevin Malone
+                example:
+                  - id: 60defc172bddad389b645c2f
+                    name: David Wallace
+                  - id: 60defc33637d0d644e869a7d
+                    name: Nellie Bertram
+                  - id: 60defc4fb32cb4dcb5276269
+                    name: Mose
   /orders/v2/suppliers:
     get:
       summary: List available suppliers
@@ -2497,11 +2585,78 @@ paths:
                 $ref: '#/components/schemas/Registry'
         '404':
           description: Registry not found
+  '/related/v1/orders/{orderId}':
+    get:
+      summary: Fetch order with related collections
+      description: |
+        Endpoint for fetching data from multiple collections related to an order. Will fetch data related to the order-id.
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: ObjectId
+        - name: timereports
+          description: Specifies if data in the timereports collection should be included in the response. Will fetch timereports in the specified interval and include orphaned timereports.
+          in: query
+          schema:
+            type: boolean
+            example: true
+            default: false
+        - name: approvals
+          description: Specifies if data in the approvals collection should be included in the response. Will fetch approvals related to the fetched timereports. Requires the timereport parameter to be set to true.
+          in: query
+          schema:
+            type: boolean
+            example: true
+            default: false
+      tags:
+        - Related Collections
+      responses:
+        '200':
+          description: Data from multiple collections
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  orders:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Order'
+                  shifts:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Shift'
+                  timereports:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Timereport'
+                  approvals:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Approval'
+                  inquiries:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Inquiry'
+                  journal:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/JournalEntry'
+              example:
+                order: {}
+                shifts: []
+                timereports: []
+                approvals: []
+                inquiries: []
+                journal: []
   /related/v1/shifts:
     get:
       summary: Fetch shifts with related collections
       description: |
-        Endpoint for fetching data from multiple collections related to shifts. Will fetch data in the specified interval along with orphaned* items.  
+        Endpoint for fetching data from multiple collections related to shifts. Will fetch data in the specified interval along with orphaned* items.
 
         \* *An item not in the current interval, but related to a shift, timereport, or inquiry.*
       parameters:
@@ -2561,17 +2716,29 @@ paths:
                 type: object
                 properties:
                   shifts:
-                    $ref: '#/components/schemas/Shift'
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Shift'
                   timereports:
-                    $ref: '#/components/schemas/Timereport'
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Timereport'
                   approvals:
-                    $ref: '#/components/schemas/Approval'
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Approval'
                   inquiries:
-                    $ref: '#/components/schemas/Inquiry'
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Inquiry'
                   availabilities:
-                    $ref: '#/components/schemas/Availability'
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Availability'
                   approval-requests:
-                    $ref: '#/components/schemas/ApprovalRequest'
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ApprovalRequest'
               example:
                 shifts: []
                 timereports: []
@@ -2704,7 +2871,7 @@ paths:
         - $ref: '#/components/parameters/endParam'
         - $ref: '#/components/parameters/criteriaParam'
       tags:
-        - RfQ shifts - outgoing
+        - RfQs - outgoing
       responses:
         '200':
           description: An array of users.
@@ -3967,6 +4134,45 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+  '/rfqs/v1/shifts/{shiftId}/booked-users':
+    get:
+      summary: Externally booked users by shift
+      description: Endpoint for fetching externally booked users for a specific shift
+      tags:
+        - RfQs - outgoing
+      parameters:
+        - name: shiftId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: ObjectId
+            example: 60defbca60f6dea92ca82caa
+            description: Id of the shift
+      responses:
+        '200':
+          description: Array of booked users for the specified shift
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: ObjectId
+                    description: Id of the user
+                    example: 60defbbe5f3eee7be0a12413
+                  name:
+                    type: string
+                    description: Name of the user
+                    example: Kevin Malone
+                example:
+                  - id: 60defc172bddad389b645c2f
+                    name: David Wallace
+                  - id: 60defc33637d0d644e869a7d
+                    name: Nellie Bertram
+                  - id: 60defc4fb32cb4dcb5276269
+                    name: Mose
   /roles/v2:
     get:
       summary: Fetch all roles
@@ -4861,9 +5067,37 @@ paths:
             example: JohnDoe
       responses:
         '204':
-          description: Username available
+          description: No Content - Username available
+        '400':
+          description: Bad Request - Validation errors
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                    description: Status code. Always 400.
+                    example: 400
+                  message:
+                    type: string
+                    description: Error message
+                    example: Username is considered a url.
+                  error-code:
+                    type: string
+                    enum:
+                      - USERNAME_NO_URL
+                      - INVALID_USERNAME
+                    description: Error code.
+                    example: USERNAME_NO_URL
         '409':
-          description: Username already in use
+          description: Conflict - Username already in use
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /users:
     get:
       summary: Users
@@ -6399,6 +6633,45 @@ components:
             - invoice-id
             - weight
             - export-data
+    JournalEntry:
+      allOf:
+        - $ref: '#/components/schemas/BasicObject'
+        - type: object
+          properties:
+            type:
+              type: string
+              description: Type of Journal event
+              enum:
+                - order-created
+                - order-seen
+                - order-accepted
+                - order-confirmation-sent
+                - order-update-bookings
+                - order-update-shifts
+                - order-delete-shifts
+                - order-fully-booked
+                - order-approval-request-sent
+                - order-approval-request-approved
+                - order-approval-request-rejected
+                - order-booking-confirmation
+                - order-rejected
+                - order-discarded
+                - order-client-discarded
+                - order-done
+                - comment
+                - log-item
+                - duplicity-change
+              example: comment
+            target:
+              type: string
+              format: ObjectId
+              description: Target object this journal entry is about
+              example: 60c8b280a7780aada80cc106
+            content:
+              type: any
+              description: Type-dependent content of the journal entry
+              example:
+                text: Please note schedule changes around midsummer!
     LevelEntry:
       allOf:
         - $ref: '#/components/schemas/BasicObject'
@@ -7092,6 +7365,10 @@ components:
               items:
                 $ref: '#/components/schemas/RfqFormCustomField'
               example: []
+            terms:
+              type: string
+              description: legal terms shown when confirming a quote.
+              example: 'I hereby confirm that I understand the terms of this order and that it is binding.Any changes must be confirmed by both parties. '
       required:
         - title
     RfqFormCustomField:
@@ -7415,7 +7692,7 @@ components:
               format: ObjectId
         not-booked-user-ids:
           type: array
-          description: User IDs that should not be booked on these shifts
+          description: 'User IDs that should not be booked on these shifts, use "*" to unbook everyone'
           items:
             type: string
             format: ObjectId
