@@ -25,11 +25,11 @@ jobs:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
     - run: npm ci
-    - name : deploy 
-      run: npm run build && npm run gh-pages
-      env: 
-        TRAVIS: true
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        TRAVIS_REPO_SLUG: ${{ env.GITHUB_REPOSITORY }}
+    - run: npm run build
+    - name: Deploy
+      uses: JamesIves/github-pages-deploy-action@4.1.4
+      with:
+        branch: gh-pages # The branch the action should deploy to.
+        folder: web_deploy
 
 
