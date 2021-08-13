@@ -1,7 +1,7 @@
 get:
   summary: Get internal message
   description: Get an internal message according to provided id.
-    parameters:
+  parameters:
     - name: internalMessageId
       in: path
       required: true
@@ -22,7 +22,7 @@ get:
 delete:
   summary: Delete internal message
   description: Delete existing internal message.
-    parameters:
+  parameters:
     - name: internalMessageId
       in: path
       required: true

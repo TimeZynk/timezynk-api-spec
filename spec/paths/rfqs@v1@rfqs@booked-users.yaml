@@ -17,17 +17,17 @@ get:
             items:
               type: object
               properties:
-                  id:
-                    type: string
-                    description: id of the user
-                    format: ObjectId
-                    readOnly: true
-                    example: 5dde7024eded8872705aabcd
-                  name: 
-                    type: string
-                    descrition: name of the user
-                    readOnly: true
-                    example: Dwight Schrute
+                id:
+                  type: string
+                  description: id of the user
+                  format: ObjectId
+                  readOnly: true
+                  example: 5dde7024eded8872705aabcd
+                name: 
+                  type: string
+                  description: name of the user
+                  readOnly: true
+                  example: Dwight Schrute
     default:
       description: Unexpected error
       content:

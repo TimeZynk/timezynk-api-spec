@@ -32,8 +32,13 @@ allOf:
         description: Target object this journal entry is about
         example: 60c8b280a7780aada80cc106
       content:
-        type: any
-        description: Type-dependent content of the journal entry
-        example: {
-          text: "Please note schedule changes around midsummer!"
-        }
+        oneOf:
+          - type: array
+            description: Type-dependent content of the journal entry
+          - type: string
+            description: Type-dependent content of the journal entry
+            example: "Comment on data"
+          - type: object
+            example: {
+              text: "Please note schedule changes around midsummer!"
+            }
