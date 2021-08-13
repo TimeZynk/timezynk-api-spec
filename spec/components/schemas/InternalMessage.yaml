@@ -1,0 +1,22 @@
+type: object
+properties:
+  company-id:
+    type: string
+    format: ObjectId
+    description: Id of the company who owns this item.
+  title:
+    type: string
+    description: Title of internal message
+  message:
+    type: string
+    description: The message
+  severity:
+    type: string
+    description: Message status
+    enum:
+      - warning
+      - info
+required:
+  - title
+  - message
+  - severity

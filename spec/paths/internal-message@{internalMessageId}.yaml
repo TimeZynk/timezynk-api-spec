@@ -1,0 +1,38 @@
+get:
+  summary: Get internal message
+  description: Get an internal message according to provided id.
+  parameters:
+    - name: internalMessageId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: ObjectId
+  tags:
+    - Internal Message
+  responses:
+    200:
+      description: The message.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/InternalMessage"
+    404:
+      description: Message not found.
+delete:
+  summary: Delete internal message
+  description: Delete existing internal message.
+  parameters:
+    - name: internalMessageId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: ObjectId
+  tags:
+    - Internal Message
+  responses:
+    200:
+      description: Delete successful.
+    404:
+      description: Message not found.

@@ -1,0 +1,33 @@
+get:
+  summary: Fetch internal messages
+  description: Fetch all internal messages according to provided query.
+  tags:
+    - Internal Message
+  responses:
+    200:
+      description: Array of messages.
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/InternalMessage"
+post:
+  summary: Create internal message
+  description: Add a new internal message.
+  tags:
+    - Internal Message
+  requestBody:
+    content:
+      application/json:
+        schema:
+          $ref: "#/components/schemas/InternalMessage"
+    description: The message object.
+    required: true
+  responses:
+    200:
+      description: Newly added internal message.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/InternalMessage"
