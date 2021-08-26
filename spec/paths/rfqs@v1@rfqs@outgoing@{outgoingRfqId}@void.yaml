@@ -1,0 +1,26 @@
+put:
+  summary: Void RfQ
+  description: |
+    Endpoint for voiding an incoming rfq. Will also archive rfq shifts in the rfq and unlink shifts related to the rfq.
+  parameters:
+    - name: outgoingRfqId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: ObjectId
+  tags:
+    - RfQs - outgoing
+  responses:
+    200:
+      description: Updated outgoing RfQ
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/OutgoingRfq"
+    default:
+      description: Unexpected error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
