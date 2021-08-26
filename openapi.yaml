@@ -4135,6 +4135,66 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+  '/rfqs/v1/rfqs/outgoing/{outgoingRfqId}/shifts/{rfqShiftId}/archive':
+    put:
+      summary: Archive single RfQ shift
+      description: |
+        Endpoint for archiving a single RfQ shift. Will also archive quote shifts and unbooked shift linked to the rfq shift
+      tags:
+        - RfQ shifts - outgoing
+      parameters:
+        - in: path
+          name: outgoingRfqId
+          required: true
+          schema:
+            type: string
+            format: ObjectId
+        - name: rfqShiftId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: ObjectId
+      responses:
+        '200':
+          description: A single RfQ shift
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RfqShift'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  '/rfqs/v1/rfqs/outgoing/{outgoingRfqId}/void':
+    put:
+      summary: Void RfQ
+      description: |
+        Endpoint for voiding an incoming rfq. Will also archive rfq shifts in the rfq and unlink shifts related to the rfq.
+      parameters:
+        - name: outgoingRfqId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: ObjectId
+      tags:
+        - RfQs - outgoing
+      responses:
+        '200':
+          description: Updated outgoing RfQ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OutgoingRfq'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /rfqs/v1/rfqs/suppliers:
     get:
       summary: List RfQ suppliers
