@@ -1,0 +1,29 @@
+type: object
+properties:
+  type:
+    type: string
+    description: Type of transaction
+    enum:
+    - invoice
+  target: 
+    type: string
+    description: Specify the target of this transaction. E.g. if the `type` is `invoice`, then the `target` should be set to the invoice of the id.
+  company-id: 
+    type: string
+    description: Id of the company this transactions is recorded for. If the request is made on behalf of a user, then the company id of the current session will be used.
+  amount:
+    type: object
+    description: Amount the be charged.
+    properties:
+      value:
+        type: integer
+        description: Amount to charge (of specified currency).
+      currency:
+        type: string
+        description: Currency code.
+required:
+- amount
+- type
+- target
+- company-id
+
