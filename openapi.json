@@ -127,6 +127,9 @@
       "name": "Internal Message"
     },
     {
+      "name": "Payments"
+    },
+    {
       "name": "Experimental",
       "description": "These APIs are experimental and and may be changed at any time without warning."
     }
@@ -3546,6 +3549,275 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/payments/v1/adyen/getPaymentMethods": {
+      "get": {
+        "summary": "Adyen payment methods",
+        "description": "A proxy endpoint for indexing available Adyen payment methods. This endpoint should be used for rendering the Adyen [pre-built UI option: Drop-in](https://docs.adyen.com/online-payments/drop-in-web) component.\n\nFor more information about how to use the endpoint see the Adyen docs:  \n- [Drop-in UI docs](https://docs.adyen.com/online-payments/drop-in-web/tutorial-node-js#build-the-client)\n- [POST /paymentMethods endpoint](https://docs.adyen.com/api-explorer/#/CheckoutService/v67/post/paymentMethods)\n",
+        "tags": [
+          "Payments"
+        ],
+        "responses": {
+          "200": {
+            "description": "List of all the available payment methods Timezynk accepts.",
+            "content": {
+              "application/json": {
+                "example": {
+                  "paymentMethods": [
+                    {
+                      "brands": [
+                        "amex",
+                        "bcmc",
+                        "cup",
+                        "diners",
+                        "discover",
+                        "jcb",
+                        "maestro",
+                        "mc",
+                        "visa"
+                      ],
+                      "details": [
+                        {
+                          "key": "number",
+                          "type": "text"
+                        },
+                        {
+                          "key": "expiryMonth",
+                          "type": "text"
+                        },
+                        {
+                          "key": "expiryYear",
+                          "type": "text"
+                        },
+                        {
+                          "key": "cvc",
+                          "type": "text"
+                        },
+                        {
+                          "key": "holderName",
+                          "optional": true,
+                          "type": "text"
+                        }
+                      ],
+                      "name": "Credit Card",
+                      "type": "scheme"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/payments/v1/adyen/handleShopperRedirect": {
+      "get": {
+        "summary": "Shopper redirect",
+        "description": "Endpoint for handling an Adyen shopper redirects. Sends payment details during a page redirect and determines the outcome for the shopper. Used for all payment methods that require a redirect\n\nFor more information about how to use the endpoint see the Adyen docs:  \n- [Drop-in UI docs](https://docs.adyen.com/online-payments/drop-in-web/tutorial-node-js#build-the-client)\n- [POST /payment/defails endpoint](https://docs.adyen.com/api-explorer/#/CheckoutService/v67/post/payments/details)\n",
+        "parameters": [
+          {
+            "name": "redirectResult",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "description": "redirectResult field definition in [Adyen docs description](https://docs.adyen.com/api-explorer/#/CheckoutService/v67/post/payments/details__reqParam_details-redirectResult)."
+            }
+          },
+          {
+            "name": "MD",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "description": "MD field definition in [Adyen docs description](https://docs.adyen.com/api-explorer/#/CheckoutService/v67/post/payments/details__reqParam_details-MD)."
+            }
+          },
+          {
+            "name": "PaRes",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "description": "PaRes field definition in [Adyen docs description](https://docs.adyen.com/api-explorer/#/CheckoutService/v67/post/payments/details__reqParam_details-PaRes)."
+            }
+          }
+        ],
+        "tags": [
+          "Payments"
+        ],
+        "responses": {
+          "301": {
+            "description": "Visit Adyen [POST /payments/details](https://docs.adyen.com/api-explorer/#/CheckoutService/latest/post/payments/details) for details"
+          }
+        }
+      },
+      "post": {
+        "summary": "Shopper redirect",
+        "description": "Endpoint for handling an Adyen shopper redirects. Sends payment details during a page redirect and determines the outcome for the shopper. Used for all payment methods that require a redirect\n\nFor more information about how to use the endpoint see the Adyen docs:  \n- [Drop-in UI docs](https://docs.adyen.com/online-payments/drop-in-web/tutorial-node-js#build-the-client)\n- [POST /payment/defails endpoint](https://docs.adyen.com/api-explorer/#/CheckoutService/v67/post/payments/details)\n",
+        "requestBody": {
+          "description": "Payment details.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "redirectResult": {
+                    "type": "string",
+                    "description": "redirectResult field definition in [Adyen docs description](https://docs.adyen.com/api-explorer/#/CheckoutService/v67/post/payments/details__reqParam_details-redirectResult)."
+                  },
+                  "MD": {
+                    "type": "string",
+                    "description": "MD field definition in [Adyen docs description](https://docs.adyen.com/api-explorer/#/CheckoutService/v67/post/payments/details__reqParam_details-MD)."
+                  },
+                  "PaRes": {
+                    "type": "string",
+                    "description": "PaRes field definition in [Adyen docs description](https://docs.adyen.com/api-explorer/#/CheckoutService/v67/post/payments/details__reqParam_details-PaRes)."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Payments"
+        ],
+        "responses": {
+          "301": {
+            "description": "Visit Adyen [POST /payments/details](https://docs.adyen.com/api-explorer/#/CheckoutService/latest/post/payments/details) for details"
+          }
+        }
+      }
+    },
+    "/payments/v1/adyen/initiatePayment": {
+      "post": {
+        "summary": "Initiate payment",
+        "description": "A proxy endpoint for initiating an Adyen payment, proxied through to [POST /initiatePayment endpoint](https://docs.adyen.com/api-explorer/#/CheckoutService/67/post/payments). The endpoint should be used to initiate a payment via the Adyen [pre-built UI option: Drop-in](https://docs.adyen.com/online-payments/drop-in-web) component.\n\nFor more information about how to use the endpoint see the Adyen docs:  \n- [Drop-in UI docs](https://docs.adyen.com/online-payments/drop-in-web/tutorial-node-js#build-the-client)  \n- [POST /initiatePayment endpoint](https://docs.adyen.com/api-explorer/#/CheckoutService/67/post/payments)\n",
+        "requestBody": {
+          "description": "Payment details.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/AdyenInitiatePaymentRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "tags": [
+          "Payments"
+        ],
+        "responses": {
+          "200": {
+            "description": "Adyen initiate payment response",
+            "content": {
+              "application/json": {
+                "example": {
+                  "resultCode": "RedirectShopper",
+                  "action": {
+                    "data": {
+                      "MD": "OEVudmZVMUlkWjd0MDNwUWs2bmhSdz09...",
+                      "PaReq": "eNpVUttygjAQ/RXbDyAXBYRZ00HpTH3wUosPfe...",
+                      "TermUrl": "https://example.com/checkout?shopperOrder=12xy.."
+                    },
+                    "method": "POST",
+                    "paymentData": "Ab02b4c0!BQABAgCJN1wRZuGJmq8dMncmypvknj9s7l5Tj...",
+                    "paymentMethodType": "scheme",
+                    "type": "redirect",
+                    "url": "https://test.adyen.com/hpp/3d/validate.shtml"
+                  },
+                  "details": [
+                    {
+                      "key": "MD",
+                      "type": "text"
+                    },
+                    {
+                      "key": "PaRes",
+                      "type": "text"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/payments/v1/adyen/submitAdditionalDetails": {
+      "post": {
+        "summary": "Shopper redirect",
+        "description": "A proxy endpoint for submitting additional details, if requested by payment provider.\n\nFor more information about how to use the endpoint see the Adyen docs:  \n- [Drop-in UI docs](https://docs.adyen.com/online-payments/drop-in-web/tutorial-node-js#additional-details)\n- [POST /payment/defails endpoint](https://docs.adyen.com/api-explorer/#/CheckoutService/v67/post/payments/details)\n",
+        "requestBody": {
+          "description": "Payment details.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "details": {
+                    "type": "object",
+                    "description": "details definition in [Adyen docs description](https://docs.adyen.com/api-explorer/#/CheckoutService/v67/post/payments/details__reqParam_details)."
+                  },
+                  "paymentData": {
+                    "type": "string",
+                    "description": "payment field definition in [Adyen docs description](https://docs.adyen.com/api-explorer/#/CheckoutService/v67/post/payments/details__reqParam_paymentData)."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Payments"
+        ],
+        "responses": {
+          "200": {
+            "description": "Visit Adyen [POST /payments/details](https://docs.adyen.com/api-explorer/#/CheckoutService/v67/post/payments/details__section_resParams) for response details"
+          }
+        }
+      }
+    },
+    "/payments/v1/deletePaymentMethod": {
+      "post": {
+        "summary": "Delete payment method",
+        "description": "A proxy endpoint for deleting an Adyen stored payment method, proxied through to [POST /Recurring/v49/disable](https://docs.adyen.com/api-explorer/#/Recurring/v49/post/disable).\n\nFor more information about how to use the endpoint see the Adyen docs:  \n- [Adyen Tokenization](https://docs.adyen.com/online-payments/tokenization/managing-tokens)  \n- [POST /Recurring/v49/disable](https://docs.adyen.com/api-explorer/#/Recurring/v49/post/disable)\n",
+        "requestBody": {
+          "description": "Payment details.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "Adyen stored payment method id / recurringDetailReference",
+                    "example": "841631886584433E"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Payments"
+        ],
+        "responses": {
+          "200": {
+            "description": "Adyen delete payment method response. Responds with payload provided by the adyen API.\n",
+            "content": {
+              "application/json": {
+                "example": {
+                  "response": "[detail-successfully-disabled]"
                 }
               }
             }
@@ -8386,6 +8658,33 @@
         "required": [
           "object",
           "action"
+        ]
+      },
+      "AdyenInitiatePaymentRequest": {
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "object",
+            "properties": {
+              "currency": {
+                "type": "string",
+                "description": "Currency code. Only used to record the customer's selected currency when adding subscription payment method."
+              }
+            }
+          },
+          "browserInfo": {
+            "type": "object",
+            "description": "Full schema definition at [Adyen docs](payments__reqParam_browserInfo)."
+          },
+          "paymentMethod": {
+            "type": "object",
+            "description": "Selected payment method from  /payment/v1/methods response. Full schema definition at [Adyen docs](https://docs.adyen.com/api-explorer/#/CheckoutService/v67/post/payments__reqParam_paymentMethod)."
+          }
+        },
+        "required": [
+          "amount",
+          "browserInfo",
+          "paymentMethod"
         ]
       },
       "Approval": {
