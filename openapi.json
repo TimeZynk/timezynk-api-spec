@@ -3825,6 +3825,38 @@
         }
       }
     },
+    "/payments/v1/transactions": {
+      "post": {
+        "summary": "Create transaction",
+        "description": "This endpoint will create a transaction and request a payment through Adyen.\n\nThis endpoint is using the Adyen tokenization flow. For more information:\n- [Adyen Tokenization](https://docs.adyen.com/online-payments/tokenization/create-and-use-tokens)  \n",
+        "requestBody": {
+          "description": "Transaction details.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TransactionsPaymentRequestBody"
+              }
+            }
+          }
+        },
+        "tags": [
+          "Payments"
+        ],
+        "responses": {
+          "200": {
+            "description": "Created transaction entry\n",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaymentTransaction"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/published-shifts": {
       "put": {
         "summary": "Publish shifts",
@@ -11086,6 +11118,62 @@
           ]
         }
       },
+      "PaymentTransaction": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/BasicObject"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "description": "Type of transaction",
+                "enum": [
+                  "invoice"
+                ]
+              },
+              "target": {
+                "type": "string",
+                "description": "Transaction target"
+              },
+              "amount": {
+                "type": "object",
+                "description": "Amount charged",
+                "properties": {
+                  "value": {
+                    "type": "integer",
+                    "description": "Amount charged (of specified currency)."
+                  },
+                  "currency": {
+                    "type": "string",
+                    "description": "Currency code."
+                  }
+                }
+              },
+              "status": {
+                "type": "string",
+                "description": "Payment status of the transaction",
+                "enum": [
+                  "SETTLED",
+                  "FAILED"
+                ],
+                "example": "FAILED"
+              },
+              "result-code": {
+                "type": "string",
+                "description": "Result code from Adyen [POST /payments request](https://docs.adyen.com/api-explorer/#/CheckoutService/v67/post/payments). [Result code glossary](https://docs.adyen.com/online-payments/payment-result-codes).",
+                "example": "Authorised"
+              },
+              "refusal-code-reason": {
+                "type": "string",
+                "description": "Refusal code reason. Included for failed transactions. [Refusal code reason glossary](https://docs.adyen.com/development-resources/refusal-reasons).",
+                "example": "Expired Card"
+              }
+            }
+          }
+        ]
+      },
       "PermissionsObject": {
         "type": "object",
         "properties": {
@@ -12349,6 +12437,46 @@
             "description": "ID of intended audience for the token"
           }
         }
+      },
+      "TransactionsPaymentRequestBody": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "Type of transaction",
+            "enum": [
+              "invoice"
+            ]
+          },
+          "target": {
+            "type": "string",
+            "description": "Specify the target of this transaction. E.g. if the `type` is `invoice`, then the `target` should be set to the invoice of the id."
+          },
+          "company-id": {
+            "type": "string",
+            "description": "Id of the company this transactions is recorded for. If the request is made on behalf of a user, then the company id of the current session will be used."
+          },
+          "amount": {
+            "type": "object",
+            "description": "Amount the be charged.",
+            "properties": {
+              "value": {
+                "type": "integer",
+                "description": "Amount to charge (of specified currency)."
+              },
+              "currency": {
+                "type": "string",
+                "description": "Currency code."
+              }
+            }
+          }
+        },
+        "required": [
+          "amount",
+          "type",
+          "target",
+          "company-id"
+        ]
       },
       "User": {
         "allOf": [
