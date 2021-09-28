@@ -1,0 +1,38 @@
+allOf:
+  - $ref: '#/components/schemas/BasicObject'
+  - type: object
+    properties:
+      type:
+        type: string
+        description: Type of transaction
+        enum:
+        - invoice
+      target: 
+        type: string
+        description: Transaction target
+      amount:
+        type: object
+        description: Amount charged
+        properties:
+          value:
+            type: integer
+            description: Amount charged (of specified currency).
+          currency:
+            type: string
+            description: Currency code.
+      status:
+        type: string
+        description: Payment status of the transaction
+        enum:
+        - SETTLED
+        - FAILED
+        example: "FAILED"
+      result-code:
+        type: string
+        description: Result code from Adyen [POST /payments request](https://docs.adyen.com/api-explorer/#/CheckoutService/v67/post/payments). [Result code glossary](https://docs.adyen.com/online-payments/payment-result-codes).
+        example: "Authorised"
+      refusal-code-reason:
+        type: string
+        description: Refusal code reason. Included for failed transactions. [Refusal code reason glossary](https://docs.adyen.com/development-resources/refusal-reasons).
+        example: "Expired Card"
+
