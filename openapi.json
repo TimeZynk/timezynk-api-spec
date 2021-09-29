@@ -3556,6 +3556,45 @@
         }
       }
     },
+    "/payments/v1/adyen/deletePaymentMethod": {
+      "post": {
+        "summary": "Delete payment method",
+        "description": "A proxy endpoint for deleting an Adyen stored payment method, proxied through to [POST /Recurring/v49/disable](https://docs.adyen.com/api-explorer/#/Recurring/v49/post/disable).\n\nFor more information about how to use the endpoint see the Adyen docs:  \n- [Adyen Tokenization](https://docs.adyen.com/online-payments/tokenization/managing-tokens)  \n- [POST /Recurring/v49/disable](https://docs.adyen.com/api-explorer/#/Recurring/v49/post/disable)\n",
+        "requestBody": {
+          "description": "Payment details.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "Adyen stored payment method id / recurringDetailReference",
+                    "example": "841631886584433E"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Payments"
+        ],
+        "responses": {
+          "200": {
+            "description": "Adyen delete payment method response. Responds with payload provided by the adyen API.\n",
+            "content": {
+              "application/json": {
+                "example": {
+                  "response": "[detail-successfully-disabled]"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/payments/v1/adyen/getPaymentMethods": {
       "get": {
         "summary": "Adyen payment methods",
@@ -3782,45 +3821,6 @@
         "responses": {
           "200": {
             "description": "Visit Adyen [POST /payments/details](https://docs.adyen.com/api-explorer/#/CheckoutService/v67/post/payments/details__section_resParams) for response details"
-          }
-        }
-      }
-    },
-    "/payments/v1/deletePaymentMethod": {
-      "post": {
-        "summary": "Delete payment method",
-        "description": "A proxy endpoint for deleting an Adyen stored payment method, proxied through to [POST /Recurring/v49/disable](https://docs.adyen.com/api-explorer/#/Recurring/v49/post/disable).\n\nFor more information about how to use the endpoint see the Adyen docs:  \n- [Adyen Tokenization](https://docs.adyen.com/online-payments/tokenization/managing-tokens)  \n- [POST /Recurring/v49/disable](https://docs.adyen.com/api-explorer/#/Recurring/v49/post/disable)\n",
-        "requestBody": {
-          "description": "Payment details.",
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "id": {
-                    "type": "string",
-                    "description": "Adyen stored payment method id / recurringDetailReference",
-                    "example": "841631886584433E"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "Payments"
-        ],
-        "responses": {
-          "200": {
-            "description": "Adyen delete payment method response. Responds with payload provided by the adyen API.\n",
-            "content": {
-              "application/json": {
-                "example": {
-                  "response": "[detail-successfully-disabled]"
-                }
-              }
-            }
           }
         }
       }
