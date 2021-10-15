@@ -5690,6 +5690,30 @@ components:
           type: string
           format: email
           description: 'Email of the shopper. More info at [Adyen docs](https://docs.adyen.com/api-explorer/#/CheckoutService/v68/post/payments__reqParam_shopperEmail).'
+        billingAddress:
+          type: object
+          description: 'Billing Address. More info at [Adyen docs](https://docs.adyen.com/api-explorer/#/CheckoutService/v68/post/payments__reqParam_billingAddress).'
+          properties:
+            city:
+              type: string
+            country:
+              type: string
+              description: The two-character country code as defined in ISO-3166-1 alpha-2.
+              example: US
+            houseNumberOrName:
+              type: string
+            postalCode:
+              type: string
+            stateOrProvince:
+              type: string
+            street:
+              type: string
+          required:
+            - city
+            - country
+            - houseNumberOrName
+            - postalCode
+            - street
       required:
         - amount
         - browserInfo
