@@ -12,6 +12,10 @@ properties:
   paymentMethod:
     type: object
     description: Selected payment method from  /payment/v1/methods response. Full schema definition at [Adyen docs](https://docs.adyen.com/api-explorer/#/CheckoutService/v67/post/payments__reqParam_paymentMethod).
+  shopperEmail:
+    type: string
+    format: email
+    description: Email of the shopper. More info at [Adyen docs](https://docs.adyen.com/api-explorer/#/CheckoutService/v68/post/payments__reqParam_shopperEmail).
 required:
 - amount
 - browserInfo
