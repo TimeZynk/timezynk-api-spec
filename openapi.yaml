@@ -2304,6 +2304,19 @@ paths:
         - [POST /paymentMethods endpoint](https://docs.adyen.com/api-explorer/#/CheckoutService/v67/post/paymentMethods)
       tags:
         - Payments
+      parameters:
+        - in: query
+          name: countryCode
+          description: 'Country code of the caller. [More info](https://docs.adyen.com/online-payments/3d-secure/native-3ds2/web-drop-in#show-the-available-cards-in-your-payment-form).'
+          schema:
+            type: string
+            example: se
+        - in: query
+          name: currency
+          description: 'Currency of the caller. [More info](https://docs.adyen.com/online-payments/3d-secure/native-3ds2/web-drop-in#show-the-available-cards-in-your-payment-form).'
+          schema:
+            type: string
+            example: SEK
       responses:
         '200':
           description: List of all the available payment methods Timezynk accepts.
@@ -5673,6 +5686,10 @@ components:
         paymentMethod:
           type: object
           description: 'Selected payment method from  /payment/v1/methods response. Full schema definition at [Adyen docs](https://docs.adyen.com/api-explorer/#/CheckoutService/v67/post/payments__reqParam_paymentMethod).'
+        shopperEmail:
+          type: string
+          format: email
+          description: 'Email of the shopper. More info at [Adyen docs](https://docs.adyen.com/api-explorer/#/CheckoutService/v68/post/payments__reqParam_shopperEmail).'
       required:
         - amount
         - browserInfo
