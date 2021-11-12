@@ -1,0 +1,24 @@
+allOf:
+  - $ref: '#/components/schemas/BasicObject'
+  - properties:
+      url:
+        type: string
+        description: |
+          A valid https url.
+        example: https://url.com/endpoint
+      secret:
+        type: string
+        description: |
+          A secret passphrase.
+        example: password
+      action:
+        type: string
+        enum:
+          - POST_SHIFT
+        description: |
+          The prescribed action.
+        example: POST_SHIFT
+    required:
+      - url
+      - secret
+      - action
