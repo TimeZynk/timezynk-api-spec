@@ -130,6 +130,10 @@
       "name": "Payments"
     },
     {
+      "name": "Webhooks",
+      "description": "A POST endpoint callback that is called for a certain action."
+    },
+    {
       "name": "Experimental",
       "description": "These APIs are experimental and and may be changed at any time without warning."
     }
@@ -8550,6 +8554,179 @@
         }
       }
     },
+    "/webhooks": {
+      "get": {
+        "summary": "Fetch webhooks",
+        "description": "Fetch all your webhooks.\n",
+        "tags": [
+          "Webhooks"
+        ],
+        "responses": {
+          "200": {
+            "description": "An array of webhooks.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Webhook"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create webhook",
+        "description": "Endpoint for creating a new webhook.\n",
+        "requestBody": {
+          "description": "Webhook to be created.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/Webhook"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "tags": [
+          "Webhooks"
+        ],
+        "responses": {
+          "200": {
+            "description": "Newly added webhook.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Webhook"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "* Url missing or invalid.\n* Secret missing.\n* Action missing or invalid.\n"
+          }
+        }
+      }
+    },
+    "/webhooks/{webhookId}": {
+      "get": {
+        "summary": "Fetch webhook",
+        "parameters": [
+          {
+            "name": "webhookId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "ObjectId"
+            }
+          }
+        ],
+        "description": "Fetch single webhook.\n",
+        "tags": [
+          "Webhooks"
+        ],
+        "responses": {
+          "200": {
+            "description": "A webhook.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Webhook"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Webhook not found."
+          }
+        }
+      },
+      "put": {
+        "summary": "Update webhook",
+        "parameters": [
+          {
+            "name": "webhookId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "ObjectId"
+            }
+          }
+        ],
+        "description": "Update a single webhook.\n",
+        "requestBody": {
+          "description": "Fields to be updated.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/Webhook"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "tags": [
+          "Webhooks"
+        ],
+        "responses": {
+          "200": {
+            "description": "Updated webhook.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Webhook"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "* Provided url invalid.\n* Provided action invalid.\n"
+          },
+          "404": {
+            "description": "Webhook not found."
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete webhook",
+        "parameters": [
+          {
+            "name": "webhookId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "ObjectId"
+            }
+          }
+        ],
+        "description": "Update a single webhook.\n",
+        "tags": [
+          "Webhooks"
+        ],
+        "responses": {
+          "200": {
+            "description": "Webhook deleted."
+          },
+          "404": {
+            "description": "Webhook not found."
+          }
+        }
+      }
+    },
     "/work-hours-template/{templateId}": {
       "get": {
         "summary": "Fetch work hours template",
@@ -12721,6 +12898,40 @@
             "description": "URL to users profile picture"
           }
         }
+      },
+      "Webhook": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/BasicObject"
+          },
+          {
+            "properties": {
+              "url": {
+                "type": "string",
+                "description": "A valid https url.\n",
+                "example": "https://url.com/endpoint"
+              },
+              "secret": {
+                "type": "string",
+                "description": "A secret passphrase.\n",
+                "example": "password"
+              },
+              "action": {
+                "type": "string",
+                "enum": [
+                  "POST_SHIFT"
+                ],
+                "description": "The prescribed action.\n",
+                "example": "POST_SHIFT"
+              }
+            },
+            "required": [
+              "url",
+              "secret",
+              "action"
+            ]
+          }
+        ]
       },
       "WorkHoursTemplate": {
         "allOf": [
