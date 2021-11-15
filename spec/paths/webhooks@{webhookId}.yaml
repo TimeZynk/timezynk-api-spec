@@ -1,0 +1,77 @@
+get:
+  summary: Fetch webhook
+  parameters:
+    - name: webhookId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: ObjectId
+  description: |
+    Fetch single webhook.
+  tags:
+    - Webhooks
+  responses:
+    200:
+      description: A webhook.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Webhook'
+    404:
+      description: Webhook not found.
+
+put:
+  summary: Update webhook
+  parameters:
+    - name: webhookId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: ObjectId
+  description: |
+    Update a single webhook.
+  requestBody:
+    description: Fields to be updated.
+    required: true
+    content:
+      application/json:
+        schema:
+          allOf:
+          - $ref: '#/components/schemas/Webhook'
+  tags:
+    - Webhooks
+  responses:
+    200:
+      description: Updated webhook.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Webhook'
+    400:
+      description: >
+        * Provided url invalid.
+
+        * Provided action invalid.
+    404:
+      description: Webhook not found.
+
+delete:
+  summary: Delete webhook
+  parameters:
+    - name: webhookId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: ObjectId
+  description: |
+    Update a single webhook.
+  tags:
+    - Webhooks
+  responses:
+    200:
+      description: Webhook deleted.
+    404:
+      description: Webhook not found.

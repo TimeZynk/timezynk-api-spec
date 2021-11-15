@@ -58,6 +58,8 @@ tags:
   - name: Roles
   - name: Internal Message
   - name: Payments
+  - name: Webhooks
+    description: A POST endpoint callback that is called for a certain action.
   - name: Experimental
     description:
       These APIs are experimental and and may be changed at any time without
