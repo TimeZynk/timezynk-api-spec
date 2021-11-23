@@ -1,0 +1,98 @@
+get:
+  summary: Get a payment method
+  description: |
+    Get single payment method for Paddle. No proxy calls to Paddle made.
+  tags:
+    - Paddle Payments
+  parameters:
+    - name: paymentMethodId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: ObjectId
+  responses:
+    200:
+      description: |
+        A single Paddle payment method object.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/PaymentMethod"
+    404:
+      description: |
+        Payment method not found.
+    default:
+      description: Unexpected error.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+
+put:
+  summary: Update payment method
+  description: |
+    Update a payment method for Paddle. No proxy calls to Paddle made.
+  parameters:
+    - name: paymentMethodId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: ObjectId
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: "#/components/schemas/PaymentMethod"
+  tags:
+    - Paddle Payments
+  responses:
+    200:
+      description: |
+        Updated Paddle payment method object.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/PaymentMethod"
+    404:
+      description: |
+        Payment method not found.
+    default:
+      description: Unexpected error.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+
+delete:
+  summary: Delete payment method
+  description: |
+    Delete a payment method for Paddle. No proxy calls to Paddle made.
+  parameters:
+    - name: paymentMethodId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: ObjectId
+  tags:
+    - Paddle Payments
+  responses:
+    200:
+      description: |
+        Deleted Paddle payment method.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/PaymentMethod"
+    404:
+      description: |
+        Payment method not found.
+    default:
+      description: Unexpected error.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"

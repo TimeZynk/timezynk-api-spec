@@ -23,7 +23,7 @@ get:
         type: string
         description: PaRes field definition in [Adyen docs description](https://docs.adyen.com/api-explorer/#/CheckoutService/v67/post/payments/details__reqParam_details-PaRes).
   tags:
-    - Payments
+    - Adyen Payments
   responses:
     301:
       description: Visit Adyen [POST /payments/details](https://docs.adyen.com/api-explorer/#/CheckoutService/latest/post/payments/details) for details
@@ -54,7 +54,7 @@ post:
               type: string
               description: PaRes field definition in [Adyen docs description](https://docs.adyen.com/api-explorer/#/CheckoutService/v67/post/payments/details__reqParam_details-PaRes).
   tags:
-    - Payments
+    - Adyen Payments
   responses:
     301:
       description: Visit Adyen [POST /payments/details](https://docs.adyen.com/api-explorer/#/CheckoutService/latest/post/payments/details) for details

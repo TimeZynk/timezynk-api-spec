@@ -15,7 +15,7 @@ post:
           allOf:
           - $ref: '#/components/schemas/AdyenInitiatePaymentRequest'
   tags:
-    - Payments
+    - Adyen Payments
   responses:
     200:
       description: Adyen initiate payment response

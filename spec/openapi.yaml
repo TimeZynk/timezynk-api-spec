@@ -57,7 +57,8 @@ tags:
     description: API for fetching multiple collections in a single request.
   - name: Roles
   - name: Internal Message
-  - name: Payments
+  - name: Adyen Payments
+  - name: Paddle Payments
   - name: Webhooks
     description: A POST endpoint callback that is called for a certain action.
   - name: Experimental

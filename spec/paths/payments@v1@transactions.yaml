@@ -14,7 +14,7 @@ post:
           $ref: '#/components/schemas/TransactionsPaymentRequestBody'
 
   tags:
-    - Payments
+    - Adyen Payments
   responses:
     200:
       description: |

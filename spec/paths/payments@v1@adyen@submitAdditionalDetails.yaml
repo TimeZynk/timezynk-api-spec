@@ -21,7 +21,7 @@ post:
               type: string
               description: payment field definition in [Adyen docs description](https://docs.adyen.com/api-explorer/#/CheckoutService/v67/post/payments/details__reqParam_paymentData).
   tags:
-    - Payments
+    - Adyen Payments
   responses:
     200:
       description: Visit Adyen [POST /payments/details](https://docs.adyen.com/api-explorer/#/CheckoutService/v67/post/payments/details__section_resParams) for response details

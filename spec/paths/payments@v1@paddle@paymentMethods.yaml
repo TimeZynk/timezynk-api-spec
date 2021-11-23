@@ -1,0 +1,49 @@
+get:
+  summary: Fetch payment methods
+  description: |
+    List all payment methods for Paddle. No proxy calls to Paddle made.
+  tags:
+    - Paddle Payments
+  responses:
+    200:
+      description: |
+        An array of Paddle payment method objects.
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/PaymentMethod"
+    default:
+      description: Unexpected error.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+
+post:
+  summary: Create payment method
+  description: |
+    Create a payment method for Paddle. No proxy calls to Paddle made.
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: "#/components/schemas/PaymentMethod"
+  tags:
+    - Paddle Payments
+  responses:
+    200:
+      description: |
+        New Paddle payment method object.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/PaymentMethod"
+    default:
+      description: Unexpected error.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"

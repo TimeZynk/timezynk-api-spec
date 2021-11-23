@@ -20,7 +20,7 @@ post:
                 example: 841631886584433E
 
   tags:
-    - Payments
+    - Adyen Payments
   responses:
     200:
       description: |

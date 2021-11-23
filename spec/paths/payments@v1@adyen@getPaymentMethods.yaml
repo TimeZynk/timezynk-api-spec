@@ -7,7 +7,7 @@ get:
     - [Drop-in UI docs](https://docs.adyen.com/online-payments/drop-in-web/tutorial-node-js#build-the-client)
     - [POST /paymentMethods endpoint](https://docs.adyen.com/api-explorer/#/CheckoutService/v67/post/paymentMethods)
   tags:
-    - Payments
+    - Adyen Payments
   parameters:
     - in: query
       name: countryCode
