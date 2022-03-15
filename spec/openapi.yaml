@@ -57,7 +57,8 @@ tags:
     description: API for fetching multiple collections in a single request.
   - name: Roles
   - name: Internal Message
-  - name: Payments
+  - name: Stripe Payments
+    description: Proxy API to Stripe services.
   - name: Webhooks
     description: A POST endpoint callback that is called for a certain action.
   - name: Experimental
