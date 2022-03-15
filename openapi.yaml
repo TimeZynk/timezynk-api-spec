@@ -57,7 +57,8 @@ tags:
     description: API for fetching multiple collections in a single request.
   - name: Roles
   - name: Internal Message
-  - name: Payments
+  - name: Stripe Payments
+    description: Proxy API to Stripe services.
   - name: Webhooks
     description: A POST endpoint callback that is called for a certain action.
   - name: Experimental
@@ -2264,246 +2265,66 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-  /payments/v1/adyen/deletePaymentMethod:
+  /payments/v1/stripe/customers:
     post:
-      summary: Delete payment method
+      summary: Create customer
       description: |
-        A proxy endpoint for deleting an Adyen stored payment method, proxied through to [POST /Recurring/v49/disable](https://docs.adyen.com/api-explorer/#/Recurring/v49/post/disable).
-
-        For more information about how to use the endpoint see the Adyen docs:  
-        - [Adyen Tokenization](https://docs.adyen.com/online-payments/tokenization/managing-tokens)  
-        - [POST /Recurring/v49/disable](https://docs.adyen.com/api-explorer/#/Recurring/v49/post/disable)
+        Create a customer for Stripe. The Timezynk company id will be used 
+        for connecting the Timezynk account to the Stripe account.
       requestBody:
-        description: Payment details.
         required: true
         content:
           application/json:
             schema:
-              type: object
               properties:
-                id:
+                name:
                   type: string
-                  description: Adyen stored payment method id / recurringDetailReference
-                  example: 841631886584433E
+                  description: Name of customer.
+                email:
+                  type: string
+                  description: Customer email.
+                  format: email
+              required:
+                - name
+                - email
       tags:
-        - Payments
+        - Stripe Payments
       responses:
         '200':
+          description: Success
+        '400':
           description: |
-            Adyen delete payment method response. Responds with payload provided by the adyen API.
-          content:
-            application/json:
-              example:
-                response: '[detail-successfully-disabled]'
-  /payments/v1/adyen/getPaymentMethods:
-    get:
-      summary: Adyen payment methods
-      description: |
-        A proxy endpoint for indexing available Adyen payment methods. This endpoint should be used for rendering the Adyen [pre-built UI option: Drop-in](https://docs.adyen.com/online-payments/drop-in-web) component.
-
-        For more information about how to use the endpoint see the Adyen docs:  
-        - [Drop-in UI docs](https://docs.adyen.com/online-payments/drop-in-web/tutorial-node-js#build-the-client)
-        - [POST /paymentMethods endpoint](https://docs.adyen.com/api-explorer/#/CheckoutService/v67/post/paymentMethods)
-      tags:
-        - Payments
-      parameters:
-        - in: query
-          name: countryCode
-          description: 'Country code of the caller. [More info](https://docs.adyen.com/online-payments/3d-secure/native-3ds2/web-drop-in#show-the-available-cards-in-your-payment-form).'
-          schema:
-            type: string
-            example: se
-        - in: query
-          name: currency
-          description: 'Currency of the caller. [More info](https://docs.adyen.com/online-payments/3d-secure/native-3ds2/web-drop-in#show-the-available-cards-in-your-payment-form).'
-          schema:
-            type: string
-            example: SEK
-      responses:
-        '200':
-          description: List of all the available payment methods Timezynk accepts.
-          content:
-            application/json:
-              example:
-                paymentMethods:
-                  - brands:
-                      - amex
-                      - bcmc
-                      - cup
-                      - diners
-                      - discover
-                      - jcb
-                      - maestro
-                      - mc
-                      - visa
-                    details:
-                      - key: number
-                        type: text
-                      - key: expiryMonth
-                        type: text
-                      - key: expiryYear
-                        type: text
-                      - key: cvc
-                        type: text
-                      - key: holderName
-                        optional: true
-                        type: text
-                    name: Credit Card
-                    type: scheme
-  /payments/v1/adyen/handleShopperRedirect:
-    get:
-      summary: Shopper redirect
-      description: |
-        Endpoint for handling an Adyen shopper redirects. Sends payment details during a page redirect and determines the outcome for the shopper. Used for all payment methods that require a redirect
-
-        For more information about how to use the endpoint see the Adyen docs:  
-        - [Drop-in UI docs](https://docs.adyen.com/online-payments/drop-in-web/tutorial-node-js#build-the-client)
-        - [POST /payment/defails endpoint](https://docs.adyen.com/api-explorer/#/CheckoutService/v67/post/payments/details)
-      parameters:
-        - name: redirectResult
-          in: query
-          schema:
-            type: string
-            description: 'redirectResult field definition in [Adyen docs description](https://docs.adyen.com/api-explorer/#/CheckoutService/v67/post/payments/details__reqParam_details-redirectResult).'
-        - name: MD
-          in: query
-          schema:
-            type: string
-            description: 'MD field definition in [Adyen docs description](https://docs.adyen.com/api-explorer/#/CheckoutService/v67/post/payments/details__reqParam_details-MD).'
-        - name: PaRes
-          in: query
-          schema:
-            type: string
-            description: 'PaRes field definition in [Adyen docs description](https://docs.adyen.com/api-explorer/#/CheckoutService/v67/post/payments/details__reqParam_details-PaRes).'
-      tags:
-        - Payments
-      responses:
-        '301':
-          description: 'Visit Adyen [POST /payments/details](https://docs.adyen.com/api-explorer/#/CheckoutService/latest/post/payments/details) for details'
-    post:
-      summary: Shopper redirect
-      description: |
-        Endpoint for handling an Adyen shopper redirects. Sends payment details during a page redirect and determines the outcome for the shopper. Used for all payment methods that require a redirect
-
-        For more information about how to use the endpoint see the Adyen docs:  
-        - [Drop-in UI docs](https://docs.adyen.com/online-payments/drop-in-web/tutorial-node-js#build-the-client)
-        - [POST /payment/defails endpoint](https://docs.adyen.com/api-explorer/#/CheckoutService/v67/post/payments/details)
-      requestBody:
-        description: Payment details.
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                redirectResult:
-                  type: string
-                  description: 'redirectResult field definition in [Adyen docs description](https://docs.adyen.com/api-explorer/#/CheckoutService/v67/post/payments/details__reqParam_details-redirectResult).'
-                MD:
-                  type: string
-                  description: 'MD field definition in [Adyen docs description](https://docs.adyen.com/api-explorer/#/CheckoutService/v67/post/payments/details__reqParam_details-MD).'
-                PaRes:
-                  type: string
-                  description: 'PaRes field definition in [Adyen docs description](https://docs.adyen.com/api-explorer/#/CheckoutService/v67/post/payments/details__reqParam_details-PaRes).'
-      tags:
-        - Payments
-      responses:
-        '301':
-          description: 'Visit Adyen [POST /payments/details](https://docs.adyen.com/api-explorer/#/CheckoutService/latest/post/payments/details) for details'
-  /payments/v1/adyen/initiatePayment:
-    post:
-      summary: Initiate payment
-      description: |
-        A proxy endpoint for initiating an Adyen payment, proxied through to [POST /initiatePayment endpoint](https://docs.adyen.com/api-explorer/#/CheckoutService/67/post/payments). The endpoint should be used to initiate a payment via the Adyen [pre-built UI option: Drop-in](https://docs.adyen.com/online-payments/drop-in-web) component.
-
-        For more information about how to use the endpoint see the Adyen docs:  
-        - [Drop-in UI docs](https://docs.adyen.com/online-payments/drop-in-web/tutorial-node-js#build-the-client)  
-        - [POST /initiatePayment endpoint](https://docs.adyen.com/api-explorer/#/CheckoutService/67/post/payments)
-      requestBody:
-        description: Payment details.
-        required: true
-        content:
-          application/json:
-            schema:
-              allOf:
-                - $ref: '#/components/schemas/AdyenInitiatePaymentRequest'
-      tags:
-        - Payments
-      responses:
-        '200':
-          description: Adyen initiate payment response
-          content:
-            application/json:
-              example:
-                resultCode: RedirectShopper
-                action:
-                  data:
-                    MD: OEVudmZVMUlkWjd0MDNwUWs2bmhSdz09...
-                    PaReq: eNpVUttygjAQ/RXbDyAXBYRZ00HpTH3wUosPfe...
-                    TermUrl: 'https://example.com/checkout?shopperOrder=12xy..'
-                  method: POST
-                  paymentData: Ab02b4c0!BQABAgCJN1wRZuGJmq8dMncmypvknj9s7l5Tj...
-                  paymentMethodType: scheme
-                  type: redirect
-                  url: 'https://test.adyen.com/hpp/3d/validate.shtml'
-                details:
-                  - key: MD
-                    type: text
-                  - key: PaRes
-                    type: text
-  /payments/v1/adyen/submitAdditionalDetails:
-    post:
-      summary: Shopper redirect
-      description: |
-        A proxy endpoint for submitting additional details, if requested by payment provider.
-
-        For more information about how to use the endpoint see the Adyen docs:  
-        - [Drop-in UI docs](https://docs.adyen.com/online-payments/drop-in-web/tutorial-node-js#additional-details)
-        - [POST /payment/defails endpoint](https://docs.adyen.com/api-explorer/#/CheckoutService/v67/post/payments/details)
-      requestBody:
-        description: Payment details.
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                details:
-                  type: object
-                  description: 'details definition in [Adyen docs description](https://docs.adyen.com/api-explorer/#/CheckoutService/v67/post/payments/details__reqParam_details).'
-                paymentData:
-                  type: string
-                  description: 'payment field definition in [Adyen docs description](https://docs.adyen.com/api-explorer/#/CheckoutService/v67/post/payments/details__reqParam_paymentData).'
-      tags:
-        - Payments
-      responses:
-        '200':
-          description: 'Visit Adyen [POST /payments/details](https://docs.adyen.com/api-explorer/#/CheckoutService/v67/post/payments/details__section_resParams) for response details'
-  /payments/v1/transactions:
-    post:
-      summary: Create transaction
-      description: |
-        This endpoint will create a transaction and request a payment through Adyen.
-
-        This endpoint is using the Adyen tokenization flow. For more information:
-        - [Adyen Tokenization](https://docs.adyen.com/online-payments/tokenization/create-and-use-tokens)  
-      requestBody:
-        description: Transaction details.
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/TransactionsPaymentRequestBody'
-      tags:
-        - Payments
-      responses:
-        '200':
-          description: |
-            Created transaction entry
+            * Stripe exception.
+            * Customer already exists.
+            * Invalid email.
+        default:
+          description: Unexpected error.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PaymentTransaction'
+                $ref: '#/components/schemas/Error'
+  /payments/v1/stripe/invoices/send:
+    post:
+      summary: Create and send invoice
+      description: |
+        Collect invoice data, send to stripe, create Stripe invoice and send it.
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              properties: []
+      tags:
+        - Stripe Payments
+      responses:
+        '200':
+          description: Success
+        default:
+          description: Unexpected error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /published-shifts:
     put:
       summary: Publish shifts
@@ -8457,6 +8278,20 @@ components:
             rolling-shift-id:
               type: string
               format: ObjectId
+    StripeCustomer:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of customer.
+        email:
+          type: string
+          description: Customer email.
+          format: email
+        object:
+          type: string
+          enum:
+            - customer
     Subscriptions:
       allOf:
         - $ref: '#/components/schemas/BasicObject'
@@ -8598,35 +8433,6 @@ components:
         audience:
           type: string
           description: ID of intended audience for the token
-    TransactionsPaymentRequestBody:
-      type: object
-      properties:
-        type:
-          type: string
-          description: Type of transaction
-          enum:
-            - invoice
-        target:
-          type: string
-          description: 'Specify the target of this transaction. E.g. if the `type` is `invoice`, then the `target` should be set to the invoice of the id.'
-        company-id:
-          type: string
-          description: 'Id of the company this transactions is recorded for. If the request is made on behalf of a user, then the company id of the current session will be used.'
-        amount:
-          type: object
-          description: Amount the be charged.
-          properties:
-            value:
-              type: integer
-              description: Amount to charge (of specified currency).
-            currency:
-              type: string
-              description: Currency code.
-      required:
-        - amount
-        - type
-        - target
-        - company-id
     User:
       allOf:
         - $ref: '#/components/schemas/BasicObject'
