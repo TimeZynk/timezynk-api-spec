@@ -3565,30 +3565,6 @@
       "post": {
         "summary": "Create customer",
         "description": "Create a customer for Stripe. The Timezynk company id will be used \nfor connecting the Timezynk account to the Stripe account.\n",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "properties": {
-                  "name": {
-                    "type": "string",
-                    "description": "Name of customer."
-                  },
-                  "email": {
-                    "type": "string",
-                    "description": "Customer email.",
-                    "format": "email"
-                  }
-                },
-                "required": [
-                  "name",
-                  "email"
-                ]
-              }
-            }
-          }
-        },
         "tags": [
           "Stripe Payments"
         ],
@@ -3597,7 +3573,38 @@
             "description": "Success"
           },
           "400": {
-            "description": "* Stripe exception.\n* Customer already exists.\n* Invalid email.\n"
+            "description": "* Stripe exception.\n* Customer already exists.\n"
+          },
+          "409": {
+            "description": "* Company name missing from account.\n* Invoice email missing from account.\n"
+          },
+          "default": {
+            "description": "Unexpected error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete customer",
+        "description": "Delete a Stripe customer account.\n",
+        "tags": [
+          "Stripe Payments"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success. Both the Stripe account and the proxy connection were deleted.\n"
+          },
+          "400": {
+            "description": "Stripe exception. The proxy connection will still be deleted.\n"
+          },
+          "404": {
+            "description": "Proxy connection not found. No action taken.\n"
           },
           "default": {
             "description": "Unexpected error.",
@@ -3616,16 +3623,6 @@
       "post": {
         "summary": "Create and send invoice",
         "description": "Collect invoice data, send to stripe, create Stripe invoice and send it.\n",
-        "requestBody": {
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "properties": []
-              }
-            }
-          }
-        },
         "tags": [
           "Stripe Payments"
         ],
@@ -12246,26 +12243,6 @@
                 "format": "ObjectId"
               }
             }
-          }
-        }
-      },
-      "StripeCustomer": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "description": "Name of customer."
-          },
-          "email": {
-            "type": "string",
-            "description": "Customer email.",
-            "format": "email"
-          },
-          "object": {
-            "type": "string",
-            "enum": [
-              "customer"
-            ]
           }
         }
       },
