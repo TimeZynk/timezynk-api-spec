@@ -2,14 +2,6 @@ post:
   summary: Create and send invoice
   description: |
     Collect invoice data, send to stripe, create Stripe invoice and send it.
-  requestBody:
-    required: false
-    content:
-      application/json:
-        schema:
-          properties:
-            []
-
   tags:
     - Stripe Payments
   responses:

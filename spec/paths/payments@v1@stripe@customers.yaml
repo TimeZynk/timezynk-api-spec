@@ -3,22 +3,6 @@ post:
   description: |
     Create a customer for Stripe. The Timezynk company id will be used 
     for connecting the Timezynk account to the Stripe account.
-  requestBody:
-    required: true
-    content:
-      application/json:
-        schema:
-          properties:
-            name:
-              type: string
-              description: Name of customer.
-            email:
-              type: string
-              description: Customer email.
-              format: email
-          required:
-            - name
-            - email
   tags:
     - Stripe Payments
   responses:
@@ -28,7 +12,33 @@ post:
       description: |
         * Stripe exception.
         * Customer already exists.
-        * Invalid email.
+    409:
+      description: |
+        * Company name missing from account.
+        * Invoice email missing from account.
+    default:
+      description: Unexpected error.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+
+delete:
+  summary: Delete customer
+  description: |
+    Delete a Stripe customer account.
+  tags:
+    - Stripe Payments
+  responses:
+    200:
+      description: |
+        Success. Both the Stripe account and the proxy connection were deleted.
+    400:
+      description: |
+        Stripe exception. The proxy connection will still be deleted.
+    404:
+      description: |
+        Proxy connection not found. No action taken.
     default:
       description: Unexpected error.
       content:
