@@ -1,0 +1,34 @@
+get:
+  summary: List all available invoice formats
+  tags:
+    - File export
+  responses:
+    "200":
+      description: List of invoice formats available for export
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: Format ID
+                  example: excel
+                title:
+                  type: string
+                  description: Format title
+                  example: Excel
+                content-type:
+                  type: string
+                  description: Content type
+                  example: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+                extension:
+                  type: string
+                  description: File extension for download
+                  example: .xlsx
+    "401":
+      description: Not authorized
+
+
