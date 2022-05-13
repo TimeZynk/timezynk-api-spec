@@ -1,8 +1,22 @@
 openapi: 3.0.3
 info:
   title: Timezynk API
-  description: API for Timezynk scheduling system
   version: 2.7.0
+  description: >
+    Build your own cool apps and integrations by leveraging the Timezynk API!
+
+    
+    The Timezynk API is organized around REST. It is designed to have resource-oriented URLs and be as predictable as possible for you as developer. 
+    We use HTTP status codes when something goes wrong and HTTP verbs understod by many API clients around the web.
+
+
+    Authentication is done using OAuth2. You can create an API key by logging in to your timezynk account and visiting 
+    https://tzapp.com/v5/#settings/integrations
+
+
+    All input and output is in JSON.
+
+
 security:
   - TZApiAuth: []
 tags:
