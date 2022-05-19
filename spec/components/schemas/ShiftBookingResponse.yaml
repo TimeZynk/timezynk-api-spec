@@ -16,7 +16,9 @@ properties:
           type: string
           format: ObjectId
         reason:
-          type: string
+          enum:
+            - conflict
+            - overbooking
   unresolved-conflicts:
     type: array
     items:
