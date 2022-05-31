@@ -4,6 +4,21 @@ properties:
     type: array
     items:
       $ref: "#/components/schemas/Shift"
+  failed-bookings:
+    type: array
+    items:
+      type: object
+      properties:
+        user-id:
+          type: string
+          format: ObjectId
+        requested-shift-id:
+          type: string
+          format: ObjectId
+        reason:
+          enum:
+            - conflict
+            - overbooking
   unresolved-conflicts:
     type: array
     items:

@@ -1,0 +1,7 @@
+in: query
+name: user-ids
+description: Narrows down the scope of the query
+schema:
+  type: string
+  example: "5f087c7c3ee35ad131348d9d,5f087c7c3ee35ad131349253"
+  description: Comma-separated list of user IDs

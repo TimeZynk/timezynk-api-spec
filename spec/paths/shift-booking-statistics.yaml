@@ -1,0 +1,40 @@
+get:
+  summary: Time worked per user per calendar week
+  description: |
+    Fetches statistics about the shifts booked during the specified interval. Optionally narrows down the results to the shifts which have the specified users booked on them.
+  parameters:
+    - $ref: "#/components/parameters/startParam"
+    - $ref: "#/components/parameters/endParam"
+    - $ref: "#/components/parameters/criteriaParam"
+    - $ref: "#/components/parameters/userIds"
+  responses:
+    '200':
+      description: Results are grouped by whole and consecutive calendar weeks.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              booking-statistics:
+                type: array
+                items:
+                  $ref: "#/components/schemas/BookingStatistics"
+          example: {
+            "booking-statistics": [
+              {
+                "from": "2022-04-18",
+                "to": "2022-04-25",
+                "stats": {
+                  "5f087c7c3ee35ad131348d9d": {"msecs": 1212121212},
+                  "5f087c7c3ee35ad131349253": {"msecs": 2323232323},
+                  "5f087c7c3ee35ad131349374": {"msecs": 3434343434},
+                  "5f087c7c3ee35ad131349b0b": {"msecs": 4343434343}
+                }
+              },
+              {
+                "from": "2022-04-25",
+                "to": "2022-05-02",
+                "stats": {}
+              }
+            ]
+          }

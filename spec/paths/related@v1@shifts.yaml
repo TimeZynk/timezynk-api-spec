@@ -50,6 +50,13 @@ get:
         type: boolean
         example: true
         default: false
+    - name: booking-statistics
+      description: Specifies if booking statistics should be included in the response. Will fetch booking statistics in consecutive time windows. Each of these windows is one week long, begins on Monday at midnight and ends on Sunday before midnight. The first window contains the beginning of the specified interval. The last window contains the end of the specified interval.
+      in: query
+      schema:
+        type: boolean
+        example: true
+        default: false
   tags:
     - Related Collections
   responses:
@@ -84,6 +91,10 @@ get:
                 type: array
                 items:
                   $ref: "#/components/schemas/ApprovalRequest"
+              booking-statistics:
+                type: array
+                items:
+                  $ref: "#/components/schemas/BookingStatistics"
           example: {
             shifts: [],
             timereports: [],
@@ -91,5 +102,5 @@ get:
             inquiries: [],
             availabilities: [],
             "approval-requests": []
-
+            "booking-statistics": []
           }

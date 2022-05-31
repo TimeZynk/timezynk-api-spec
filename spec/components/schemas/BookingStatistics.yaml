@@ -1,0 +1,23 @@
+type: object
+properties:
+  booking-statistics:
+    type: array
+    description: Time worked, grouped by user and by reference interval.
+    readOnly: true
+    items:
+      type: string
+      properties:
+        from:
+          type: string
+          description: The beginning (inclusive) of the reference interval.
+          format: local-date
+          pattern: ^\d{4}-\d{2}-\d{2}$
+        to:
+          type: string
+          description: The end (exclusive) of the reference interval.
+          format: local-date
+          pattern: ^\d{4}-\d{2}-\d{2}$
+        stats:
+          type: object
+          description: |
+            User IDs associated with time worked during the reference interval. Time is measured in milliseconds.
