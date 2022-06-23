@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: Timezynk API
-  version: 2.7.1
+  version: 2.8.1
   description: >
     Build your own cool apps and integrations by leveraging the Timezynk API!
 
