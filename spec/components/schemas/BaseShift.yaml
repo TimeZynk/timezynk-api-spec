@@ -6,12 +6,14 @@ allOf:
         type: string
         format: local-date-time
         pattern: ^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(.\d{3})?$
-        description: Start of shift without time zone (i.e. 2019-04-30T15:41:00.000)
+        description: Start of shift without time zone
+        example: "2019-04-30T15:41:00.000"
       end:
         type: string
         format: local-date-time
         pattern: ^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(.\d{3})?$
-        description: End of shift without time zone (i.e. 2019-04-30T15:41:00.000)
+        description: End of shift without time zone
+        example: "2019-04-30T15:41:00.000"
       breaks:
         type: array
         description: List of breaks
