@@ -1,0 +1,17 @@
+type: object
+properties:
+  id:
+    type: string
+    description: Export target ID
+    example: fortnox3
+  title:
+    type: string
+    description: Name of target system
+    example: Fortnox 3
+  if-module:
+    type: string
+    description: Module ID that is required for this export
+    example: fortnox-invoice
+required:
+  - id
+  - title

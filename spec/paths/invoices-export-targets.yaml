@@ -1,0 +1,13 @@
+get:
+  summary: List invoices export targets
+  tags:
+    - Invoice export
+  responses:
+    200:
+      description: Array of export targets that can be used for the /api/invoices-export API
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/InvoiceExportTarget"
