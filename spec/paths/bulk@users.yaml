@@ -1,0 +1,42 @@
+put:
+  summary: Update list of users
+  description: |
+    Atomically update a list of users. If there is an error with one user, none get updated.
+  requestBody:
+    content:
+      application/json:
+        schema:
+          type: array
+          items:
+            properties:
+              user-ids:
+                type: array
+                items:
+                  type: string
+                  format: ObjectId
+                description: |
+                  A list of user ids.
+              update:
+                type: object
+                description: |
+                  Update payload for the associated user ids.
+                properties:
+                  $ref: "#/components/schemas/User"
+  tags:
+    - User
+  responses:
+    200:
+      description: Metadata.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              matched-count:
+                type: integer
+                description: Number of matching shifts.
+              modified-count:
+                type: integer
+                description: Number of modified shifts.
+    400:
+      description: Validation failed.
