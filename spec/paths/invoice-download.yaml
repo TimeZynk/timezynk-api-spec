@@ -17,8 +17,8 @@ post:
               example: [ 5f31459ddaf86a3cd67543bf, 5f31459ddaf86a3cd67543c1]
             target:
               type: string
-              enum: [excel, raindance, ekot, ubw]
-              description: Export format.
+              enum: [excel, raindance, ekot, ubw, pdf, pdf-duplex]
+              description: Export format. PDF files can be prepared for either single- or double-sided printing.
               example: ubw
           required:
             - ids
