@@ -15,6 +15,6 @@
     "gh-pages": "swagger-repo gh-pages"
   },
   "devDependencies": {
-    "nodemon": "^2.0.3"
+    "nodemon": "^2.0.20"
   }
 }
