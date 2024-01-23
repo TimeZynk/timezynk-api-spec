@@ -1,22 +1,12 @@
 get:
   summary: Fetch outgoing rfqs with related collections
   description: |
-    Endpoint for fetching data from multiple collections related to rfqs. Will fetch data in the specified interval along with orphaned* items.
+    Endpoint for fetching data from multiple collections related to rfqs.
 
-    \* *An item not in the current interval, but related to a outgoing-rfq, rfq-form, rfq-shift, rfq-suppliers', quote-shift or quote-shift-response.*
+    \* *An item not in the current interval, but related to a outgoing-rfq, rfq-form, rfq-shift, rfq-suppliers, quote-shift or quote-shift-response.*
   parameters:
-    - $ref: "#/components/parameters/startParam"
-    - $ref: "#/components/parameters/endParam"
-    - $ref: "#/components/parameters/criteriaParam"
-    - name: outgoing-rfqs
-      description: Specifies if data in the outgoing-rfqs collection should be included in the response. Will fetch outgoing-rfqs in the specified interval.
-      in: query
-      schema:
-        type: boolean
-        example: true
-        default: false
-    - name: rfq-forms
-      description: Specifies if data in the rfq-forms collection should be included in the response.
+    - name: rfq-suppliers
+      description: Specifies if data in the rfq-suppliers collection should be included in the response.
       in: query
       schema:
         type: boolean
@@ -29,22 +19,15 @@ get:
         type: boolean
         example: true
         default: false
-    - name: rfq-suppliers
-      description: Specifies if data in the rfq-suppliers collection should be included in the response.
-      in: query
-      schema:
-        type: boolean
-        example: true
-        default: false
     - name: quote-shifts
-      description: Specifies if data in the quote-shifts collection should be included in the response. Will fetch quote-shifts to outgoing-rfqs in the specified intervall.
+      description: Specifies if data in the quote-shifts collection should be included in the response. Will fetch quote-shifts related to fetched outgoing-rfqs.
       in: query
       schema:
         type: boolean
         example: true
         default: false
     - name: quote-shifts-responses
-      description: Specifies if data in the quote-shifts-responses collection should be included in the response. Will fetch orders quote-shifts-responses to outgoing-rfqs in the specified interval.
+      description: Specifies if data in the quote-shifts-responses collection should be included in the response. Will fetch quote-shifts-responses related to fetched outgoing-rfqs.
       in: query
       schema:
         type: boolean
