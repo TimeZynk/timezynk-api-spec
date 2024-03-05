@@ -1,0 +1,18 @@
+post:
+  summary: Restore a deleted shift
+  description: |
+    For the current company and user, undo the latest shift(s) deletion. 
+
+  tags:
+    - Shift
+  responses:
+    200:
+      description: Previously deleted shift(s).
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/Shift"
+    404:
+      description: No deleted shift found
