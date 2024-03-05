@@ -101,6 +101,6 @@ get:
             approvals: [],
             inquiries: [],
             availabilities: [],
-            "approval-requests": []
+            "approval-requests": [],
             "booking-statistics": []
           }

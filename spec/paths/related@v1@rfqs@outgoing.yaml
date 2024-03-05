@@ -1,0 +1,77 @@
+get:
+  summary: Fetch outgoing rfqs with related collections
+  description: |
+    Endpoint for fetching data from multiple collections related to rfqs.
+
+    \* *An item not in the current interval, but related to a outgoing-rfq, rfq-form, rfq-shift, rfq-suppliers, quote-shift or quote-shift-response.*
+  parameters:
+    - name: rfq-suppliers
+      description: Specifies if data in the rfq-suppliers collection should be included in the response.
+      in: query
+      schema:
+        type: boolean
+        example: true
+        default: false
+    - name: rfq-shifts
+      description: Specifies if data in the rfq-shifts collection should be included in the response. Will fetch rfq-shifts related to the fetched outgoing-rfqs.
+      in: query
+      schema:
+        type: boolean
+        example: true
+        default: false
+    - name: quote-shifts
+      description: Specifies if data in the quote-shifts collection should be included in the response. Will fetch quote-shifts related to fetched outgoing-rfqs.
+      in: query
+      schema:
+        type: boolean
+        example: true
+        default: false
+    - name: quote-shifts-responses
+      description: Specifies if data in the quote-shifts-responses collection should be included in the response. Will fetch quote-shifts-responses related to fetched outgoing-rfqs.
+      in: query
+      schema:
+        type: boolean
+        example: true
+        default: false
+  tags:
+    - Related Collections
+  responses:
+    '200':
+      description: Data from multiple collections
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              outgoing-rfqs:
+                type: array
+                items:
+                  $ref: "#/components/schemas/OutgoingRfq"
+              rfq-forms:
+                type: array
+                items:
+                  $ref: "#/components/schemas/RfqForm"
+              rfq-suppliers:
+                type: array
+                items:
+                  $ref: "#/components/schemas/RfqSupplier"
+              rfq-shifts:
+                type: array
+                items:
+                  $ref: "#/components/schemas/RfqShift"
+              quote-shifts:
+                type: array
+                items:
+                  $ref: "#/components/schemas/QuoteShift"
+              quote-shif-responsess:
+                type: array
+                items:
+                  $ref: "#/components/schemas/QuoteShiftResponse"
+          example: {
+            "outgoing-rfqs": [],
+            "rfq-forms": [],
+            "rfq-suppliers": [],
+            "rfq-shifts": [],
+            "quote-shifts": [],
+            "quote-shift-responses": []
+          }
