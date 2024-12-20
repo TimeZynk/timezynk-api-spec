@@ -20,6 +20,10 @@
       "description": "Fetching and updating availability"
     },
     {
+      "name": "Customer",
+      "description": "Handling of client customers; sending invoices, synchronising internal and external data"
+    },
+    {
       "name": "Invoice",
       "description": "Fetching, updating and creating invoices"
     },
@@ -1110,6 +1114,361 @@
           },
           "400": {
             "description": "Validation failed."
+          }
+        }
+      }
+    },
+    "/customer/credentials/{target}": {
+      "get": {
+        "summary": "Fetch credentials",
+        "description": "Get the access credentials for service",
+        "parameters": [
+          {
+            "name": "target",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The target",
+              "enum": [
+                "bl"
+              ]
+            }
+          }
+        ],
+        "tags": [
+          "Customer"
+        ],
+        "responses": {
+          "200": {
+            "description": "Credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "description": "The target",
+                      "example": "bl"
+                    },
+                    "value": {
+                      "type": "object",
+                      "description": "The credentials",
+                      "example": {
+                        "id": 12345
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid target"
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      },
+      "put": {
+        "summary": "Store credentials",
+        "description": "Store the access credentials for service",
+        "parameters": [
+          {
+            "name": "target",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The target",
+              "enum": [
+                "bl"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "description": "The credentials",
+                "example": {
+                  "id": 12345
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Customer"
+        ],
+        "responses": {
+          "200": {
+            "description": "Credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "description": "The target",
+                      "example": "bl"
+                    },
+                    "value": {
+                      "type": "object",
+                      "description": "The credentials",
+                      "example": {
+                        "id": 12345
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid target"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete credentials",
+        "description": "Delete the access credentials for service",
+        "parameters": [
+          {
+            "name": "target",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The target",
+              "enum": [
+                "bl"
+              ]
+            }
+          }
+        ],
+        "tags": [
+          "Customer"
+        ],
+        "responses": {
+          "200": {
+            "description": "Credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "description": "The target",
+                      "example": "bl"
+                    },
+                    "value": {
+                      "type": "null"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid target"
+          }
+        }
+      }
+    },
+    "/customer/invoices": {
+      "get": {
+        "summary": "Fetch invoice objects",
+        "description": "Invoice objects created during sending invoices to customers",
+        "tags": [
+          "Customer"
+        ],
+        "responses": {
+          "200": {
+            "description": "Invoice objects",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CustomerInvoice"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      }
+    },
+    "/customer/invoices/{invoice-id}": {
+      "get": {
+        "summary": "Fetch invoice objects by invoice id",
+        "description": "Get the access credentials for service",
+        "parameters": [
+          {
+            "name": "invoice-id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The invoice id."
+            }
+          }
+        ],
+        "tags": [
+          "Customer"
+        ],
+        "responses": {
+          "200": {
+            "description": "Invoice objects",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CustomerInvoice"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      }
+    },
+    "/customer/invoices/by-interval": {
+      "get": {
+        "summary": "Fetch invoice objects by interval",
+        "description": "Get the access credentials for service",
+        "parameters": [
+          {
+            "name": "from",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Starting date for interval."
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Ending date for interval."
+            }
+          }
+        ],
+        "tags": [
+          "Customer"
+        ],
+        "responses": {
+          "200": {
+            "description": "Invoice objects",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CustomerInvoice"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      }
+    },
+    "/customer/send-invoices/{target}": {
+      "post": {
+        "summary": "Send invoices to customers",
+        "description": "Get the access credentials for service",
+        "parameters": [
+          {
+            "name": "target",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The target",
+              "enum": [
+                "bl"
+              ]
+            }
+          }
+        ],
+        "tags": [
+          "Customer"
+        ],
+        "responses": {
+          "200": {
+            "description": "Message",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "A simple response message.",
+                      "example": "Starting sending invoices"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/customer/targets": {
+      "get": {
+        "summary": "Fetch targets info",
+        "description": "Get information about valid targets",
+        "tags": [
+          "Customer"
+        ],
+        "responses": {
+          "200": {
+            "description": "Targets list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "example": "bl"
+                      },
+                      "title": {
+                        "type": "string",
+                        "example": "Bjorn Lunden"
+                      },
+                      "if-module": {
+                        "type": "string",
+                        "example": "bl-invoice"
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -9625,14 +9984,14 @@
         "properties": {
           "id": {
             "type": "string",
-            "description": "Unique ID",
+            "description": "Unique ID.",
             "format": "ObjectId",
             "readOnly": true,
             "example": "5dde7024eded8872705aabcd"
           },
           "vid": {
             "type": "string",
-            "description": "Unique identifier representing a specific version of an item",
+            "description": "Unique identifier representing a specific version of an item.",
             "format": "ObjectId",
             "readOnly": true,
             "example": "5dde7024eded8872705aabce"
@@ -9646,7 +10005,7 @@
           },
           "created": {
             "type": "number",
-            "description": "Timestamp in milliseconds for when the object was created",
+            "description": "Timestamp in milliseconds for when the object was created.",
             "readOnly": true,
             "example": 1558604010307
           },
@@ -9660,7 +10019,7 @@
           "valid-from": {
             "type": "number",
             "format": "timestamp",
-            "description": "Timestamp in milliseconds for when the object was last changed",
+            "description": "Timestamp in milliseconds for when the object was last changed.",
             "readOnly": true,
             "example": 1558604030403
           },
@@ -9679,7 +10038,7 @@
           },
           "archived": {
             "type": "integer",
-            "description": "Timestamp in milliseconds for when the object was archived, or null if it is still active",
+            "description": "Timestamp in milliseconds for when the object was archived, or null if it is still active.",
             "nullable": true,
             "example": null
           }
@@ -9812,6 +10171,82 @@
           "company": "Company AB",
           "name": "Firstname Surname"
         }
+      },
+      "CustomerInvoice": {
+        "allOf": [
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "Unique ID.",
+                "format": "ObjectId",
+                "readOnly": true,
+                "example": "5dde7024eded8872705aabcd"
+              },
+              "vid": {
+                "type": "string",
+                "description": "Unique identifier representing a specific version of an item.",
+                "format": "ObjectId",
+                "readOnly": true,
+                "example": "5dde7024eded8872705aabce"
+              },
+              "company-id": {
+                "type": "string",
+                "description": "Id of the company who owns this item.",
+                "format": "ObjectId",
+                "readOnly": true,
+                "example": "5dde7024eded8872705aabcf"
+              },
+              "created": {
+                "type": "number",
+                "description": "Timestamp in milliseconds for when the object was created.",
+                "readOnly": true,
+                "example": 1558604010307
+              },
+              "created-by": {
+                "type": "string",
+                "description": "User ID.",
+                "format": "ObjectId",
+                "example": "5dde7024eded8872705aabcb"
+              },
+              "invoice-id": {
+                "type": "string",
+                "description": "Invoice ID.",
+                "format": "ObjectId",
+                "example": "5dde7024eded8872705aabcc"
+              },
+              "target": {
+                "type": "string",
+                "description": "Target system for export.",
+                "example": "bl"
+              },
+              "target-invoice-id": {
+                "type": "string",
+                "description": "Invoice ID assigned by target system.",
+                "example": 42
+              },
+              "state": {
+                "type": "string",
+                "description": "State of export.",
+                "enum": [
+                  "pending",
+                  "failed",
+                  "completed",
+                  "download"
+                ]
+              },
+              "error-code": {
+                "type": "string",
+                "description": "Error code, if state equals \"failed\"."
+              },
+              "error-message": {
+                "type": "string",
+                "description": "Error message, if state equals \"failed\"."
+              }
+            }
+          }
+        ]
       },
       "DateSelector": {
         "type": "object",
@@ -10882,7 +11317,7 @@
             "properties": {
               "invoice-id": {
                 "type": "string",
-                "description": "Unique shift ID.",
+                "description": "Invoice ID.",
                 "format": "ObjectId",
                 "example": "5dde7024eded8872705aabcb"
               },
