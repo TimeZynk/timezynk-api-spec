@@ -1,0 +1,16 @@
+get:
+  summary: Fetch invoice objects
+  description: Invoice objects created during sending invoices to customers
+  tags:
+    - Customer
+  responses:
+    200:
+      description: Invoice objects
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/CustomerInvoice"
+    404:
+      description: Not found

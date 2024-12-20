@@ -1,0 +1,25 @@
+post:
+  summary: Send invoices to customers
+  description: Get the access credentials for service
+  parameters:
+    - name: target
+      in: path
+      required: true
+      schema:
+        type: string
+        description: The target
+        enum: [bl]
+  tags:
+    - Customer
+  responses:
+    200:
+      description: Message
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                description: A simple response message.
+                example: Starting sending invoices

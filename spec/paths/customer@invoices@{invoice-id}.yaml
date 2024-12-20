@@ -1,0 +1,23 @@
+get:
+  summary: Fetch invoice objects by invoice id
+  description: Get the access credentials for service
+  parameters:
+    - name: invoice-id
+      in: path
+      required: true
+      schema:
+        type: string
+        description: The invoice id.
+  tags:
+    - Customer
+  responses:
+    200:
+      description: Invoice objects
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/CustomerInvoice"
+    404:
+      description: Not found

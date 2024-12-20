@@ -1,6 +1,6 @@
 {
   "name": "timezynk-api-spec",
-  "version": "2.7.1",
+  "version": "2.8.0",
   "dependencies": {
     "mkdirp": "^0.5.5",
     "swagger-repo": "^2.0.0-rc.15"

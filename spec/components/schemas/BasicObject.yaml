@@ -2,13 +2,13 @@ type: object
 properties:
   id:
     type: string
-    description: Unique ID
+    description: Unique ID.
     format: ObjectId
     readOnly: true
     example: 5dde7024eded8872705aabcd
   vid:
     type: string
-    description: Unique identifier representing a specific version of an item
+    description: Unique identifier representing a specific version of an item.
     format: ObjectId
     readOnly: true
     example: 5dde7024eded8872705aabce
@@ -20,7 +20,7 @@ properties:
     example: 5dde7024eded8872705aabcf
   created:
     type: number
-    description: Timestamp in milliseconds for when the object was created
+    description: Timestamp in milliseconds for when the object was created.
     readOnly: true
     example: 1558604010307
   created-by:
@@ -32,7 +32,7 @@ properties:
   valid-from:
     type: number
     format: timestamp
-    description: Timestamp in milliseconds for when the object was last changed
+    description: Timestamp in milliseconds for when the object was last changed.
     readOnly: true
     example: 1558604030403
   valid-to:
@@ -48,7 +48,7 @@ properties:
     example: 5dde7024eded8872705aabd1
   archived:
     type: integer
-    description: Timestamp in milliseconds for when the object was archived, or null if it is still active
+    description: Timestamp in milliseconds for when the object was archived, or null if it is still active.
     nullable: true
     example: null
 required:

@@ -4,7 +4,7 @@ allOf:
     properties:
       invoice-id:
         type: string
-        description: Unique shift ID.
+        description: Invoice ID.
         format: ObjectId
         example: 5dde7024eded8872705aabcb
       target:

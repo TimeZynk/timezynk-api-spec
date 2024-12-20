@@ -24,6 +24,8 @@ tags:
     description: Endpoints for authentication and configuration
   - name: Availability
     description: Fetching and updating availability
+  - name: Customer
+    description: Handling of client customers; sending invoices, synchronising internal and external data
   - name: Invoice
     description: Fetching, updating and creating invoices
   - name: Invoice rows

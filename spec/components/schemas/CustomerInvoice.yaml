@@ -1,0 +1,54 @@
+allOf:
+  - type: object
+    properties:
+      id:
+        type: string
+        description: Unique ID.
+        format: ObjectId
+        readOnly: true
+        example: 5dde7024eded8872705aabcd
+      vid:
+        type: string
+        description: Unique identifier representing a specific version of an item.
+        format: ObjectId
+        readOnly: true
+        example: 5dde7024eded8872705aabce
+      company-id:
+        type: string
+        description: Id of the company who owns this item.
+        format: ObjectId
+        readOnly: true
+        example: 5dde7024eded8872705aabcf
+      created:
+        type: number
+        description: Timestamp in milliseconds for when the object was created.
+        readOnly: true
+        example: 1558604010307
+      created-by:
+        type: string
+        description: User ID.
+        format: ObjectId
+        example: 5dde7024eded8872705aabcb
+      invoice-id:
+        type: string
+        description: Invoice ID.
+        format: ObjectId
+        example: 5dde7024eded8872705aabcc
+      target:
+        type: string
+        description: Target system for export.
+        example: bl
+      target-invoice-id:
+        type: string
+        description: Invoice ID assigned by target system.
+        example: 42
+      state:
+        type: string
+        description: State of export.
+        enum: [pending, failed, completed, download]
+      error-code:
+        type: string
+        description: Error code, if state equals "failed".
+      error-message:
+        type: string
+        description: Error message, if state equals "failed".

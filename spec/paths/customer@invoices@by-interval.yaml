@@ -1,0 +1,29 @@
+get:
+  summary: Fetch invoice objects by interval
+  description: Get the access credentials for service
+  parameters:
+    - name: from
+      in: query
+      required: true
+      schema:
+        type: string
+        description: Starting date for interval.
+    - name: to
+      in: query
+      required: true
+      schema:
+        type: string
+        description: Ending date for interval.
+  tags:
+    - Customer
+  responses:
+    200:
+      description: Invoice objects
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/CustomerInvoice"
+    404:
+      description: Not found

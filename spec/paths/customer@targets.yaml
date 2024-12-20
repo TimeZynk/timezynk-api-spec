@@ -1,0 +1,23 @@
+get:
+  summary: Fetch targets info
+  description: Get information about valid targets
+  tags:
+    - Customer
+  responses:
+    200:
+      description: Targets list
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              properties:
+                id:
+                  type: string
+                  example: "bl"
+                title:
+                  type: string
+                  example: "Bjorn Lunden"
+                if-module:
+                  type: string
+                  example: "bl-invoice"
