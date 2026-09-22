@@ -1,5 +1,9 @@
 type: object
 properties:
+  code:
+    type: integer
+    description: The response's own HTTP status code, repeated in the body.
+    example: 409
   error:
     type: string
     description: Stable machine-readable Payroll error code.

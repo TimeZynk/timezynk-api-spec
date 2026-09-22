@@ -31,6 +31,10 @@ post:
             $ref: "#/components/schemas/PayrollOperationError"
     404:
       description: Payroll not found.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/PayrollOperationError"
     409:
       description: The Payroll is not a draft, was concurrently finalized, or has source conflicts.
       content:

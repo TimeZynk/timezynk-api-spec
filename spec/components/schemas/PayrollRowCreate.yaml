@@ -1,11 +1,26 @@
 type: object
 description: |
-  One calculated Payroll result row. For the atomic draft flow, source metadata is required and
-  determines what the completed Payroll claims:
+  One calculated Payroll result row.
 
-  - `salary-report` requires a non-empty `report-ids` array.
-  - `monthly-salary` requires `source-month` in `YYYY-MM` format.
-  - `flexitime` requires an inclusive `source-from`/`source-to` interval.
+  `source-type` and its matching field are **required when the parent Payroll was created with
+  `save-state: draft`** (the atomic flow all new integrations should use). They determine what the
+  completed Payroll claims when finalized, and a row that omits or mismatches them is rejected with
+  a `400` from `POST /payroll-rows`:
+
+  - `salary-report` requires a non-empty `report-ids` array, or `400 PAYROLL_ROW_MISSING_REPORT_IDS`.
+  - `monthly-salary` requires `source-month` in `YYYY-MM` format, or `400 PAYROLL_ROW_MISSING_SOURCE_MONTH`.
+  - `flexitime` requires an inclusive `source-from`/`source-to` interval (`source-from` on or before
+    `source-to`), or `400 PAYROLL_ROW_MISSING_SOURCE_INTERVAL`.
+  - A missing or unrecognized `source-type` itself returns `400 PAYROLL_ROW_MISSING_SOURCE_TYPE`.
+
+  For a legacy Payroll (`save-state` omitted at creation), source metadata is not validated and may
+  be omitted; such rows are never eligible for claim-based duplicate protection. New integrations
+  should always use the draft flow and always provide `source-type`.
+
+  The `enum` on `source-type` and the `pattern` on `source-month` below describe the draft-flow
+  contract only. The server does not enforce either for a legacy Payroll's rows, so a strict
+  client-side validator built from this schema may reject a legacy-flow value the server actually
+  accepts. Legacy callers should not validate against this schema.
 properties:
   payroll-id:
     type: string
@@ -63,8 +78,12 @@ properties:
     example: SEK
   duration:
     type: number
-    minimum: 0
-    description: Optional duration in minutes.
+    description: |
+      Optional duration in milliseconds. Signed: a Flexitime row's duration matches the sign of
+      `count`, so a negative value (the employee owes time) is valid and expected. Note the unit
+      difference from `PayrollCalculationInputsResponse`'s `flexitime[].value`, which is in
+      minutes — multiply that value by 60000 to build this field.
+    example: -144000000
   export-data:
     type: object
     description: Integration-specific row data.

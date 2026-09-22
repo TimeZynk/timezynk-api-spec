@@ -28,8 +28,11 @@ properties:
     example: August 2026
   status:
     type: string
-    enum: [active]
-    description: Required by the create contract. The server normalizes new Payrolls to `active`.
+    description: |
+      Ignored, and not validated. The server always creates a new Payroll with `status: active`;
+      any value sent here, including an omitted field or one outside `active`/`inactive`, is
+      accepted and has no effect on the result. Kept only for backward compatibility with existing
+      callers — new integrations should omit it.
   save-state:
     type: string
     enum: [draft]
@@ -47,4 +50,3 @@ required:
   - end-date
   - user-ids
   - title
-  - status

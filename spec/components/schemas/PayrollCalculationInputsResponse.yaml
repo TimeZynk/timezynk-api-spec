@@ -28,7 +28,10 @@ properties:
           format: local-date
         value:
           type: number
-          description: Flexitime balance in minutes.
+          description: |
+            Flexitime balance in minutes. Note the unit difference from `PayrollRowCreate`'s
+            `duration`, which is in milliseconds — multiply this value by 60000 to build that
+            field.
       required:
         - id
         - user-id
@@ -40,7 +43,57 @@ properties:
     description: Monthly salary inputs. Empty unless requested with the `approved` source.
     items:
       type: object
-      additionalProperties: true
+      properties:
+        user-id:
+          type: string
+          format: ObjectId
+        company:
+          type: string
+          nullable: true
+          description: Free-text company/legal-employer field configured on the user, if set.
+        employee-no:
+          type: string
+          nullable: true
+        department:
+          type: string
+          nullable: true
+        name:
+          type: string
+        id-no:
+          type: string
+          nullable: true
+          description: Free-text personal/national identification number configured on the user, if set.
+        article-id:
+          type: string
+          format: ObjectId
+          description: Salary article that produced this monthly row.
+        article-code:
+          type: string
+        article-weight:
+          nullable: true
+          description: Article ordering/grouping weight. Configured as either a string or a number.
+        unit:
+          type: string
+        title:
+          type: string
+          description: Salary article title.
+        price:
+          type: number
+          description: Prorated monthly salary amount for the user and interval.
+        date:
+          type: string
+          format: local-date
+          pattern: ^\d{4}-\d{2}-\d{2}$
+          description: End date of the calculated month, inclusive.
+      required:
+        - user-id
+        - name
+        - article-id
+        - article-code
+        - unit
+        - title
+        - price
+        - date
 required:
   - salary-reports
   - flexitime

@@ -51,7 +51,11 @@ post:
                 items:
                   $ref: "#/components/schemas/PayrollRow"
     400:
-      description: Rows span multiple parents or contain invalid source metadata.
+      description: |
+        `INVALID_PAYROLL_ROWS` when rows span multiple parents. For a draft parent, invalid or
+        missing source metadata returns `PAYROLL_ROW_MISSING_REPORT_IDS`,
+        `PAYROLL_ROW_MISSING_SOURCE_MONTH`, `PAYROLL_ROW_MISSING_SOURCE_INTERVAL`, or
+        `PAYROLL_ROW_MISSING_SOURCE_TYPE`. See `PayrollRowCreate` for which applies.
       content:
         application/json:
           schema:
@@ -64,30 +68,3 @@ post:
         application/json:
           schema:
             $ref: "#/components/schemas/PayrollOperationError"
-delete:
-  summary: Delete all rows for a Payroll
-  description: |
-    Explicit row cleanup scoped by a required parent Payroll ID. Deleting a Payroll parent also
-    cascades its rows, so the parent delete endpoint is normally sufficient for draft rollback.
-  tags:
-    - Payroll Rows
-  parameters:
-    - name: payroll-id
-      in: query
-      required: true
-      schema:
-        type: string
-        format: ObjectId
-  responses:
-    200:
-      description: Number of deleted Payroll rows.
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              deleted-count:
-                type: integer
-                minimum: 0
-            required:
-              - deleted-count

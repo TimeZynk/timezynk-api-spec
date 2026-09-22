@@ -5,8 +5,14 @@ post:
     The input can come from a live calculation preview or from persisted rows of a completed
     Payroll; there is no separate `/payrolls/{id}/export` endpoint.
 
-    The response contains a file ID. Poll `GET /files/{fileId}` until the file resource is ready,
-    then download it with `GET /files/{fileId}/download`.
+    The response contains a file ID. Poll `GET /files/{fileId}` until it stops returning `404`,
+    then check `metadata.state`:
+
+    - `"ready"`: the export succeeded. Download the target-format file with
+      `GET /files/{fileId}/download`.
+    - `"failed"`: the conversion failed after being accepted. `metadata.error` has a message, and
+      `GET /files/{fileId}/download` returns that message as plain text instead of the target
+      format — check `content-type` before treating a download as the real file.
   tags:
     - Payroll export
   parameters:
@@ -55,5 +61,15 @@ post:
         application/json:
           schema:
             $ref: "#/components/schemas/FileExportAccepted"
+    400:
+      description: "`rows` was not a JSON-encoded object."
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/PayrollOperationError"
     404:
       description: The requested salary export format is not supported.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/PayrollOperationError"

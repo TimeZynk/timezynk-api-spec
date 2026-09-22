@@ -55,6 +55,10 @@ put:
             $ref: "#/components/schemas/PayrollOperationError"
     404:
       description: Payroll not found.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/PayrollOperationError"
     409:
       description: Drafts cannot change status, or restore found a source conflict.
       content:
