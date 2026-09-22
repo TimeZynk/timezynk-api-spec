@@ -1,0 +1,59 @@
+post:
+  summary: Create a Payroll export file
+  description: |
+    Starts asynchronous conversion of calculated Payroll data into the selected salary format.
+    The input can come from a live calculation preview or from persisted rows of a completed
+    Payroll; there is no separate `/payrolls/{id}/export` endpoint.
+
+    The response contains a file ID. Poll `GET /files/{fileId}` until the file resource is ready,
+    then download it with `GET /files/{fileId}/download`.
+  tags:
+    - Payroll export
+  parameters:
+    - name: format
+      in: path
+      required: true
+      description: Target Payroll file format.
+      schema:
+        type: string
+        enum:
+          - agda-absence
+          - agda-extra
+          - agda-schedule
+          - bl-lon
+          - bl-lon-plus
+          - briljant
+          - danlon
+          - danlon-plus
+          - excel
+          - flex-salary
+          - flex-schedule
+          - hogia
+          - hogia-214003
+          - hogia-214007
+          - hogia-ansi
+          - hogia-schedule
+          - hogia-schedule-plus
+          - paxml
+          - paxml-schedule
+          - paxml1
+          - prolon
+          - softone-carat
+          - visma
+          - visma-schedule
+  requestBody:
+    description: Export title and JSON-encoded calculated rows.
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: "#/components/schemas/PayrollExportRequest"
+  responses:
+    200:
+      description: Export accepted for asynchronous creation.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/FileExportAccepted"
+    404:
+      description: The requested salary export format is not supported.

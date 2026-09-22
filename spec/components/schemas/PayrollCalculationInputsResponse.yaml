@@ -1,0 +1,47 @@
+type: object
+properties:
+  salary-reports:
+    type: array
+    description: |
+      Report-like calculation inputs. For `planned`, these are synthesized from eligible shifts;
+      otherwise they are salary report calculations for the requested approval state.
+    items:
+      type: object
+      additionalProperties: true
+  flexitime:
+    type: array
+    description: Flexitime balance inputs. Empty unless requested with the `approved` source.
+    items:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Stable compound identifier for user and interval.
+        user-id:
+          type: string
+          format: ObjectId
+        start-date:
+          type: string
+          format: local-date
+        end-date:
+          type: string
+          format: local-date
+        value:
+          type: number
+          description: Flexitime balance in minutes.
+      required:
+        - id
+        - user-id
+        - start-date
+        - end-date
+        - value
+  monthly-salaries:
+    type: array
+    description: Monthly salary inputs. Empty unless requested with the `approved` source.
+    items:
+      type: object
+      additionalProperties: true
+required:
+  - salary-reports
+  - flexitime
+  - monthly-salaries

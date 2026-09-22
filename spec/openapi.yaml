@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: Timezynk API
-  version: 2.8.1
+  version: 2.9.0
   description: >
     Build your own cool apps and integrations by leveraging the Timezynk API!
 
@@ -52,6 +52,29 @@ tags:
     description: The fields are used to specify the format for a specific registry instance.
   - name: Salary articles
     description: Fetching, updating and creating salary articles
+  - name: Payrolls
+    description: |
+      Calculate and persist payrolls.
+
+      The atomic save flow is:
+
+      1. Fetch calculation inputs with `POST /payroll/calculation-inputs`.
+      2. Create a parent Payroll with `save-state: draft`.
+      3. Add one or more batches of Payroll rows. Every batch must belong to the same Payroll.
+      4. Finalize the Payroll. Finalization validates pay-source ownership and publishes the
+         parent and its rows as one completed Payroll.
+      5. If row creation or finalization fails, delete the draft to roll back its stored data.
+
+      Only completed Payrolls are returned by the Payroll list and detail endpoints. A completed
+      Payroll can be voided (`status: inactive`) and restored (`status: active`). Restoring may
+      fail if another active Payroll has claimed the same pay source. Abandoned drafts older than
+      24 hours are removed by backend cleanup.
+  - name: Payroll Rows
+    description: Payroll result rows stored under a draft or completed Payroll
+  - name: Payroll export
+    description: |
+      Create payroll files from calculated or persisted Payroll rows. File creation is
+      asynchronous: create an export, poll its file resource until ready, then download it.
   - name: Settings
     description: Settings are used to store and retreive configuration parameters.
   - name: RfQs - outgoing

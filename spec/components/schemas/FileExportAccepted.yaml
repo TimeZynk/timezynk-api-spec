@@ -1,0 +1,12 @@
+type: object
+properties:
+  id:
+    type: string
+    format: ObjectId
+    description: ID used to poll and download the generated file.
+  filename:
+    type: string
+    description: Final filename including the format-specific extension.
+required:
+  - id
+  - filename

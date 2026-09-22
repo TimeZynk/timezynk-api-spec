@@ -1,0 +1,3 @@
+allOf:
+  - $ref: "#/components/schemas/BasicObject"
+  - $ref: "#/components/schemas/PayrollRowCreate"

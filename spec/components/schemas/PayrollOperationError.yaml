@@ -1,0 +1,17 @@
+type: object
+properties:
+  error:
+    type: string
+    description: Stable machine-readable Payroll error code.
+    example: PAYROLL_NOT_DRAFT
+  message:
+    type: string
+    description: Human-readable error description.
+  conflicts:
+    type: array
+    description: Present for pay-source ownership conflicts.
+    items:
+      $ref: "#/components/schemas/PayrollSourceConflictDetail"
+required:
+  - error
+  - message

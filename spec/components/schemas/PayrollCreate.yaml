@@ -1,0 +1,50 @@
+type: object
+description: |
+  Properties used to create a Payroll parent. Set `save-state` to `draft` for the atomic save
+  flow. Omitting it invokes the legacy create-complete behavior and should not be used by new
+  integrations.
+properties:
+  start-date:
+    type: string
+    format: local-date
+    pattern: ^\d{4}-\d{2}-\d{2}$
+    description: First date included in the Payroll, inclusive.
+    example: "2026-08-01"
+  end-date:
+    type: string
+    format: local-date
+    pattern: ^\d{4}-\d{2}-\d{2}$
+    description: Last date included in the Payroll, inclusive.
+    example: "2026-08-31"
+  user-ids:
+    type: array
+    description: Users included in the Payroll.
+    items:
+      type: string
+      format: ObjectId
+  title:
+    type: string
+    description: User-facing Payroll title.
+    example: August 2026
+  status:
+    type: string
+    enum: [active]
+    description: Required by the create contract. The server normalizes new Payrolls to `active`.
+  save-state:
+    type: string
+    enum: [draft]
+    description: Set to `draft` to opt into row upload followed by atomic finalization.
+  filters:
+    type: object
+    description: Filters used when the Payroll was calculated.
+    additionalProperties: true
+  export-data:
+    type: object
+    description: Integration-specific Payroll header data.
+    additionalProperties: true
+required:
+  - start-date
+  - end-date
+  - user-ids
+  - title
+  - status

@@ -1,0 +1,37 @@
+get:
+  summary: Fetch a Payroll row
+  tags:
+    - Payroll Rows
+  parameters:
+    - name: payrollRowId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: ObjectId
+  responses:
+    200:
+      description: Payroll row.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/PayrollRow"
+    404:
+      description: Payroll row not found.
+delete:
+  summary: Delete a Payroll row
+  description: |
+    Deletes one stored row. In the atomic save flow, row mutations should be completed before the
+    parent Payroll is finalized.
+  tags:
+    - Payroll Rows
+  parameters:
+    - name: payrollRowId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: ObjectId
+  responses:
+    200:
+      description: Deletion result.

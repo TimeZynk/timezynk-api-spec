@@ -1,0 +1,23 @@
+type: object
+properties:
+  registry-id:
+    type: string
+    format: ObjectId
+    description: Registry whose values are used by this filter.
+  value-ids:
+    type: array
+    description: Registry data IDs to include or exclude.
+    items:
+      type: string
+      format: ObjectId
+  mode:
+    type: string
+    enum: [include, exclude]
+  include-blank:
+    type: boolean
+    default: false
+    description: Include records where the registry has no selected value.
+required:
+  - registry-id
+  - value-ids
+  - mode

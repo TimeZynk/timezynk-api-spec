@@ -1,0 +1,16 @@
+type: object
+properties:
+  error:
+    type: string
+    enum: [PAYROLL_SOURCE_CONFLICT]
+  message:
+    type: string
+    example: Pay data is already included in an active Payroll.
+  conflicts:
+    type: array
+    items:
+      $ref: "#/components/schemas/PayrollSourceConflictDetail"
+required:
+  - error
+  - message
+  - conflicts

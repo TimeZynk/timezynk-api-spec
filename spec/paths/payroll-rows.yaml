@@ -1,0 +1,93 @@
+get:
+  summary: Fetch Payroll rows
+  description: Returns company Payroll rows, optionally restricted to one parent Payroll.
+  tags:
+    - Payroll Rows
+  parameters:
+    - name: payroll-id
+      in: query
+      description: Parent Payroll whose rows should be returned.
+      schema:
+        type: string
+        format: ObjectId
+  responses:
+    200:
+      description: Payroll rows.
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/PayrollRow"
+post:
+  summary: Add Payroll rows
+  description: |
+    Adds one row or a batch of rows. A batch must contain rows for exactly one parent Payroll.
+    During the atomic flow, rows can be added only while the parent is a draft and each row must
+    provide valid source metadata. Clients may upload several batches sequentially before
+    finalizing the parent.
+  tags:
+    - Payroll Rows
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          oneOf:
+            - $ref: "#/components/schemas/PayrollRowCreate"
+            - type: array
+              minItems: 1
+              items:
+                $ref: "#/components/schemas/PayrollRowCreate"
+  responses:
+    200:
+      description: Created Payroll row or rows.
+      content:
+        application/json:
+          schema:
+            oneOf:
+              - $ref: "#/components/schemas/PayrollRow"
+              - type: array
+                items:
+                  $ref: "#/components/schemas/PayrollRow"
+    400:
+      description: Rows span multiple parents or contain invalid source metadata.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/PayrollOperationError"
+    404:
+      description: Parent Payroll not found.
+    409:
+      description: The parent Payroll is no longer a writable draft.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/PayrollOperationError"
+delete:
+  summary: Delete all rows for a Payroll
+  description: |
+    Explicit row cleanup scoped by a required parent Payroll ID. Deleting a Payroll parent also
+    cascades its rows, so the parent delete endpoint is normally sufficient for draft rollback.
+  tags:
+    - Payroll Rows
+  parameters:
+    - name: payroll-id
+      in: query
+      required: true
+      schema:
+        type: string
+        format: ObjectId
+  responses:
+    200:
+      description: Number of deleted Payroll rows.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              deleted-count:
+                type: integer
+                minimum: 0
+            required:
+              - deleted-count

@@ -1,0 +1,32 @@
+type: object
+properties:
+  payroll-id:
+    type: string
+    format: ObjectId
+    description: Active Payroll that already owns one or more sources.
+  title:
+    type: string
+  start-date:
+    type: string
+    format: local-date
+  end-date:
+    type: string
+    format: local-date
+  source-types:
+    type: array
+    items:
+      type: string
+      enum: [salary-report, monthly-salary, flexitime]
+  user-ids:
+    type: array
+    items:
+      type: string
+      format: ObjectId
+  report-count:
+    type: integer
+    minimum: 0
+required:
+  - payroll-id
+  - source-types
+  - user-ids
+  - report-count

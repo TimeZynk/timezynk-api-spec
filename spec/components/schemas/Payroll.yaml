@@ -1,0 +1,48 @@
+allOf:
+  - $ref: "#/components/schemas/BasicObject"
+  - type: object
+    properties:
+      start-date:
+        type: string
+        format: local-date
+        pattern: ^\d{4}-\d{2}-\d{2}$
+        description: First date included in the Payroll, inclusive.
+        example: "2026-08-01"
+      end-date:
+        type: string
+        format: local-date
+        pattern: ^\d{4}-\d{2}-\d{2}$
+        description: Last date included in the Payroll, inclusive.
+        example: "2026-08-31"
+      user-ids:
+        type: array
+        description: Users included in the Payroll.
+        items:
+          type: string
+          format: ObjectId
+      status:
+        type: string
+        enum: [active, inactive]
+        description: Active Payrolls own their pay sources. Inactive Payrolls are voided.
+      save-state:
+        type: string
+        enum: [draft, complete]
+        description: |
+          Persistence state for the atomic flow. Legacy completed Payrolls may omit this field.
+      title:
+        type: string
+        description: User-facing Payroll title.
+      filters:
+        type: object
+        description: Filters used when the Payroll was calculated.
+        additionalProperties: true
+      export-data:
+        type: object
+        description: Integration-specific Payroll header data.
+        additionalProperties: true
+    required:
+      - start-date
+      - end-date
+      - user-ids
+      - status
+      - title

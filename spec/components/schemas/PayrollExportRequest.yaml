@@ -1,0 +1,23 @@
+type: object
+description: |
+  Starts asynchronous creation of a Payroll export file. `rows` is a JSON-encoded string rather
+  than an embedded JSON object for compatibility with the existing file export API.
+properties:
+  title:
+    type: string
+    description: File title without the format-specific extension.
+    example: Excel Payroll 2026-09-22 14-30
+  rows:
+    type: string
+    description: |
+      JSON-encoded object with `from`, `to`, `articles`, `users`, `company-id`, and `params`.
+      `users` contains calculated preview rows or rows read from a completed Payroll. Excel may
+      use grouped/summed rows; the other formats require unsummed rows.
+    example: '{"from":"2026-08-01","to":"2026-08-31","articles":{},"users":[],"company-id":"5dde7024eded8872705aabcd","params":{"company":null}}'
+  type:
+    type: string
+    description: Optional client-side file type identifier matching `salary/{format}`.
+    example: salary/excel
+required:
+  - title
+  - rows
