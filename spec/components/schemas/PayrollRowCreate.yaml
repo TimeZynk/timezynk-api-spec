@@ -12,6 +12,8 @@ description: |
   - `flexitime` requires an inclusive `source-from`/`source-to` interval (`source-from` on or before
     `source-to`), or `400 PAYROLL_ROW_MISSING_SOURCE_INTERVAL`.
   - A missing or unrecognized `source-type` itself returns `400 PAYROLL_ROW_MISSING_SOURCE_TYPE`.
+  - For `salary-report` and `monthly-salary` rows, a negative `duration` returns
+    `400 PAYROLL_ROW_INVALID_DURATION` — only `flexitime` carries a signed balance.
 
   For a legacy Payroll (`save-state` omitted at creation), source metadata is not validated and may
   be omitted; such rows are never eligible for claim-based duplicate protection. New integrations
@@ -79,10 +81,12 @@ properties:
   duration:
     type: number
     description: |
-      Optional duration in milliseconds. Signed: a Flexitime row's duration matches the sign of
-      `count`, so a negative value (the employee owes time) is valid and expected. Note the unit
-      difference from `PayrollCalculationInputsResponse`'s `flexitime[].value`, which is in
-      minutes — multiply that value by 60000 to build this field.
+      Optional duration in milliseconds. For `flexitime` rows this is signed and matches the sign
+      of `count`, so a negative value (the employee owes time) is valid and expected. For
+      `salary-report` and `monthly-salary` rows a negative value is rejected — see
+      `PAYROLL_ROW_INVALID_DURATION` above. Note the unit difference from
+      `PayrollCalculationInputsResponse`'s `flexitime[].value`, which is in minutes — multiply
+      that value by 60000 to build this field.
     example: -144000000
   export-data:
     type: object
