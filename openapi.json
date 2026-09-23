@@ -2,7 +2,7 @@
   "openapi": "3.0.3",
   "info": {
     "title": "Timezynk API",
-    "version": "2.8.1",
+    "version": "2.9.0",
     "description": "Build your own cool apps and integrations by leveraging the Timezynk API!\n\nThe Timezynk API is organized around REST. It is designed to have resource-oriented URLs and be as predictable as possible for you as developer.  We use HTTP status codes when something goes wrong and HTTP verbs understod by many API clients around the web.\n\nAuthentication is done using OAuth2. You can create an API key by logging in to your timezynk account and visiting  https://tzapp.com/v5/#settings/integrations\n\nAll input and output is in JSON.\n"
   },
   "security": [
@@ -74,6 +74,18 @@
     {
       "name": "Salary articles",
       "description": "Fetching, updating and creating salary articles"
+    },
+    {
+      "name": "Payrolls",
+      "description": "Calculate and persist payrolls.\n\nThe atomic save flow is:\n\n1. Fetch calculation inputs with `POST /payroll/calculation-inputs`.\n2. Create a parent Payroll with `save-state: draft`.\n3. Add one or more batches of Payroll rows. Every batch must belong to the same Payroll.\n4. Finalize the Payroll. Finalization validates pay-source ownership and publishes the\n   parent and its rows as one completed Payroll.\n5. If row creation or finalization fails, delete the draft to roll back its stored data.\n\nOnly completed Payrolls are returned by the Payroll list and detail endpoints. A completed\nPayroll can be voided (`status: inactive`) and restored (`status: active`). Restoring may\nfail if another active Payroll has claimed the same pay source. Abandoned drafts older than\n24 hours are removed by backend cleanup.\n"
+    },
+    {
+      "name": "Payroll Rows",
+      "description": "Payroll result rows stored under a draft or completed Payroll"
+    },
+    {
+      "name": "Payroll export",
+      "description": "Create payroll files from calculated or persisted Payroll rows. File creation is\nasynchronous: create an export, poll its file resource until ready, then download it.\n"
     },
     {
       "name": "Settings",
@@ -2150,6 +2162,95 @@
           },
           "400": {
             "description": "Validation failed"
+          }
+        }
+      }
+    },
+    "/files/export/salary/{format}": {
+      "post": {
+        "summary": "Create a Payroll export file",
+        "description": "Starts asynchronous conversion of calculated Payroll data into the selected salary format.\nThe input can come from a live calculation preview or from persisted rows of a completed\nPayroll; there is no separate `/payrolls/{id}/export` endpoint.\n\nThe response contains a file ID. Poll `GET /files/{fileId}` until it stops returning `404`,\nthen check `metadata.state`:\n\n- `\"ready\"`: the export succeeded. Download the target-format file with\n  `GET /files/{fileId}/download`.\n- `\"failed\"`: the conversion failed after being accepted. `metadata.error` has a message, and\n  `GET /files/{fileId}/download` returns that message as plain text instead of the target\n  format — check `content-type` before treating a download as the real file.\n",
+        "tags": [
+          "Payroll export"
+        ],
+        "parameters": [
+          {
+            "name": "format",
+            "in": "path",
+            "required": true,
+            "description": "Target Payroll file format.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "agda-absence",
+                "agda-extra",
+                "agda-schedule",
+                "bl-lon",
+                "bl-lon-plus",
+                "briljant",
+                "danlon",
+                "danlon-plus",
+                "excel",
+                "flex-salary",
+                "flex-schedule",
+                "hogia",
+                "hogia-214003",
+                "hogia-214007",
+                "hogia-ansi",
+                "hogia-schedule",
+                "hogia-schedule-plus",
+                "paxml",
+                "paxml-schedule",
+                "paxml1",
+                "prolon",
+                "softone-carat",
+                "visma",
+                "visma-schedule"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Export title and JSON-encoded calculated rows.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PayrollExportRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Export accepted for asynchronous creation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FileExportAccepted"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`rows` was not a JSON-encoded object.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PayrollOperationError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The requested salary export format is not supported.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PayrollOperationError"
+                }
+              }
+            }
           }
         }
       }
@@ -4312,6 +4413,571 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/payroll-rows": {
+      "get": {
+        "summary": "Fetch Payroll rows",
+        "description": "Returns company Payroll rows, optionally restricted to one parent Payroll.",
+        "tags": [
+          "Payroll Rows"
+        ],
+        "parameters": [
+          {
+            "name": "payroll-id",
+            "in": "query",
+            "description": "Parent Payroll whose rows should be returned.",
+            "schema": {
+              "type": "string",
+              "format": "ObjectId"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Payroll rows.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PayrollRow"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Add Payroll rows",
+        "description": "Adds one row or a batch of rows. A batch must contain rows for exactly one parent Payroll.\nDuring the atomic flow, rows can be added only while the parent is a draft and each row must\nprovide valid source metadata. Clients may upload several batches sequentially before\nfinalizing the parent.\n",
+        "tags": [
+          "Payroll Rows"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/PayrollRowCreate"
+                  },
+                  {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                      "$ref": "#/components/schemas/PayrollRowCreate"
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Created Payroll row or rows.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/PayrollRow"
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/PayrollRow"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`INVALID_PAYROLL_ROWS` when rows span multiple parents. For a draft parent, invalid or\nmissing source metadata returns `PAYROLL_ROW_MISSING_REPORT_IDS`,\n`PAYROLL_ROW_MISSING_SOURCE_MONTH`, `PAYROLL_ROW_MISSING_SOURCE_INTERVAL`, or\n`PAYROLL_ROW_MISSING_SOURCE_TYPE`. See `PayrollRowCreate` for which applies.\n",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PayrollOperationError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Parent Payroll not found."
+          },
+          "409": {
+            "description": "The parent Payroll is no longer a writable draft.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PayrollOperationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/payroll-rows/{payrollRowId}": {
+      "get": {
+        "summary": "Fetch a Payroll row",
+        "tags": [
+          "Payroll Rows"
+        ],
+        "parameters": [
+          {
+            "name": "payrollRowId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "ObjectId"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Payroll row.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PayrollRow"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Payroll row not found."
+          }
+        }
+      }
+    },
+    "/payroll/calculation-inputs": {
+      "post": {
+        "summary": "Fetch Payroll calculation inputs",
+        "description": "Returns the source data needed by the client-side Payroll calculation.\n\n`approved` is the default and normal source for a Payroll that will be saved. It can include\nmonthly salary and Flexitime inputs and checks whether an active Payroll already owns any of\nthe selected pay sources. `reported` and `planned` are preview/export sources; they return\nempty monthly salary and Flexitime arrays and do not perform the ownership conflict check.\n\nRegistry filters apply to report-like inputs for every time source. All date boundaries are\ninclusive.\n",
+        "tags": [
+          "Payrolls"
+        ],
+        "requestBody": {
+          "description": "Calculation interval, users, source state, and optional filters.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PayrollCalculationInputsRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Calculation inputs grouped by source category.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PayrollCalculationInputsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid date interval, identifier, filter, flag, or time source.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PayrollOperationError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "One or more approved pay sources already belong to an active Payroll.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PayrollSourceConflict"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/payroll/monthly": {
+      "get": {
+        "summary": "Fetch monthly salary calculation inputs",
+        "description": "Legacy supporting endpoint for monthly salary inputs. New Payroll clients should normally use\n`POST /payroll/calculation-inputs` with `include-monthly-salary: true`, which coordinates all\ncalculation sources and source-conflict checks in one request.\n",
+        "tags": [
+          "Payrolls"
+        ],
+        "parameters": [
+          {
+            "name": "from",
+            "in": "query",
+            "description": "First date, inclusive.",
+            "schema": {
+              "type": "string",
+              "format": "local-date",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "description": "Last date, inclusive.",
+            "schema": {
+              "type": "string",
+              "format": "local-date",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Monthly salary calculation rows.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": true
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/payrolls": {
+      "get": {
+        "summary": "Fetch completed Payrolls",
+        "description": "Returns completed Payrolls only; drafts are never listed. Date filters use interval overlap:\na Payroll is included when its end date is on or after `from` and its start date is on or\nbefore `to`.\n",
+        "tags": [
+          "Payrolls"
+        ],
+        "parameters": [
+          {
+            "name": "from",
+            "in": "query",
+            "description": "Earliest overlapping date, inclusive.",
+            "schema": {
+              "type": "string",
+              "format": "local-date",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "description": "Latest overlapping date, inclusive.",
+            "schema": {
+              "type": "string",
+              "format": "local-date",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Completed Payrolls matching the interval.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Payroll"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a Payroll draft",
+        "description": "Creates one Payroll parent or an array of parents. For the atomic save flow, send one parent\nwith `save-state: draft`, then add its rows and finalize it. The server always creates the\nparent with `status: active`.\n\nOmitting `save-state` creates a completed legacy-compatible Payroll. New integrations should\nuse the draft/finalize flow.\n",
+        "tags": [
+          "Payrolls"
+        ],
+        "requestBody": {
+          "description": "One Payroll parent or an array of Payroll parents.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/PayrollCreate"
+                  },
+                  {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                      "$ref": "#/components/schemas/PayrollCreate"
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Created Payroll parent or parents.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/Payroll"
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Payroll"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failed or a supplied save state was not `draft`.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PayrollOperationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/payrolls/{payrollId}": {
+      "get": {
+        "summary": "Fetch a completed Payroll",
+        "description": "Draft Payrolls are deliberately hidden and return 404.",
+        "tags": [
+          "Payrolls"
+        ],
+        "parameters": [
+          {
+            "name": "payrollId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "ObjectId"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Completed Payroll.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Payroll"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Payroll not found or still a draft."
+          }
+        }
+      },
+      "put": {
+        "summary": "Void or restore a completed Payroll",
+        "description": "Set `status` to `inactive` to void the Payroll and release its active source claims. Set it to\n`active` to restore the Payroll. Restore revalidates source ownership and returns 409 when a\nsource was claimed by another active Payroll while this Payroll was inactive.\n",
+        "tags": [
+          "Payrolls"
+        ],
+        "parameters": [
+          {
+            "name": "payrollId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "ObjectId"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PayrollStatusUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated completed Payroll.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Payroll"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid status.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PayrollOperationError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Payroll not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PayrollOperationError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Drafts cannot change status, or restore found a source conflict.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PayrollOperationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a Payroll and its rows",
+        "description": "Deletes a draft as a rollback, or permanently deletes a completed Payroll after it has been\nvoided. Payroll rows and source claims are deleted with the parent. `deleted-count` counts only\nthe parent Payroll, not cascaded rows.\n",
+        "tags": [
+          "Payrolls"
+        ],
+        "parameters": [
+          {
+            "name": "payrollId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "ObjectId"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Deletion result. A missing Payroll returns a count of zero.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "deleted-count": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 1
+                    }
+                  },
+                  "required": [
+                    "deleted-count"
+                  ]
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The completed Payroll is active and must be voided first.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PayrollOperationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/payrolls/{payrollId}/finalize": {
+      "post": {
+        "summary": "Finalize a Payroll draft",
+        "description": "Publishes a draft Payroll after all rows have been uploaded. Finalization requires at least\none row, derives ownership claims from every row's source metadata, rechecks those claims\nagainst active Payrolls, and atomically stores the claims and marks the Payroll complete.\n\nThe operation is idempotent for an already completed Payroll. If it fails, the caller can\ndelete the still-draft parent to roll back the parent and all uploaded rows.\n",
+        "tags": [
+          "Payrolls"
+        ],
+        "parameters": [
+          {
+            "name": "payrollId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "ObjectId"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Completed Payroll.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Payroll"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The draft has no rows or contains invalid source metadata.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PayrollOperationError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Payroll not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PayrollOperationError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The Payroll is not a draft, was concurrently finalized, or has source conflicts.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PayrollOperationError"
                 }
               }
             }
@@ -10939,6 +11605,24 @@
           "type"
         ]
       },
+      "FileExportAccepted": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "ObjectId",
+            "description": "ID used to poll and download the generated file."
+          },
+          "filename": {
+            "type": "string",
+            "description": "Final filename including the format-specific extension."
+          }
+        },
+        "required": [
+          "id",
+          "filename"
+        ]
+      },
       "HouseWorkCategory": {
         "type": "object",
         "properties": {
@@ -12198,6 +12882,616 @@
               }
             }
           }
+        ]
+      },
+      "Payroll": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/BasicObject"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "start-date": {
+                "type": "string",
+                "format": "local-date",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+                "description": "First date included in the Payroll, inclusive.",
+                "example": "2026-08-01"
+              },
+              "end-date": {
+                "type": "string",
+                "format": "local-date",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+                "description": "Last date included in the Payroll, inclusive.",
+                "example": "2026-08-31"
+              },
+              "user-ids": {
+                "type": "array",
+                "description": "Users included in the Payroll.",
+                "items": {
+                  "type": "string",
+                  "format": "ObjectId"
+                }
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "active",
+                  "inactive"
+                ],
+                "description": "Active Payrolls own their pay sources. Inactive Payrolls are voided."
+              },
+              "save-state": {
+                "type": "string",
+                "enum": [
+                  "draft",
+                  "complete"
+                ],
+                "description": "Persistence state for the atomic flow. Legacy completed Payrolls may omit this field.\n"
+              },
+              "title": {
+                "type": "string",
+                "description": "User-facing Payroll title."
+              },
+              "filters": {
+                "type": "object",
+                "description": "Filters used when the Payroll was calculated.",
+                "additionalProperties": true
+              },
+              "export-data": {
+                "type": "object",
+                "description": "Integration-specific Payroll header data.",
+                "additionalProperties": true
+              }
+            },
+            "required": [
+              "start-date",
+              "end-date",
+              "user-ids",
+              "status",
+              "title"
+            ]
+          }
+        ]
+      },
+      "PayrollCalculationInputsRequest": {
+        "type": "object",
+        "properties": {
+          "from": {
+            "type": "string",
+            "format": "local-date",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+            "description": "First calculation date, inclusive.",
+            "example": "2026-08-01"
+          },
+          "to": {
+            "type": "string",
+            "format": "local-date",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+            "description": "Last calculation date, inclusive.",
+            "example": "2026-08-31"
+          },
+          "user-ids": {
+            "type": "array",
+            "description": "Users to calculate. Omission means all permitted users; an empty array means no users.\n",
+            "items": {
+              "type": "string",
+              "format": "ObjectId"
+            }
+          },
+          "approved-after": {
+            "type": "number",
+            "format": "timestamp",
+            "description": "Include approved reports first approved after this millisecond timestamp. Used only for the\n`approved` time source.\n"
+          },
+          "registry-filters": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PayrollCalculationRegistryFilter"
+            }
+          },
+          "include-flexitime": {
+            "type": "boolean",
+            "default": false,
+            "description": "Include Flexitime balances. Effective only for the `approved` time source."
+          },
+          "include-monthly-salary": {
+            "type": "boolean",
+            "default": false,
+            "description": "Include monthly salaries. Effective only for the `approved` time source."
+          },
+          "time-source": {
+            "type": "string",
+            "enum": [
+              "approved",
+              "reported",
+              "planned"
+            ],
+            "default": "approved",
+            "description": "`approved` returns approved time reports and is the normal source for a saved Payroll.\n`reported` returns reported but not approved time. `planned` returns booked, published,\nactive shifts that have no linked time report. Reported and planned results are intended for\npreview and export.\n"
+          }
+        },
+        "required": [
+          "from",
+          "to"
+        ]
+      },
+      "PayrollCalculationInputsResponse": {
+        "type": "object",
+        "properties": {
+          "salary-reports": {
+            "type": "array",
+            "description": "Report-like calculation inputs. For `planned`, these are synthesized from eligible shifts;\notherwise they are salary report calculations for the requested approval state.\n",
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          },
+          "flexitime": {
+            "type": "array",
+            "description": "Flexitime balance inputs. Empty unless requested with the `approved` source.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "Stable compound identifier for user and interval."
+                },
+                "user-id": {
+                  "type": "string",
+                  "format": "ObjectId"
+                },
+                "start-date": {
+                  "type": "string",
+                  "format": "local-date"
+                },
+                "end-date": {
+                  "type": "string",
+                  "format": "local-date"
+                },
+                "value": {
+                  "type": "number",
+                  "description": "Flexitime balance in minutes. Note the unit difference from `PayrollRowCreate`'s\n`duration`, which is in milliseconds — multiply this value by 60000 to build that\nfield.\n"
+                }
+              },
+              "required": [
+                "id",
+                "user-id",
+                "start-date",
+                "end-date",
+                "value"
+              ]
+            }
+          },
+          "monthly-salaries": {
+            "type": "array",
+            "description": "Monthly salary inputs. Empty unless requested with the `approved` source.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "user-id": {
+                  "type": "string",
+                  "format": "ObjectId"
+                },
+                "company": {
+                  "type": "string",
+                  "nullable": true,
+                  "description": "Free-text company/legal-employer field configured on the user, if set."
+                },
+                "employee-no": {
+                  "type": "string",
+                  "nullable": true
+                },
+                "department": {
+                  "type": "string",
+                  "nullable": true
+                },
+                "name": {
+                  "type": "string"
+                },
+                "id-no": {
+                  "type": "string",
+                  "nullable": true,
+                  "description": "Free-text personal/national identification number configured on the user, if set."
+                },
+                "article-id": {
+                  "type": "string",
+                  "format": "ObjectId",
+                  "description": "Salary article that produced this monthly row."
+                },
+                "article-code": {
+                  "type": "string"
+                },
+                "article-weight": {
+                  "nullable": true,
+                  "description": "Article ordering/grouping weight. Configured as either a string or a number."
+                },
+                "unit": {
+                  "type": "string"
+                },
+                "title": {
+                  "type": "string",
+                  "description": "Salary article title."
+                },
+                "price": {
+                  "type": "number",
+                  "description": "Prorated monthly salary amount for the user and interval."
+                },
+                "date": {
+                  "type": "string",
+                  "format": "local-date",
+                  "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+                  "description": "End date of the calculated month, inclusive."
+                }
+              },
+              "required": [
+                "user-id",
+                "name",
+                "article-id",
+                "article-code",
+                "unit",
+                "title",
+                "price",
+                "date"
+              ]
+            }
+          }
+        },
+        "required": [
+          "salary-reports",
+          "flexitime",
+          "monthly-salaries"
+        ]
+      },
+      "PayrollCalculationRegistryFilter": {
+        "type": "object",
+        "properties": {
+          "registry-id": {
+            "type": "string",
+            "format": "ObjectId",
+            "description": "Registry whose values are used by this filter."
+          },
+          "value-ids": {
+            "type": "array",
+            "description": "Registry data IDs to include or exclude.",
+            "items": {
+              "type": "string",
+              "format": "ObjectId"
+            }
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "include",
+              "exclude"
+            ]
+          },
+          "include-blank": {
+            "type": "boolean",
+            "default": false,
+            "description": "Include records where the registry has no selected value."
+          }
+        },
+        "required": [
+          "registry-id",
+          "value-ids",
+          "mode"
+        ]
+      },
+      "PayrollCreate": {
+        "type": "object",
+        "description": "Properties used to create a Payroll parent. Set `save-state` to `draft` for the atomic save\nflow. Omitting it invokes the legacy create-complete behavior and should not be used by new\nintegrations.\n",
+        "properties": {
+          "start-date": {
+            "type": "string",
+            "format": "local-date",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+            "description": "First date included in the Payroll, inclusive.",
+            "example": "2026-08-01"
+          },
+          "end-date": {
+            "type": "string",
+            "format": "local-date",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+            "description": "Last date included in the Payroll, inclusive.",
+            "example": "2026-08-31"
+          },
+          "user-ids": {
+            "type": "array",
+            "description": "Users included in the Payroll.",
+            "items": {
+              "type": "string",
+              "format": "ObjectId"
+            }
+          },
+          "title": {
+            "type": "string",
+            "description": "User-facing Payroll title.",
+            "example": "August 2026"
+          },
+          "status": {
+            "type": "string",
+            "description": "Ignored, and not validated. The server always creates a new Payroll with `status: active`;\nany value sent here, including an omitted field or one outside `active`/`inactive`, is\naccepted and has no effect on the result. Kept only for backward compatibility with existing\ncallers — new integrations should omit it.\n"
+          },
+          "save-state": {
+            "type": "string",
+            "enum": [
+              "draft"
+            ],
+            "description": "Set to `draft` to opt into row upload followed by atomic finalization."
+          },
+          "filters": {
+            "type": "object",
+            "description": "Filters used when the Payroll was calculated.",
+            "additionalProperties": true
+          },
+          "export-data": {
+            "type": "object",
+            "description": "Integration-specific Payroll header data.",
+            "additionalProperties": true
+          }
+        },
+        "required": [
+          "start-date",
+          "end-date",
+          "user-ids",
+          "title"
+        ]
+      },
+      "PayrollExportRequest": {
+        "type": "object",
+        "description": "Starts asynchronous creation of a Payroll export file. `rows` is a JSON-encoded string rather\nthan an embedded JSON object for compatibility with the existing file export API.\n",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "File title without the format-specific extension.",
+            "example": "Excel Payroll 2026-09-22 14-30"
+          },
+          "rows": {
+            "type": "string",
+            "description": "JSON-encoded object with `from`, `to`, `articles`, `users`, `company-id`, and `params`.\n`users` contains calculated preview rows or rows read from a completed Payroll. Excel may\nuse grouped/summed rows; the other formats require unsummed rows.\n",
+            "example": "{\"from\":\"2026-08-01\",\"to\":\"2026-08-31\",\"articles\":{},\"users\":[],\"company-id\":\"5dde7024eded8872705aabcd\",\"params\":{\"company\":null}}"
+          },
+          "type": {
+            "type": "string",
+            "description": "Optional client-side file type identifier matching `salary/{format}`.",
+            "example": "salary/excel"
+          }
+        },
+        "required": [
+          "title",
+          "rows"
+        ]
+      },
+      "PayrollOperationError": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "description": "The response's own HTTP status code, repeated in the body.",
+            "example": 409
+          },
+          "error": {
+            "type": "string",
+            "description": "Stable machine-readable Payroll error code.",
+            "example": "PAYROLL_NOT_DRAFT"
+          },
+          "message": {
+            "type": "string",
+            "description": "Human-readable error description."
+          },
+          "conflicts": {
+            "type": "array",
+            "description": "Present for pay-source ownership conflicts.",
+            "items": {
+              "$ref": "#/components/schemas/PayrollSourceConflictDetail"
+            }
+          }
+        },
+        "required": [
+          "error",
+          "message"
+        ]
+      },
+      "PayrollRow": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/BasicObject"
+          },
+          {
+            "$ref": "#/components/schemas/PayrollRowCreate"
+          }
+        ]
+      },
+      "PayrollRowCreate": {
+        "type": "object",
+        "description": "One calculated Payroll result row.\n\n`source-type` and its matching field are **required when the parent Payroll was created with\n`save-state: draft`** (the atomic flow all new integrations should use). They determine what the\ncompleted Payroll claims when finalized, and a row that omits or mismatches them is rejected with\na `400` from `POST /payroll-rows`:\n\n- `salary-report` requires a non-empty `report-ids` array, or `400 PAYROLL_ROW_MISSING_REPORT_IDS`.\n- `monthly-salary` requires `source-month` in `YYYY-MM` format, or `400 PAYROLL_ROW_MISSING_SOURCE_MONTH`.\n- `flexitime` requires an inclusive `source-from`/`source-to` interval (`source-from` on or before\n  `source-to`), or `400 PAYROLL_ROW_MISSING_SOURCE_INTERVAL`.\n- A missing or unrecognized `source-type` itself returns `400 PAYROLL_ROW_MISSING_SOURCE_TYPE`.\n- For `salary-report` and `monthly-salary` rows, a negative `duration` returns\n  `400 PAYROLL_ROW_INVALID_DURATION` — only `flexitime` carries a signed balance.\n\nFor a legacy Payroll (`save-state` omitted at creation), source metadata is not validated and may\nbe omitted; such rows are never eligible for claim-based duplicate protection. New integrations\nshould always use the draft flow and always provide `source-type`.\n\nThe `enum` on `source-type` and the `pattern` on `source-month` below describe the draft-flow\ncontract only. The server does not enforce either for a legacy Payroll's rows, so a strict\nclient-side validator built from this schema may reject a legacy-flow value the server actually\naccepts. Legacy callers should not validate against this schema.\n",
+        "properties": {
+          "payroll-id": {
+            "type": "string",
+            "format": "ObjectId",
+            "description": "Parent Payroll ID."
+          },
+          "user-id": {
+            "type": "string",
+            "format": "ObjectId",
+            "description": "User to whom the result belongs."
+          },
+          "article-id": {
+            "type": "string",
+            "format": "ObjectId",
+            "description": "Salary article represented by the row."
+          },
+          "count": {
+            "type": "number",
+            "description": "Calculated quantity. Fractional values are supported.",
+            "example": 7.5
+          },
+          "date": {
+            "type": "string",
+            "format": "local-date",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+            "description": "Payroll date associated with the row."
+          },
+          "source-type": {
+            "type": "string",
+            "enum": [
+              "salary-report",
+              "monthly-salary",
+              "flexitime"
+            ],
+            "description": "Type of pay source claimed when the Payroll is finalized."
+          },
+          "report-ids": {
+            "type": "array",
+            "minItems": 1,
+            "description": "Required when `source-type` is `salary-report`.",
+            "items": {
+              "type": "string",
+              "format": "ObjectId"
+            }
+          },
+          "source-month": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}$",
+            "description": "Required when `source-type` is `monthly-salary`.",
+            "example": "2026-08"
+          },
+          "source-from": {
+            "type": "string",
+            "format": "local-date",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+            "description": "Required inclusive interval start when `source-type` is `flexitime`."
+          },
+          "source-to": {
+            "type": "string",
+            "format": "local-date",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+            "description": "Required inclusive interval end when `source-type` is `flexitime`."
+          },
+          "price": {
+            "type": "number",
+            "description": "Optional calculated unit price."
+          },
+          "currency": {
+            "type": "string",
+            "description": "Optional currency code used for the calculated value.",
+            "example": "SEK"
+          },
+          "duration": {
+            "type": "number",
+            "description": "Optional duration in milliseconds. For `flexitime` rows this is signed and matches the sign\nof `count`, so a negative value (the employee owes time) is valid and expected. For\n`salary-report` and `monthly-salary` rows a negative value is rejected — see\n`PAYROLL_ROW_INVALID_DURATION` above. Note the unit difference from\n`PayrollCalculationInputsResponse`'s `flexitime[].value`, which is in minutes — multiply\nthat value by 60000 to build this field.\n",
+            "example": -144000000
+          },
+          "export-data": {
+            "type": "object",
+            "description": "Integration-specific row data.",
+            "additionalProperties": true
+          }
+        },
+        "required": [
+          "payroll-id",
+          "user-id",
+          "article-id",
+          "count",
+          "date"
+        ]
+      },
+      "PayrollSourceConflict": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "description": "The response's own HTTP status code, repeated in the body.",
+            "example": 409
+          },
+          "error": {
+            "type": "string",
+            "enum": [
+              "PAYROLL_SOURCE_CONFLICT"
+            ]
+          },
+          "message": {
+            "type": "string",
+            "example": "Pay data is already included in an active Payroll."
+          },
+          "conflicts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PayrollSourceConflictDetail"
+            }
+          }
+        },
+        "required": [
+          "error",
+          "message",
+          "conflicts"
+        ]
+      },
+      "PayrollSourceConflictDetail": {
+        "type": "object",
+        "properties": {
+          "payroll-id": {
+            "type": "string",
+            "format": "ObjectId",
+            "description": "Active Payroll that already owns one or more sources."
+          },
+          "title": {
+            "type": "string"
+          },
+          "start-date": {
+            "type": "string",
+            "format": "local-date"
+          },
+          "end-date": {
+            "type": "string",
+            "format": "local-date"
+          },
+          "source-types": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "salary-report",
+                "monthly-salary",
+                "flexitime"
+              ]
+            }
+          },
+          "user-ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "ObjectId"
+            }
+          },
+          "report-count": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "payroll-id",
+          "source-types",
+          "user-ids",
+          "report-count"
+        ]
+      },
+      "PayrollStatusUpdate": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive"
+            ],
+            "description": "`inactive` voids the Payroll; `active` restores it."
+          }
+        },
+        "required": [
+          "status"
         ]
       },
       "PermissionsObject": {
