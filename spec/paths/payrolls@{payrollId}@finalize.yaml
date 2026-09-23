@@ -1,0 +1,43 @@
+post:
+  summary: Finalize a Payroll draft
+  description: |
+    Publishes a draft Payroll after all rows have been uploaded. Finalization requires at least
+    one row, derives ownership claims from every row's source metadata, rechecks those claims
+    against active Payrolls, and atomically stores the claims and marks the Payroll complete.
+
+    The operation is idempotent for an already completed Payroll. If it fails, the caller can
+    delete the still-draft parent to roll back the parent and all uploaded rows.
+  tags:
+    - Payrolls
+  parameters:
+    - name: payrollId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: ObjectId
+  responses:
+    200:
+      description: Completed Payroll.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Payroll"
+    400:
+      description: The draft has no rows or contains invalid source metadata.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/PayrollOperationError"
+    404:
+      description: Payroll not found.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/PayrollOperationError"
+    409:
+      description: The Payroll is not a draft, was concurrently finalized, or has source conflicts.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/PayrollOperationError"

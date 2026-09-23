@@ -1,0 +1,33 @@
+get:
+  summary: Fetch monthly salary calculation inputs
+  description: |
+    Legacy supporting endpoint for monthly salary inputs. New Payroll clients should normally use
+    `POST /payroll/calculation-inputs` with `include-monthly-salary: true`, which coordinates all
+    calculation sources and source-conflict checks in one request.
+  tags:
+    - Payrolls
+  parameters:
+    - name: from
+      in: query
+      description: First date, inclusive.
+      schema:
+        type: string
+        format: local-date
+        pattern: ^\d{4}-\d{2}-\d{2}$
+    - name: to
+      in: query
+      description: Last date, inclusive.
+      schema:
+        type: string
+        format: local-date
+        pattern: ^\d{4}-\d{2}-\d{2}$
+  responses:
+    200:
+      description: Monthly salary calculation rows.
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              type: object
+              additionalProperties: true

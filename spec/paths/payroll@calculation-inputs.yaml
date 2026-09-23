@@ -1,0 +1,40 @@
+post:
+  summary: Fetch Payroll calculation inputs
+  description: |
+    Returns the source data needed by the client-side Payroll calculation.
+
+    `approved` is the default and normal source for a Payroll that will be saved. It can include
+    monthly salary and Flexitime inputs and checks whether an active Payroll already owns any of
+    the selected pay sources. `reported` and `planned` are preview/export sources; they return
+    empty monthly salary and Flexitime arrays and do not perform the ownership conflict check.
+
+    Registry filters apply to report-like inputs for every time source. All date boundaries are
+    inclusive.
+  tags:
+    - Payrolls
+  requestBody:
+    description: Calculation interval, users, source state, and optional filters.
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: "#/components/schemas/PayrollCalculationInputsRequest"
+  responses:
+    200:
+      description: Calculation inputs grouped by source category.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/PayrollCalculationInputsResponse"
+    400:
+      description: Invalid date interval, identifier, filter, flag, or time source.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/PayrollOperationError"
+    409:
+      description: One or more approved pay sources already belong to an active Payroll.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/PayrollSourceConflict"

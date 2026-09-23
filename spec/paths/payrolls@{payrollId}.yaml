@@ -1,0 +1,102 @@
+get:
+  summary: Fetch a completed Payroll
+  description: Draft Payrolls are deliberately hidden and return 404.
+  tags:
+    - Payrolls
+  parameters:
+    - name: payrollId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: ObjectId
+  responses:
+    200:
+      description: Completed Payroll.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Payroll"
+    404:
+      description: Payroll not found or still a draft.
+put:
+  summary: Void or restore a completed Payroll
+  description: |
+    Set `status` to `inactive` to void the Payroll and release its active source claims. Set it to
+    `active` to restore the Payroll. Restore revalidates source ownership and returns 409 when a
+    source was claimed by another active Payroll while this Payroll was inactive.
+  tags:
+    - Payrolls
+  parameters:
+    - name: payrollId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: ObjectId
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: "#/components/schemas/PayrollStatusUpdate"
+  responses:
+    200:
+      description: Updated completed Payroll.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Payroll"
+    400:
+      description: Invalid status.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/PayrollOperationError"
+    404:
+      description: Payroll not found.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/PayrollOperationError"
+    409:
+      description: Drafts cannot change status, or restore found a source conflict.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/PayrollOperationError"
+delete:
+  summary: Delete a Payroll and its rows
+  description: |
+    Deletes a draft as a rollback, or permanently deletes a completed Payroll after it has been
+    voided. Payroll rows and source claims are deleted with the parent. `deleted-count` counts only
+    the parent Payroll, not cascaded rows.
+  tags:
+    - Payrolls
+  parameters:
+    - name: payrollId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: ObjectId
+  responses:
+    200:
+      description: Deletion result. A missing Payroll returns a count of zero.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              deleted-count:
+                type: integer
+                minimum: 0
+                maximum: 1
+            required:
+              - deleted-count
+    409:
+      description: The completed Payroll is active and must be voided first.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/PayrollOperationError"

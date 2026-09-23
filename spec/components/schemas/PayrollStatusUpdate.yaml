@@ -1,0 +1,8 @@
+type: object
+properties:
+  status:
+    type: string
+    enum: [active, inactive]
+    description: "`inactive` voids the Payroll; `active` restores it."
+required:
+  - status

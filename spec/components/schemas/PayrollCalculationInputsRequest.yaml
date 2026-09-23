@@ -1,0 +1,51 @@
+type: object
+properties:
+  from:
+    type: string
+    format: local-date
+    pattern: ^\d{4}-\d{2}-\d{2}$
+    description: First calculation date, inclusive.
+    example: "2026-08-01"
+  to:
+    type: string
+    format: local-date
+    pattern: ^\d{4}-\d{2}-\d{2}$
+    description: Last calculation date, inclusive.
+    example: "2026-08-31"
+  user-ids:
+    type: array
+    description: |
+      Users to calculate. Omission means all permitted users; an empty array means no users.
+    items:
+      type: string
+      format: ObjectId
+  approved-after:
+    type: number
+    format: timestamp
+    description: |
+      Include approved reports first approved after this millisecond timestamp. Used only for the
+      `approved` time source.
+  registry-filters:
+    type: array
+    items:
+      $ref: "#/components/schemas/PayrollCalculationRegistryFilter"
+  include-flexitime:
+    type: boolean
+    default: false
+    description: Include Flexitime balances. Effective only for the `approved` time source.
+  include-monthly-salary:
+    type: boolean
+    default: false
+    description: Include monthly salaries. Effective only for the `approved` time source.
+  time-source:
+    type: string
+    enum: [approved, reported, planned]
+    default: approved
+    description: |
+      `approved` returns approved time reports and is the normal source for a saved Payroll.
+      `reported` returns reported but not approved time. `planned` returns booked, published,
+      active shifts that have no linked time report. Reported and planned results are intended for
+      preview and export.
+required:
+  - from
+  - to
