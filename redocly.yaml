@@ -4,4 +4,3 @@ splitSpec: true
 codeSamples: true
 travis: true
 repo: TimeZynk/timezynk-api-spec
-redocURL: 'https://cdn.jsdelivr.net/npm/redoc@2.5.0/bundles/redoc.standalone.js'
